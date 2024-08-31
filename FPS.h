@@ -18,11 +18,11 @@ struct CUSTOMVERTEX
     D3DXVECTOR3 v3VerNormal;    // 정점의 수직 벡터
     D3DXVECTOR2 v2VerTex;       // 정점의 텍스처 좌표
 };
-enum POSITION_WITH_FRUSTUM
+enum class POSITION_WITH_FRUSTUM : WORD
 {
-    outside = 0,
-    inside = 1,
-    intersection = 2
+    outside,
+    inside,
+    intersection
 };
 
 const static D3DXVECTOR3 v3EyeCeiling(0.0f, 200.0f, 0.0f);
@@ -40,4 +40,5 @@ static D3DXVECTOR3 v3Up(0.0f, 1.0f, 0.0f);
 
 static CUSTOMVERTEX TileVertices[4 * NUM_OF_TILE * NUM_OF_TILE];
 
-// 만들어야 할? 객체: billboard(나무 혹은 악당 texture), 발사체(총알 같은?st)
+// 만들어야 할? 객체: billboard, 발사체(총알 같은?st)
+// 텍스처: 맵 외곽 경계 벽, 맵 바닥 타일, billboard(나무 혹은 악당), 총알 발사체는 그냥 쬐끄만 원형으로?

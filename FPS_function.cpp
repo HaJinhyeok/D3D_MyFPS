@@ -18,7 +18,8 @@ POSITION_WITH_FRUSTUM CheckFrustumCulling(D3DXPLANE* FrustumPlane, D3DXVECTOR3 p
             FrustumPlane[i].a * position.x + FrustumPlane[i].b * position.y +
             FrustumPlane[i].c * position.z + FrustumPlane[i].d;
         distance /= sqrtf(powf(FrustumPlane[i].a, 2.0f) + powf(FrustumPlane[i].b, 2.0f) + powf(FrustumPlane[i].c, 2.0f));
-        if (distance <= -radius) return outside;
+        if (distance < -radius) return POSITION_WITH_FRUSTUM::outside;
+        else if (distance >= -radius && distance <= radius) return POSITION_WITH_FRUSTUM::intersection;
     }
-    return inside;
+    return POSITION_WITH_FRUSTUM::inside;
 }

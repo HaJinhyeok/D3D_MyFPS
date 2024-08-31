@@ -154,7 +154,7 @@ VOID Render()
             // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
             for (j = 0; j < 4; j++)
             {
-                if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) == TRUE)
+                if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
                 {
                     g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
                     break;
