@@ -84,12 +84,61 @@ VOID InitGeometry()
 
 VOID CleanUp()
 {
-
+    if (g_pTileTexture != NULL)
+        g_pTileTexture->Release();
+    if (g_pTileVB != NULL)
+        g_pTileVB->Release();
+    if (g_pTileIB != NULL)
+        g_pTileIB->Release();
+    if (g_pd3dDevice != NULL)
+        g_pd3dDevice->Release();
+    if (g_pD3D != NULL)
+        g_pD3D->Release();
 }
 
 VOID __KeyProc()
 {
+    UpdateInput();
+    // wasd 또는 방향키 : 플레이어 앞뒤좌우 움직임
+    if (GetAsyncKeyState('a'))
+    {
 
+    }
+    if (GetAsyncKeyState('d'))
+    {
+
+    }
+    if (GetAsyncKeyState('w'))
+    {
+
+    }
+    if (GetAsyncKeyState('s'))
+    {
+
+    }
+    // qe : 플레이어 ccw cw 회전
+    // 점프?는 일단 제외
+    if (GetAsyncKeyState(VK_SPACE))
+    {
+
+    }
+    // 낮밤 변경
+    if (GetKeyDown('1') == TRUE)
+    {
+        char chTest[100];
+        wsprintf(chTest, "숫자 1 입력\n");
+        OutputDebugString(chTest);
+    }
+    // 카메라 시점 변경
+    if (GetKeyDown('2') == TRUE)
+    {
+
+    }
+    // 절두체 컬링
+    if (GetKeyDown('3') == TRUE)
+    {
+
+    }
 }
 
 VOID Render()
