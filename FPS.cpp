@@ -1,11 +1,14 @@
+
 #include "FPS_function.h"
 #include "Input.h"
+#include "CPlayer.h"
 
 LPDIRECT3D9 g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pTileVB = NULL;
 LPDIRECT3DINDEXBUFFER9 g_pTileIB = NULL;
 LPDIRECT3DTEXTURE9 g_pTileTexture = NULL;
+CPlayer player;
 
 HRESULT InitD3D(HWND hWnd)
 {
@@ -30,13 +33,13 @@ VOID InitGeometry()
     InitInput();
     int i, j;
 
-    D3DXCreateTextureFromFile(g_pd3dDevice, TILE_TEXTURE_NAME, &g_pTileTexture);
+    D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pTileTexture);
     // tile vertex 좌표 입력
     {
-        for (i = 0; i < NUM_OF_TILE * NUM_OF_TILE; i++)
+        for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
         {
-            FLOAT fCoX = (FLOAT)((i % NUM_OF_TILE) * LENGTH_OF_TILE) - NUM_OF_TILE * LENGTH_OF_TILE / 2.0f;
-            FLOAT fCoZ = (FLOAT)(-(i / NUM_OF_TILE) * LENGTH_OF_TILE) + NUM_OF_TILE * LENGTH_OF_TILE / 2.0f;
+            FLOAT fCoX = (FLOAT)((i % NUM_OF_COLUMN) * LENGTH_OF_TILE) - NUM_OF_COLUMN * LENGTH_OF_TILE / 2.0f;
+            FLOAT fCoZ = (FLOAT)(-(i / NUM_OF_ROW) * LENGTH_OF_TILE) + NUM_OF_ROW * LENGTH_OF_TILE / 2.0f;
             // D3DFVF_NORMAL
             for (j = 0; j < 4; j++)
             {
@@ -55,10 +58,10 @@ VOID InitGeometry()
             TileVertices[i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
         }
     }
-    WORD wTileIndices[2 * NUM_OF_TILE * NUM_OF_TILE][3];
+    // tile index 입력
     {
         j = 0;
-        for (i = 0; i < NUM_OF_TILE * NUM_OF_TILE; i++)
+        for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
         {
             wTileIndices[j][0] = i * 4;
             wTileIndices[j][1] = i * 4 + 1;
@@ -100,9 +103,28 @@ VOID __KeyProc()
 {
     UpdateInput();
     // wasd 또는 방향키 : 플레이어 앞뒤좌우 움직임
-    if (GetAsyncKeyState('a'))
-    {
+    D3DXVECTOR3 v3CurrentPosition = player.GetPosition();
+    D3DXVECTOR3 v3CurrentLookAt = player.GetLookAt();
+    D3DXMATRIX mtPlayerWorld = player.GetPlayerWorld();
+    D3DXMATRIX mtPlayerAxis = player.GetPlayerAxis();
 
+    D3DXVECTOR3 v3Axis;
+    
+    D3DXMATRIX mtTranslation;
+    FLOAT fCoefficient;
+    if (GetAsyncKeyState('A') & 0x8000)
+    {
+        v3Axis.x = -mtPlayerAxis._11;
+        v3Axis.y = -mtPlayerAxis._12;
+        v3Axis.z = -mtPlayerAxis._13;
+        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
+        v3CurrentPosition.x += v3Axis.x * fCoefficient;
+        v3CurrentPosition.y += v3Axis.y * fCoefficient;
+        v3CurrentPosition.z += v3Axis.z * fCoefficient;
+
+        D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
+        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
+        player.SetPlayerWorld(mtPlayerWorld);
     }
     if (GetAsyncKeyState('d'))
     {
@@ -160,11 +182,13 @@ VOID Render()
         g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
 
         D3DXMATRIX mtView;
-        D3DXMatrixLookAtLH(&mtView, &v3Eye, &v3LookAt, &v3Up);
+        D3DXVECTOR3 v3CurrentPosition = player.GetPosition();
+        D3DXVECTOR3 v3CurrentLookAt = player.GetLookAt();
+        D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
         g_pd3dDevice->SetTransform(D3DTS_VIEW, &mtView);
 
         D3DXMATRIX mtProjection;
-        D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 3, 1.0f, 0.0f, 1000.0f);
+        D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 0.0f, 1000.0f);
         g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &mtProjection);
 
         D3DXPLANE FrustumPlane[6];
@@ -198,7 +222,7 @@ VOID Render()
         //// tile culling
             // frustum plane과 사각형 단위로 비교한다
             // 네 꼭짓점 중 하나라도 inside이면 rendering한다.
-        for (i = 0; i < NUM_OF_TILE * NUM_OF_TILE; i++)
+        for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
         {
             // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
             for (j = 0; j < 4; j++)

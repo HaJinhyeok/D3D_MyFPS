@@ -16,6 +16,14 @@ public:
 	{
 		m_LookAt = look;
 	}
+	VOID SetPlayerWorld(D3DXMATRIX WorldMatrix)
+	{
+		m_PlayerWorld = WorldMatrix;
+	}
+	VOID SetPlayerAxis(D3DXMATRIX AxisMatrix)
+	{
+		m_PlayerAxis = AxisMatrix;
+	}
 	VOID SetFlashlight(BOOL flash)
 	{
 		m_Flashlight = flash;
@@ -28,6 +36,14 @@ public:
 	{
 		return m_LookAt;
 	}
+	D3DXMATRIX GetPlayerWorld()
+	{
+		return m_PlayerWorld;
+	}
+	D3DXMATRIX GetPlayerAxis()
+	{
+		return m_PlayerAxis;
+	}
 	BOOL GetFlashlight()
 	{
 		return m_Flashlight;
@@ -36,6 +52,8 @@ public:
 private:
 	D3DXVECTOR3 m_Position;
 	D3DXVECTOR3 m_LookAt;
+	D3DXMATRIX m_PlayerWorld; // (_41, _42, _43)¿Ã Position
+	D3DXMATRIX m_PlayerAxis; // x√‡ axis∞° LookAt vector
 	BOOL m_Flashlight;
 };
 
