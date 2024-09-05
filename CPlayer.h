@@ -52,7 +52,7 @@ public:
 private:
 	D3DXVECTOR3 m_Position;
 	D3DXVECTOR3 m_LookAt;
-	D3DXMATRIX m_PlayerWorld; // (_41, _42, _43)¿Ã Position
+	D3DXMATRIX m_PlayerWorld; 
 	D3DXMATRIX m_PlayerAxis; // x√‡ axis∞° LookAt vector
 	BOOL m_Flashlight;
 };

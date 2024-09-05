@@ -110,35 +110,128 @@ VOID __KeyProc()
 
     D3DXVECTOR3 v3Axis;
     
-    D3DXMATRIX mtTranslation;
+    D3DXMATRIX mtTranslation, mtRoatation;
     FLOAT fCoefficient;
-    if (GetAsyncKeyState('A') & 0x8000)
+    if (GetAsyncKeyState('A'))
     {
         v3Axis.x = -mtPlayerAxis._11;
         v3Axis.y = -mtPlayerAxis._12;
         v3Axis.z = -mtPlayerAxis._13;
         fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
+
         v3CurrentPosition.x += v3Axis.x * fCoefficient;
         v3CurrentPosition.y += v3Axis.y * fCoefficient;
         v3CurrentPosition.z += v3Axis.z * fCoefficient;
+        player.SetPosition(v3CurrentPosition);
+
+        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
+        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
+        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
+        player.SetLookAt(v3CurrentLookAt);
 
         D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
         D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
         player.SetPlayerWorld(mtPlayerWorld);
     }
-    if (GetAsyncKeyState('d'))
+    if (GetAsyncKeyState('D'))
     {
+        v3Axis.x = mtPlayerAxis._11;
+        v3Axis.y = mtPlayerAxis._12;
+        v3Axis.z = mtPlayerAxis._13;
+        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
 
+        v3CurrentPosition.x += v3Axis.x * fCoefficient;
+        v3CurrentPosition.y += v3Axis.y * fCoefficient;
+        v3CurrentPosition.z += v3Axis.z * fCoefficient;
+        player.SetPosition(v3CurrentPosition);
+
+        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
+        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
+        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
+        player.SetLookAt(v3CurrentLookAt);
+
+        D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
+        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
+        player.SetPlayerWorld(mtPlayerWorld);
     }
-    if (GetAsyncKeyState('w'))
+    if (GetAsyncKeyState('W'))
     {
+        v3Axis.x = mtPlayerAxis._31;
+        v3Axis.y = mtPlayerAxis._32;
+        v3Axis.z = mtPlayerAxis._33;
+        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
 
+        v3CurrentPosition.x += v3Axis.x * fCoefficient;
+        v3CurrentPosition.y += v3Axis.y * fCoefficient;
+        v3CurrentPosition.z += v3Axis.z * fCoefficient;
+        player.SetPosition(v3CurrentPosition);
+
+        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
+        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
+        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
+        player.SetLookAt(v3CurrentLookAt);
+
+        D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
+        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
+        player.SetPlayerWorld(mtPlayerWorld);
     }
-    if (GetAsyncKeyState('s'))
+    if (GetAsyncKeyState('S'))
     {
+        v3Axis.x = -mtPlayerAxis._31;
+        v3Axis.y = -mtPlayerAxis._32;
+        v3Axis.z = -mtPlayerAxis._33;
+        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
 
+        v3CurrentPosition.x += v3Axis.x * fCoefficient;
+        v3CurrentPosition.y += v3Axis.y * fCoefficient;
+        v3CurrentPosition.z += v3Axis.z * fCoefficient;
+        player.SetPosition(v3CurrentPosition);
+
+        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
+        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
+        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
+        player.SetLookAt(v3CurrentLookAt);
+
+        D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
+        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
+        player.SetPlayerWorld(mtPlayerWorld);
     }
-    // qe : 플레이어 ccw cw 회전
+    
+    // Q/E : 플레이어 CCW/CW 회전
+    if (GetAsyncKeyState('Q'))
+    {
+        D3DXMatrixRotationY(&mtRoatation, -ROTATION_AMOUNT);
+        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtRoatation);
+        player.SetPlayerWorld(mtPlayerWorld);
+        D3DXMatrixMultiply(&mtPlayerAxis, &mtPlayerAxis, &mtRoatation);
+        player.SetPlayerAxis(mtPlayerAxis);
+        // position은 그대로지만, look at은 회전해야함!
+        v3Axis.x = mtPlayerAxis._31;
+        v3Axis.y = mtPlayerAxis._32;
+        v3Axis.z = mtPlayerAxis._33;
+        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
+        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
+        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
+        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
+        player.SetLookAt(v3CurrentLookAt);
+    }
+    if (GetAsyncKeyState('E'))
+    {
+        D3DXMatrixRotationY(&mtRoatation, ROTATION_AMOUNT);
+        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtRoatation);
+        player.SetPlayerWorld(mtPlayerWorld);
+        D3DXMatrixMultiply(&mtPlayerAxis, &mtPlayerAxis, &mtRoatation);
+        player.SetPlayerAxis(mtPlayerAxis);
+        // position은 그대로지만, look at은 회전해야함!
+        v3Axis.x = mtPlayerAxis._31;
+        v3Axis.y = mtPlayerAxis._32;
+        v3Axis.z = mtPlayerAxis._33;
+        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
+        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
+        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
+        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
+        player.SetLookAt(v3CurrentLookAt);
+    }
     // 점프?는 일단 제외
     if (GetAsyncKeyState(VK_SPACE))
     {

@@ -31,7 +31,7 @@ enum class POSITION_WITH_FRUSTUM : WORD
 
 // 시점 변환 시 
 const static D3DXVECTOR3 v3EyeCeiling(0.0f, 200.0f, 0.0f);
-const static D3DXVECTOR3 v3EyeDefault(0.0f, 10.0f, 0.0f);
+const static D3DXVECTOR3 v3EyeDefault(0.0f, 5.0f, 0.0f);
 const static D3DXVECTOR3 v3UpCeiling(0.0f, 0.0f, 1.0f);
 const static D3DXVECTOR3 v3UpDefault(0.0f, 1.0f, 0.0f);
 
@@ -47,8 +47,7 @@ static D3DXVECTOR3 v3PlayerPosition(0.0f, 0.0f, 0.0f);
 static CUSTOMVERTEX TileVertices[4 * NUM_OF_ROW * NUM_OF_COLUMN];
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
-// 만들어야 할? 객체: billboard, 발사체(총알 같은?st)
-// 텍스처: 맵 외곽 경계 벽, 맵 바닥 타일, billboard(나무 혹은 악당), 총알 발사체는 그냥 쬐끄만 원형으로?
+// 현재 position, look at  숫자로 화면에 띄워서 확인해보기;;
 
 //// 미로 찾기 게임
 // 맵은 한 개, 많아야 두 개(만들기 번거로울 듯?)
