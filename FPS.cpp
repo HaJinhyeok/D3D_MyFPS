@@ -8,7 +8,10 @@ LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pTileVB = NULL;
 LPDIRECT3DINDEXBUFFER9 g_pTileIB = NULL;
 LPDIRECT3DTEXTURE9 g_pTileTexture = NULL;
+LPD3DXFONT g_pFont = NULL;
+
 CPlayer player;
+RECT rt;
 
 HRESULT InitD3D(HWND hWnd)
 {
@@ -87,6 +90,8 @@ VOID InitGeometry()
 
 VOID CleanUp()
 {
+    if (g_pFont != NULL)
+        g_pFont->Release();
     if (g_pTileTexture != NULL)
         g_pTileTexture->Release();
     if (g_pTileVB != NULL)
@@ -327,6 +332,14 @@ VOID Render()
                 }
             }
         }
+        //// Transformed Vertex
+        g_pd3dDevice->SetTexture(0, NULL);
+        g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
+        g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UIVertices, sizeof(UI_VERTEX));
+        
+        //// DrawText
+        SetRect(&rt, 20, 20, 0, 0);
+        
         g_pd3dDevice->EndScene();
     }    
     g_pd3dDevice->Present(NULL, NULL, NULL, NULL);

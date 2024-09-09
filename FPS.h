@@ -5,6 +5,7 @@
 
 
 #define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
+#define D3DFVF_UI_VERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 #define TILE_TEXTURE_NAME "tex_tile.bmp"
 #define TEXTURE_GRASS "tex_grass.jpg"
 #define TEXTURE_WALL "tex_wall.jpg"
@@ -22,11 +23,26 @@ struct CUSTOMVERTEX
     D3DXVECTOR3 v3VerNormal;    // 정점의 수직 벡터
     D3DXVECTOR2 v2VerTex;       // 정점의 텍스처 좌표
 };
+struct UI_VERTEX
+{
+    D3DXVECTOR3 v3VerPos;
+    FLOAT w;
+    D3DCOLOR VerColor;
+    D3DXVECTOR2 v2VerTex;
+};
 enum class POSITION_WITH_FRUSTUM : WORD
 {
     outside,
     inside,
     intersection
+};
+
+static UI_VERTEX UIVertices[4] =
+{
+    D3DXVECTOR3(10.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(150.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(150.0f, 150.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(10.0f, 150.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f)
 };
 
 // 시점 변환 시 
