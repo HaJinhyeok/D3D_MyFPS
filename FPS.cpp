@@ -12,6 +12,8 @@ LPD3DXFONT g_pFont = NULL;
 
 CPlayer player;
 RECT rt;
+char testSTR[255];
+wchar_t test2[255];
 
 HRESULT InitD3D(HWND hWnd)
 {
@@ -36,6 +38,7 @@ VOID InitGeometry()
     InitInput();
     int i, j;
 
+    D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pFont);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pTileTexture);
     // tile vertex 좌표 입력
     {
@@ -86,6 +89,14 @@ VOID InitGeometry()
     g_pTileIB->Lock(0, sizeof(wTileIndices), (void**)&pIndices2, 0);
     memcpy(pIndices2, wTileIndices, sizeof(wTileIndices));
     g_pTileIB->Unlock();
+
+    // wall vertex 좌표 입력
+    {
+        for (i = 0; i < NUM_OF_COLUMN - 2; i++)
+        {
+
+        }
+    }
 }
 
 VOID CleanUp()
@@ -115,7 +126,7 @@ VOID __KeyProc()
 
     D3DXVECTOR3 v3Axis;
     
-    D3DXMATRIX mtTranslation, mtRoatation;
+    D3DXMATRIX mtTranslation, mtRotation, tmpMatrix;
     FLOAT fCoefficient;
     if (GetAsyncKeyState('A'))
     {
@@ -205,60 +216,70 @@ VOID __KeyProc()
     // Q/E : 플레이어 CCW/CW 회전
     if (GetAsyncKeyState('Q'))
     {
-        D3DXMatrixRotationY(&mtRoatation, -ROTATION_AMOUNT);
-        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtRoatation);
+        D3DXMatrixRotationY(&mtRotation, -ROTATION_AMOUNT);
+        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtRotation);
         player.SetPlayerWorld(mtPlayerWorld);
-        D3DXMatrixMultiply(&mtPlayerAxis, &mtPlayerAxis, &mtRoatation);
+        D3DXMatrixMultiply(&mtPlayerAxis, &mtPlayerAxis, &mtRotation);
         player.SetPlayerAxis(mtPlayerAxis);
+
         // position은 그대로지만, look at은 회전해야함!
-        v3Axis.x = mtPlayerAxis._31;
-        v3Axis.y = mtPlayerAxis._32;
-        v3Axis.z = mtPlayerAxis._33;
-        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
-        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
-        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
-        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
+        D3DXMatrixIdentity(&tmpMatrix);
+        tmpMatrix._11 = v3CurrentLookAt.x - v3CurrentPosition.x;
+        tmpMatrix._12 = v3CurrentLookAt.y - v3CurrentPosition.y;
+        tmpMatrix._13 = v3CurrentLookAt.z - v3CurrentPosition.z;
+        D3DXMatrixMultiply(&tmpMatrix, &tmpMatrix, &mtRotation);
+        v3CurrentLookAt.x = tmpMatrix._11 + v3CurrentPosition.x;
+        v3CurrentLookAt.y = tmpMatrix._12 + v3CurrentPosition.y;
+        v3CurrentLookAt.z = tmpMatrix._13 + v3CurrentPosition.z;
         player.SetLookAt(v3CurrentLookAt);
     }
     if (GetAsyncKeyState('E'))
     {
-        D3DXMatrixRotationY(&mtRoatation, ROTATION_AMOUNT);
-        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtRoatation);
+        D3DXMatrixRotationY(&mtRotation, ROTATION_AMOUNT);
+        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtRotation);
         player.SetPlayerWorld(mtPlayerWorld);
-        D3DXMatrixMultiply(&mtPlayerAxis, &mtPlayerAxis, &mtRoatation);
+        D3DXMatrixMultiply(&mtPlayerAxis, &mtPlayerAxis, &mtRotation);
         player.SetPlayerAxis(mtPlayerAxis);
         // position은 그대로지만, look at은 회전해야함!
-        v3Axis.x = mtPlayerAxis._31;
-        v3Axis.y = mtPlayerAxis._32;
-        v3Axis.z = mtPlayerAxis._33;
-        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
-        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
-        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
-        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
+        D3DXMatrixIdentity(&tmpMatrix);
+        tmpMatrix._11 = v3CurrentLookAt.x - v3CurrentPosition.x;
+        tmpMatrix._12 = v3CurrentLookAt.y - v3CurrentPosition.y;
+        tmpMatrix._13 = v3CurrentLookAt.z - v3CurrentPosition.z;
+        D3DXMatrixMultiply(&tmpMatrix, &tmpMatrix, &mtRotation);
+        v3CurrentLookAt.x = tmpMatrix._11 + v3CurrentPosition.x;
+        v3CurrentLookAt.y = tmpMatrix._12 + v3CurrentPosition.y;
+        v3CurrentLookAt.z = tmpMatrix._13 + v3CurrentPosition.z;
         player.SetLookAt(v3CurrentLookAt);
     }
-    // 점프?는 일단 제외
-    if (GetAsyncKeyState(VK_SPACE))
+    //// 추후 생각해서 추가해볼 기능
     {
+        // 점프?는 일단 제외
+        if (GetAsyncKeyState(VK_SPACE))
+        {
 
-    }
-    // 낮밤 변경
-    if (GetKeyDown('1') == TRUE)
-    {
-        char chTest[100];
-        wsprintf(chTest, "숫자 1 입력\n");
-        OutputDebugString(chTest);
-    }
-    // 카메라 시점 변경
-    if (GetKeyDown('2') == TRUE)
-    {
+        }
+        // 낮밤 변경
+        if (GetKeyDown('1') == TRUE)
+        {
+            char chTest[100];
+            wsprintf(chTest, "숫자 1 입력\n");
+            OutputDebugString(chTest);
+        }
+        // 카메라 시점 변경
+        if (GetKeyDown('2') == TRUE)
+        {
+            if (bIsSkyView == FALSE)
+                bIsSkyView = TRUE;
+            else
+                bIsSkyView = FALSE;
+        }
+        // 절두체 컬링
+        if (GetKeyDown('3') == TRUE)
+        {
 
+        }
     }
-    // 절두체 컬링
-    if (GetKeyDown('3') == TRUE)
-    {
-
-    }
+    
 }
 
 VOID Render()
@@ -282,8 +303,18 @@ VOID Render()
         D3DXMATRIX mtView;
         D3DXVECTOR3 v3CurrentPosition = player.GetPosition();
         D3DXVECTOR3 v3CurrentLookAt = player.GetLookAt();
-        D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
-        g_pd3dDevice->SetTransform(D3DTS_VIEW, &mtView);
+        // 1인칭 시점
+        if (bIsSkyView == FALSE)
+        {
+            D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
+            g_pd3dDevice->SetTransform(D3DTS_VIEW, &mtView);
+        }
+        // 전지적 시점
+        else
+        {
+            D3DXMatrixLookAtLH(&mtView, &v3EyeCeiling, &v3DefaultPosition, &v3UpCeiling);
+            g_pd3dDevice->SetTransform(D3DTS_VIEW, &mtView);
+        }
 
         D3DXMATRIX mtProjection;
         D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 0.0f, 1000.0f);
@@ -306,7 +337,7 @@ VOID Render()
         if (bIsSkyView == TRUE)
         {
             D3DXMATRIX mtViewTMP;
-            D3DXMatrixLookAtLH(&mtViewTMP, &v3EyeDefault, &v3CurrentLookAt, &v3UpDefault);
+            D3DXMatrixLookAtLH(&mtViewTMP, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
             D3DXMatrixMultiply(&mtViewProjection, &mtViewTMP, &mtProjection);
         }
         else
@@ -339,7 +370,9 @@ VOID Render()
         
         //// DrawText
         SetRect(&rt, 20, 20, 0, 0);
-        
+        swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
+        wsprintf(testSTR, "%ws", test2);
+        g_pFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
         g_pd3dDevice->EndScene();
     }    
     g_pd3dDevice->Present(NULL, NULL, NULL, NULL);

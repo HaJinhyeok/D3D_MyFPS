@@ -4,6 +4,13 @@
 
 class CPlayer
 {
+private:
+	D3DXVECTOR3 m_Position;
+	D3DXVECTOR3 m_LookAt;
+	D3DXMATRIX m_PlayerWorld;
+	D3DXMATRIX m_PlayerAxis; // x축 axis가 LookAt vector
+	BOOL m_Flashlight;
+
 public:
 	CPlayer();
 	~CPlayer();
@@ -48,12 +55,5 @@ public:
 	{
 		return m_Flashlight;
 	}
-
-private:
-	D3DXVECTOR3 m_Position;
-	D3DXVECTOR3 m_LookAt;
-	D3DXMATRIX m_PlayerWorld; 
-	D3DXMATRIX m_PlayerAxis; // x축 axis가 LookAt vector
-	BOOL m_Flashlight;
 };
 
