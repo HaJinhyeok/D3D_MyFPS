@@ -65,7 +65,8 @@ static D3DXVECTOR3 v3Up(0.0f, 1.0f, 0.0f);
 static D3DXVECTOR3 v3DefaultPosition(0.0f, 0.0f, 0.0f);
 
 static CUSTOMVERTEX TileVertices[4 * NUM_OF_ROW * NUM_OF_COLUMN];
-static CUSTOMVERTEX WallVertices[4 * (2 * (NUM_OF_ROW + NUM_OF_COLUMN) - 8)];
+static CUSTOMVERTEX WallVertices[4][4 * NUM_OF_ROW];
+static CUSTOMVERTEX WallVertices2[4][4 * NUM_OF_ROW];
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
 

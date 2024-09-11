@@ -7,8 +7,12 @@ LPDIRECT3D9 g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pTileVB = NULL;
 LPDIRECT3DINDEXBUFFER9 g_pTileIB = NULL;
+LPDIRECT3DVERTEXBUFFER9 g_pWallVB = NULL;
+LPDIRECT3DVERTEXBUFFER9 g_pWallVB2 = NULL;
 LPDIRECT3DTEXTURE9 g_pTileTexture = NULL;
+LPDIRECT3DTEXTURE9 g_pWallTexture = NULL;
 LPD3DXFONT g_pFont = NULL;
+LPD3DXMESH g_pSphere = NULL;
 
 CPlayer player;
 RECT rt;
@@ -37,15 +41,16 @@ VOID InitGeometry()
 {
     InitInput();
     int i, j;
-
+    D3DXCreateSphere(g_pd3dDevice, 1.0f, 10, 10, &g_pSphere, 0);
     D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pFont);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pTileTexture);
+    D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
     // tile vertex 좌표 입력
     {
         for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
         {
-            FLOAT fCoX = (FLOAT)((i % NUM_OF_COLUMN) * LENGTH_OF_TILE) - NUM_OF_COLUMN * LENGTH_OF_TILE / 2.0f;
-            FLOAT fCoZ = (FLOAT)(-(i / NUM_OF_ROW) * LENGTH_OF_TILE) + NUM_OF_ROW * LENGTH_OF_TILE / 2.0f;
+            FLOAT fCoX = (FLOAT)((i % NUM_OF_COLUMN - NUM_OF_COLUMN / 2.0f) * LENGTH_OF_TILE);
+            FLOAT fCoZ = (FLOAT)((NUM_OF_ROW / 2.0f - i / NUM_OF_COLUMN) * LENGTH_OF_TILE);
             // D3DFVF_NORMAL
             for (j = 0; j < 4; j++)
             {
@@ -90,25 +95,173 @@ VOID InitGeometry()
     memcpy(pIndices2, wTileIndices, sizeof(wTileIndices));
     g_pTileIB->Unlock();
 
-    // wall vertex 좌표 입력
+    //// wall vertex 좌표 입력
     {
-        for (i = 0; i < NUM_OF_COLUMN - 2; i++)
+        // 위쪽 면
+        for (i = 0; i < NUM_OF_ROW; i++)
         {
+            for (j = 0; j < 4; j++)
+                WallVertices[0][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
+            WallVertices[0][i * 4].v3VerPos = D3DXVECTOR3((i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices[0][i * 4 + 1].v3VerPos = D3DXVECTOR3((i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices[0][i * 4 + 2].v3VerPos = D3DXVECTOR3((i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 0.0f, (NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices[0][i * 4 + 3].v3VerPos = D3DXVECTOR3((i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 0.0f, (NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+
+            WallVertices[0][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+            WallVertices[0][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+            WallVertices[0][i * 4 + 2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
+            WallVertices[0][i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
         }
+        // 아래쪽 면
+        for (i = 0; i < NUM_OF_ROW; i++)
+        {
+            for (j = 0; j < 4; j++)
+                WallVertices[1][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+
+            WallVertices[1][i * 4].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices[1][i * 4 + 1].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices[1][i * 4 + 2].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE, 0.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices[1][i * 4 + 3].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE, 0.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+
+            WallVertices[1][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+            WallVertices[1][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+            WallVertices[1][i * 4 + 2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
+            WallVertices[1][i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+        }
+        // 왼쪽 면
+        for (i = 0; i < NUM_OF_ROW; i++)
+        {
+            for (j = 0; j < 4; j++)
+				WallVertices[2][i * 4 + j].v3VerNormal = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+
+			WallVertices[2][i * 4].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 10.0f, (i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+			WallVertices[2][i * 4 + 1].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 10.0f, (i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+			WallVertices[2][i * 4 + 2].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 0.0f, (i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+			WallVertices[2][i * 4 + 3].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 0.0f, (i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+
+			WallVertices[2][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+			WallVertices[2][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+			WallVertices[2][i * 4 + 2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
+			WallVertices[2][i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+		}
+		// 오른쪽 면
+		for (i = 0; i < NUM_OF_ROW; i++)
+		{
+			for (j = 0; j < 4; j++)
+				WallVertices[3][i * 4 + j].v3VerNormal = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+
+			WallVertices[3][i * 4].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE);
+			WallVertices[3][i * 4 + 1].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE);
+			WallVertices[3][i * 4 + 2].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 0.0f, (NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE);
+			WallVertices[3][i * 4 + 3].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 0.0f, (NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE);
+
+            WallVertices[3][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+            WallVertices[3][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+            WallVertices[3][i * 4 + 2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
+            WallVertices[3][i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+        }
+        // Create wall vertex buffer
+        g_pd3dDevice->CreateVertexBuffer(sizeof(WallVertices), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pWallVB, NULL);
+        VOID* pWallVertices;
+        g_pWallVB->Lock(0, sizeof(WallVertices), (void**)&pWallVertices, 0);
+        memcpy(pWallVertices, WallVertices, sizeof(WallVertices));
+        g_pWallVB->Unlock();
+    }
+
+    //// wall vertex 2 좌표 입력
+    {
+        // 위쪽 면
+        for (i = 0; i < NUM_OF_ROW; i++)
+        {
+            for (j = 0; j < 4; j++)
+                WallVertices[0][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+
+            WallVertices2[0][i * 4].v3VerPos = D3DXVECTOR3((i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f+1) * LENGTH_OF_TILE);
+            WallVertices2[0][i * 4 + 1].v3VerPos = D3DXVECTOR3((i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f+1) * LENGTH_OF_TILE);
+            WallVertices2[0][i * 4 + 2].v3VerPos = D3DXVECTOR3((i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[0][i * 4 + 3].v3VerPos = D3DXVECTOR3((i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+
+            WallVertices2[0][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+            WallVertices2[0][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+            WallVertices2[0][i * 4 + 2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
+            WallVertices2[0][i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+        }
+        // 아래쪽 면
+        for (i = 0; i < NUM_OF_ROW; i++)
+        {
+            for (j = 0; j < 4; j++)
+                WallVertices[1][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+
+            WallVertices2[1][i * 4].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[1][i * 4 + 1].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[1][i * 4 + 2].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE, 0.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[1][i * 4 + 3].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE, 0.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+
+            WallVertices2[1][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+            WallVertices2[1][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+            WallVertices2[1][i * 4 + 2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
+            WallVertices2[1][i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+        }
+        // 왼쪽 면
+        for (i = 0; i < NUM_OF_ROW; i++)
+        {
+            for (j = 0; j < 4; j++)
+                WallVertices[2][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+
+            WallVertices2[2][i * 4].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 10.0f, (i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[2][i * 4 + 1].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 10.0f, (i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[2][i * 4 + 2].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 0.0f, (i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[2][i * 4 + 3].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 0.0f, (i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+
+            WallVertices2[2][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+            WallVertices2[2][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+            WallVertices2[2][i * 4 + 2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
+            WallVertices2[2][i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+        }
+        // 오른쪽 면
+        for (i = 0; i < NUM_OF_ROW; i++)
+        {
+            for (j = 0; j < 4; j++)
+                WallVertices[3][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+
+            WallVertices2[3][i * 4].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE);
+            WallVertices2[3][i * 4 + 1].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE);
+            WallVertices2[3][i * 4 + 2].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 0.0f, (NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE);
+            WallVertices2[3][i * 4 + 3].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 0.0f, (NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE);
+
+            WallVertices2[3][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+            WallVertices2[3][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+            WallVertices2[3][i * 4 + 2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
+            WallVertices2[3][i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+        }
+        // Create wall vertex buffer
+        g_pd3dDevice->CreateVertexBuffer(sizeof(WallVertices2), 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pWallVB2, NULL);
+        VOID* pWallVertices2;
+        g_pWallVB2->Lock(0, sizeof(WallVertices2), (void**)&pWallVertices2, 0);
+        memcpy(pWallVertices2, WallVertices2, sizeof(WallVertices2));
+        g_pWallVB2->Unlock();
     }
 }
 
 VOID CleanUp()
 {
+    if (g_pSphere != NULL)
+        g_pSphere->Release();
     if (g_pFont != NULL)
         g_pFont->Release();
+    if (g_pWallTexture != NULL)
+        g_pWallTexture->Release();
     if (g_pTileTexture != NULL)
         g_pTileTexture->Release();
-    if (g_pTileVB != NULL)
-        g_pTileVB->Release();
+    if (g_pWallVB2 != NULL)
+        g_pWallVB2->Release();
+    if (g_pWallVB != NULL)
+        g_pWallVB->Release();
     if (g_pTileIB != NULL)
         g_pTileIB->Release();
+    if (g_pTileVB != NULL)
+        g_pTileVB->Release();
     if (g_pd3dDevice != NULL)
         g_pd3dDevice->Release();
     if (g_pD3D != NULL)
@@ -294,10 +447,6 @@ VOID Render()
         int i, j;
         D3DXMATRIX mtWorld;
         D3DXMatrixIdentity(&mtWorld);
-        g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
-        g_pd3dDevice->SetTexture(0, g_pTileTexture);
-        g_pd3dDevice->SetStreamSource(0, g_pTileVB, 0, sizeof(CUSTOMVERTEX));
-        g_pd3dDevice->SetIndices(g_pTileIB);
         g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
 
         D3DXMATRIX mtView;
@@ -348,31 +497,59 @@ VOID Render()
         D3DXMatrixTranspose(&mtViewProjection, &mtViewProjection);
         D3DXPlaneTransformArray(FrustumPlane, sizeof(D3DXPLANE), FrustumPlane, sizeof(D3DXPLANE), &mtViewProjection, 6);
 
-        //// tile culling
-            // frustum plane과 사각형 단위로 비교한다
-            // 네 꼭짓점 중 하나라도 inside이면 rendering한다.
+        g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
+        g_pd3dDevice->SetTexture(0, g_pTileTexture);
+        g_pd3dDevice->SetStreamSource(0, g_pTileVB, 0, sizeof(CUSTOMVERTEX));
+        g_pd3dDevice->SetIndices(g_pTileIB);
+        //// tile rendering
+        // frustum plane과 사각형 단위로 비교한다
+        // 네 꼭짓점 중 하나라도 inside이면 rendering한다.
         for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
         {
+            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
             // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
-            for (j = 0; j < 4; j++)
+            /*for (j = 0; j < 4; j++)
             {
                 if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
                 {
                     g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
                     break;
                 }
-            }
+            }*/
         }
-        //// Transformed Vertex
+        //// wall rendering
+        g_pd3dDevice->SetTexture(0, g_pWallTexture);
+        g_pd3dDevice->SetStreamSource(0, g_pWallVB, 0, sizeof(CUSTOMVERTEX));
+        //// wall culling도 추후 필요
+        for (i = 0; i < NUM_OF_ROW * 4; i++)
+        {
+            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+        }
+        g_pd3dDevice->SetStreamSource(0, g_pWallVB2, 0, sizeof(CUSTOMVERTEX));
+        for (i = 0; i < NUM_OF_ROW; i++)
+        {
+            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+        }
+
+        // 중앙 표시용 임시 구체
         g_pd3dDevice->SetTexture(0, NULL);
-        g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
-        g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UIVertices, sizeof(UI_VERTEX));
+        g_pSphere->DrawSubset(0);
+
+        //// 좌상단 UI
+        if(FALSE)
+        {
+            //// Transformed Vertex
+            g_pd3dDevice->SetTexture(0, NULL);
+            g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
+            g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UIVertices, sizeof(UI_VERTEX));
+
+            //// DrawText
+            SetRect(&rt, 20, 20, 0, 0);
+            swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
+            wsprintf(testSTR, "%ws", test2);
+            g_pFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+        }
         
-        //// DrawText
-        SetRect(&rt, 20, 20, 0, 0);
-        swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
-        wsprintf(testSTR, "%ws", test2);
-        g_pFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
         g_pd3dDevice->EndScene();
     }    
     g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
