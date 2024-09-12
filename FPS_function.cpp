@@ -23,3 +23,19 @@ POSITION_WITH_FRUSTUM CheckFrustumCulling(D3DXPLANE* FrustumPlane, D3DXVECTOR3 p
     }
     return POSITION_WITH_FRUSTUM::inside;
 }
+
+// 몇 번째 맵을 만들건지 주어지면, (맵 외곽을 제외한) 맵 내부를 구성하는 벽들의 vertex 좌표를 생성하고 그 list를 return한다
+// 일단 맵은 하나만...
+// 맵 내부 구조를 ' '과 '*'로 이루어진 문자열로 표현하고, 이 문자열을 받으면 내부 vertex를 생성할 수 있게 만들면 베스트일듯...
+// 벽멱을 전부 vertex 정보로 저장할지, 아니면 한 칸 한 칸의 블록형태로 만들지 미지수
+CUSTOMVERTEX* MakeLabyrinth(int nMapNumber)
+{
+    if (nMapNumber == 1)
+    {
+        CUSTOMVERTEX* Labyrinth = new CUSTOMVERTEX[72 * 4];
+
+        return Labyrinth;
+    }
+    else
+        return NULL;
+}

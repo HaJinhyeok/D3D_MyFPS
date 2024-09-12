@@ -43,7 +43,7 @@ VOID InitGeometry()
     int i, j;
     D3DXCreateSphere(g_pd3dDevice, 1.0f, 10, 10, &g_pSphere, 0);
     D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pFont);
-    D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pTileTexture);
+    D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
     // tile vertex 좌표 입력
     {
@@ -177,7 +177,7 @@ VOID InitGeometry()
             for (j = 0; j < 4; j++)
                 WallVertices[0][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 
-            WallVertices2[0][i * 4].v3VerPos = D3DXVECTOR3((i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f+1) * LENGTH_OF_TILE);
+            WallVertices2[0][i * 4].v3VerPos = D3DXVECTOR3((i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE);
             WallVertices2[0][i * 4 + 1].v3VerPos = D3DXVECTOR3((i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f+1) * LENGTH_OF_TILE);
             WallVertices2[0][i * 4 + 2].v3VerPos = D3DXVECTOR3((i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
             WallVertices2[0][i * 4 + 3].v3VerPos = D3DXVECTOR3((i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
@@ -193,10 +193,10 @@ VOID InitGeometry()
             for (j = 0; j < 4; j++)
                 WallVertices[1][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 
-            WallVertices2[1][i * 4].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
-            WallVertices2[1][i * 4 + 1].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
-            WallVertices2[1][i * 4 + 2].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE, 0.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
-            WallVertices2[1][i * 4 + 3].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE, 0.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[1][i * 4].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f-1) * LENGTH_OF_TILE);
+            WallVertices2[1][i * 4 + 1].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f-1) * LENGTH_OF_TILE);
+            WallVertices2[1][i * 4 + 2].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[1][i * 4 + 3].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE, 10.0f, (-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
 
             WallVertices2[1][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
             WallVertices2[1][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
@@ -209,10 +209,10 @@ VOID InitGeometry()
             for (j = 0; j < 4; j++)
                 WallVertices[2][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 
-            WallVertices2[2][i * 4].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 10.0f, (i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
-            WallVertices2[2][i * 4 + 1].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 10.0f, (i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
-            WallVertices2[2][i * 4 + 2].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 0.0f, (i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
-            WallVertices2[2][i * 4 + 3].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 0.0f, (i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[2][i * 4].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[2][i * 4 + 1].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[2][i * 4 + 2].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 10.0f, (i + 1 - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
+            WallVertices2[2][i * 4 + 3].v3VerPos = D3DXVECTOR3((-NUM_OF_ROW / 2.0f + 1) * LENGTH_OF_TILE, 10.0f, (i - NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE);
 
             WallVertices2[2][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
             WallVertices2[2][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
@@ -225,10 +225,10 @@ VOID InitGeometry()
             for (j = 0; j < 4; j++)
                 WallVertices[3][i * 4 + j].v3VerNormal = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 
-            WallVertices2[3][i * 4].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE);
-            WallVertices2[3][i * 4 + 1].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE);
-            WallVertices2[3][i * 4 + 2].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 0.0f, (NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE);
-            WallVertices2[3][i * 4 + 3].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 0.0f, (NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE);
+            WallVertices2[3][i * 4].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE);
+            WallVertices2[3][i * 4 + 1].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE);
+            WallVertices2[3][i * 4 + 2].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i - 1) * LENGTH_OF_TILE);
+            WallVertices2[3][i * 4 + 3].v3VerPos = D3DXVECTOR3((NUM_OF_ROW / 2.0f - 1) * LENGTH_OF_TILE, 10.0f, (NUM_OF_ROW / 2.0f - i) * LENGTH_OF_TILE);
 
             WallVertices2[3][i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
             WallVertices2[3][i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
@@ -281,7 +281,7 @@ VOID __KeyProc()
     
     D3DXMATRIX mtTranslation, mtRotation, tmpMatrix;
     FLOAT fCoefficient;
-    if (GetAsyncKeyState('A'))
+    if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
     {
         v3Axis.x = -mtPlayerAxis._11;
         v3Axis.y = -mtPlayerAxis._12;
@@ -302,7 +302,7 @@ VOID __KeyProc()
         D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
         player.SetPlayerWorld(mtPlayerWorld);
     }
-    if (GetAsyncKeyState('D'))
+    if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
     {
         v3Axis.x = mtPlayerAxis._11;
         v3Axis.y = mtPlayerAxis._12;
@@ -323,7 +323,7 @@ VOID __KeyProc()
         D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
         player.SetPlayerWorld(mtPlayerWorld);
     }
-    if (GetAsyncKeyState('W'))
+    if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP))
     {
         v3Axis.x = mtPlayerAxis._31;
         v3Axis.y = mtPlayerAxis._32;
@@ -344,7 +344,7 @@ VOID __KeyProc()
         D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
         player.SetPlayerWorld(mtPlayerWorld);
     }
-    if (GetAsyncKeyState('S'))
+    if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN))
     {
         v3Axis.x = -mtPlayerAxis._31;
         v3Axis.y = -mtPlayerAxis._32;
@@ -506,16 +506,16 @@ VOID Render()
         // 네 꼭짓점 중 하나라도 inside이면 rendering한다.
         for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
         {
-            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+            // g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
             // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
-            /*for (j = 0; j < 4; j++)
+            for (j = 0; j < 4; j++)
             {
                 if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
                 {
                     g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
                     break;
                 }
-            }*/
+            }
         }
         //// wall rendering
         g_pd3dDevice->SetTexture(0, g_pWallTexture);
@@ -526,14 +526,21 @@ VOID Render()
             g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
         }
         g_pd3dDevice->SetStreamSource(0, g_pWallVB2, 0, sizeof(CUSTOMVERTEX));
-        for (i = 0; i < NUM_OF_ROW; i++)
+        for (i = 0; i < NUM_OF_ROW * 4; i++)
         {
             g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
         }
 
-        // 중앙 표시용 임시 구체
+        // 위치 표시용 구체
+        D3DXMATRIX tmpTranspose;
+        D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
+        D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
+        g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
         g_pd3dDevice->SetTexture(0, NULL);
         g_pSphere->DrawSubset(0);
+        // world matrix 다시 제자리로 돌려주기(필요없음)
+        // D3DXMatrixIdentity(&mtWorld);
+        // g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
 
         //// 좌상단 UI
         if(FALSE)

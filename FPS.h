@@ -7,7 +7,7 @@
 
 #define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
 #define D3DFVF_UI_VERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)
-#define TILE_TEXTURE_NAME "tex_tile.bmp"
+#define TEXTURE_TILE "tex_tile.bmp"
 #define TEXTURE_GRASS "tex_grass.jpg"
 #define TEXTURE_WALL "tex_wall.jpg"
 #define TRANSLATION_DISTANCE 0.3f
@@ -67,8 +67,10 @@ static D3DXVECTOR3 v3DefaultPosition(0.0f, 0.0f, 0.0f);
 static CUSTOMVERTEX TileVertices[4 * NUM_OF_ROW * NUM_OF_COLUMN];
 static CUSTOMVERTEX WallVertices[4][4 * NUM_OF_ROW];
 static CUSTOMVERTEX WallVertices2[4][4 * NUM_OF_ROW];
+static CUSTOMVERTEX* LabyrinthWallVertices;
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
+// tile culling 수정: 정사각형 중심으로부터 거리가 변의 길이의 절반 이하(d <= LENGTH_OF_TILE / 2) culling 해주어야 함.
 
 //// 미로 찾기 게임
 // 맵은 한 개, 많아야 두 개(만들기 번거로울 듯?)
