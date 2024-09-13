@@ -18,6 +18,8 @@ CPlayer player;
 RECT rt;
 char testSTR[255];
 wchar_t test2[255];
+CUSTOMVERTEX* tmpBlock;
+LPDIRECT3DVERTEXBUFFER9 g_pTmpBlockVB = NULL;
 
 HRESULT InitD3D(HWND hWnd)
 {
@@ -45,6 +47,15 @@ VOID InitGeometry()
     D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pFont);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
+
+    tmpBlock = MakeWallBlock(D3DXVECTOR3(25.0f, 5.0f, 25.0f));
+    g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pTmpBlockVB, NULL);
+    VOID** tmpVertices;
+    g_pTmpBlockVB->Lock(0, sizeof(CUSTOMVERTEX) * 20, (void**)&tmpVertices, 0);
+    memcpy(tmpVertices, tmpBlock, sizeof(CUSTOMVERTEX) * 20);
+    g_pTmpBlockVB->Unlock();
+
+
     // tile vertex ÁÂÇ¥ ÀÔ·Â
     {
         for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
@@ -246,6 +257,10 @@ VOID InitGeometry()
 
 VOID CleanUp()
 {
+    if (tmpBlock != NULL)
+        delete tmpBlock;
+    if (g_pTmpBlockVB != NULL)
+        g_pTmpBlockVB->Release();
     if (g_pSphere != NULL)
         g_pSphere->Release();
     if (g_pFont != NULL)
@@ -527,6 +542,11 @@ VOID Render()
         }
         g_pd3dDevice->SetStreamSource(0, g_pWallVB2, 0, sizeof(CUSTOMVERTEX));
         for (i = 0; i < NUM_OF_ROW * 4; i++)
+        {
+            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+        }
+        g_pd3dDevice->SetStreamSource(0, g_pTmpBlockVB, 0, sizeof(CUSTOMVERTEX));
+        for (i = 0; i < 5; i++)
         {
             g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
         }

@@ -28,14 +28,73 @@ POSITION_WITH_FRUSTUM CheckFrustumCulling(D3DXPLANE* FrustumPlane, D3DXVECTOR3 p
 // 일단 맵은 하나만...
 // 맵 내부 구조를 ' '과 '*'로 이루어진 문자열로 표현하고, 이 문자열을 받으면 내부 vertex를 생성할 수 있게 만들면 베스트일듯...
 // 벽멱을 전부 vertex 정보로 저장할지, 아니면 한 칸 한 칸의 블록형태로 만들지 미지수
-CUSTOMVERTEX* MakeLabyrinth(int nMapNumber)
+CUSTOMVERTEX(*MakeLabyrinth(int nMapNumber))[20]
 {
+    int i,j;
+    // 그냥 LabyrinthWallVertices랑 MapNumber를 받아와서 동적 할당 때려버릴까
     if (nMapNumber == 1)
     {
-        CUSTOMVERTEX* Labyrinth = new CUSTOMVERTEX[72 * 4];
+        CUSTOMVERTEX** Labyrinth = new CUSTOMVERTEX*[72];
+        for (i = 0; i < 20; i++)
+        {
+            Labyrinth[i] = new CUSTOMVERTEX[20];
+        }
 
-        return Labyrinth;
+        return (*Labyrinth)[20];
     }
     else
         return NULL;
+}
+
+CUSTOMVERTEX* MakeWallBlock(D3DXVECTOR3 position)
+{
+    int i, j;
+    CUSTOMVERTEX* Block = new CUSTOMVERTEX[20];
+    // 밑면을 제외한 5개 면의 vertex만 생성해주자
+    for (i = 0; i < 20; i++)
+    {
+        if (i % 4 == 0)
+            Block[i].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+        else if (i % 4 == 1)
+            Block[i].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+        else if (i % 4 == 2)
+            Block[i].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
+        else
+            Block[i].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+
+        if (i / 4 == 0)
+            Block[i].v3VerNormal = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+        else if (i / 4 == 1)
+            Block[i].v3VerNormal = D3DXVECTOR3(1.0f, 0.0f, 0.0f);
+        else if (i / 4 == 2)
+            Block[i].v3VerNormal = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
+        else
+            Block[i].v3VerNormal = D3DXVECTOR3(-1.0f, 0.0f, 0.0f);
+    }
+    Block[0].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    Block[1].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    Block[2].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y - LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    Block[3].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y - LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    
+    Block[4].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    Block[5].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    Block[6].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y - LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    Block[7].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y - LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    
+    Block[8].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    Block[9].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    Block[10].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y - LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    Block[11].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y - LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    
+    Block[12].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    Block[13].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    Block[14].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y - LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    Block[15].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y - LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    
+    Block[16].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    Block[17].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z + LENGTH_OF_TILE / 2);
+    Block[18].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    Block[19].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
+    
+    return Block;
 }

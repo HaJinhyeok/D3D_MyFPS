@@ -15,7 +15,7 @@
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
 #define NUM_OF_ROW 14    // 즉, 세로 길이
-#define LENGTH_OF_TILE 10
+#define LENGTH_OF_TILE 10.0f
 
 
 struct CUSTOMVERTEX
@@ -67,7 +67,7 @@ static D3DXVECTOR3 v3DefaultPosition(0.0f, 0.0f, 0.0f);
 static CUSTOMVERTEX TileVertices[4 * NUM_OF_ROW * NUM_OF_COLUMN];
 static CUSTOMVERTEX WallVertices[4][4 * NUM_OF_ROW];
 static CUSTOMVERTEX WallVertices2[4][4 * NUM_OF_ROW];
-static CUSTOMVERTEX* LabyrinthWallVertices;
+static CUSTOMVERTEX** LabyrinthWallVertices;
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
 // tile culling 수정: 정사각형 중심으로부터 거리가 변의 길이의 절반 이하(d <= LENGTH_OF_TILE / 2) culling 해주어야 함.
@@ -79,10 +79,14 @@ static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 //// 필요한 객체
 // <player>
 // 플레이어. 위치, 바라보는 방향, 손전등 on/off
+// 
 // <안내문>
 // 미로 막다른 골목에서 상호작용(G) 가능한 객체.
 // 상호작용 시, 카메라 시점을 하늘에서 내려다보게 바꾸어 맵을 볼 수 있게 해줌.
+// 안내문이 바라보고 있는 방향을 벡터값으로 갖고 있는다.(v3LookAt)
+// (플레이어 위치) - (안내문 위치) 벡터(v3Distance) 활용
+// ( |v3Distance| <= (특정 거리) && v3LookAt X v3Distance > 0 ) 이면 상호작용 활성화
 // 
-// <출구>
+// <출구> - <안내문>의 child class
 // 미로의 끝에서 상호작용(G) 가능한 객체.
 // 상호작용 시, 게임 종료?
