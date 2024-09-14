@@ -28,19 +28,27 @@ POSITION_WITH_FRUSTUM CheckFrustumCulling(D3DXPLANE* FrustumPlane, D3DXVECTOR3 p
 // 일단 맵은 하나만...
 // 맵 내부 구조를 ' '과 '*'로 이루어진 문자열로 표현하고, 이 문자열을 받으면 내부 vertex를 생성할 수 있게 만들면 베스트일듯...
 // 벽멱을 전부 vertex 정보로 저장할지, 아니면 한 칸 한 칸의 블록형태로 만들지 미지수
-CUSTOMVERTEX(*MakeLabyrinth(int nMapNumber))[20]
+// CUSTOMVERTEX (*MakeLabyrinth(int nMapNumber))[20]
+CUSTOMVERTEX** MakeLabyrinth(int nMapNumber)
 {
     int i,j;
+    int nBlockNum = 0;
     // 그냥 LabyrinthWallVertices랑 MapNumber를 받아와서 동적 할당 때려버릴까
     if (nMapNumber == 1)
     {
         CUSTOMVERTEX** Labyrinth = new CUSTOMVERTEX*[72];
-        for (i = 0; i < 20; i++)
+        for (i = 0; i < NUM_OF_ROW; i++)
         {
-            Labyrinth[i] = new CUSTOMVERTEX[20];
+            for (j = 0; j < NUM_OF_COLUMN; j++)
+            {
+                if (chMap1[i][j] == '*')
+                {
+                    Labyrinth[nBlockNum++] = MakeWallBlock(D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
+                }
+            }
         }
 
-        return (*Labyrinth)[20];
+        return Labyrinth;
     }
     else
         return NULL;
@@ -48,7 +56,7 @@ CUSTOMVERTEX(*MakeLabyrinth(int nMapNumber))[20]
 
 CUSTOMVERTEX* MakeWallBlock(D3DXVECTOR3 position)
 {
-    int i, j;
+    int i;
     CUSTOMVERTEX* Block = new CUSTOMVERTEX[20];
     // 밑면을 제외한 5개 면의 vertex만 생성해주자
     for (i = 0; i < 20; i++)

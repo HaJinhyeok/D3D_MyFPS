@@ -50,6 +50,23 @@ static UI_VERTEX UIVertices[4] =
 const static D3DXVECTOR3 v3EyeCeiling(0.0f, 200.0f, 0.0f);
 const static D3DXVECTOR3 v3UpCeiling(0.0f, 0.0f, 1.0f);
 
+const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
+    "    *  *  * ",
+    "*** ** * ** ",
+    "  * ** * ** ",
+    " ** ** *    ",
+    "    ** **** ",
+    " **       * ",
+    " **     * * ",
+    " **  ** * * ",
+    " *   ** * * ",
+    " * * ** *   ",
+    " * * ** * * ",
+    " *   ** * * ",
+    " * **** *** ",
+    " * *        "
+};
+
 // const static D3DXVECTOR3 v3EyeDefault(0.0f, 5.0f, 0.0f);
 // const static D3DXVECTOR3 v3UpDefault(0.0f, 1.0f, 0.0f);
 
@@ -67,7 +84,7 @@ static D3DXVECTOR3 v3DefaultPosition(0.0f, 0.0f, 0.0f);
 static CUSTOMVERTEX TileVertices[4 * NUM_OF_ROW * NUM_OF_COLUMN];
 static CUSTOMVERTEX WallVertices[4][4 * NUM_OF_ROW];
 static CUSTOMVERTEX WallVertices2[4][4 * NUM_OF_ROW];
-static CUSTOMVERTEX** LabyrinthWallVertices;
+static CUSTOMVERTEX** LabyrinthWallVertices = NULL;
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
 // tile culling 수정: 정사각형 중심으로부터 거리가 변의 길이의 절반 이하(d <= LENGTH_OF_TILE / 2) culling 해주어야 함.

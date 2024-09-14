@@ -9,6 +9,7 @@ LPDIRECT3DVERTEXBUFFER9 g_pTileVB = NULL;
 LPDIRECT3DINDEXBUFFER9 g_pTileIB = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pWallVB = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pWallVB2 = NULL;
+LPDIRECT3DVERTEXBUFFER9 g_pLabyrinthVB = NULL;
 LPDIRECT3DTEXTURE9 g_pTileTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pWallTexture = NULL;
 LPD3DXFONT g_pFont = NULL;
@@ -55,6 +56,13 @@ VOID InitGeometry()
     memcpy(tmpVertices, tmpBlock, sizeof(CUSTOMVERTEX) * 20);
     g_pTmpBlockVB->Unlock();
 
+    // 미궁 내 벽을 구성할 vertex들의 buffer 생성
+    LabyrinthWallVertices = MakeLabyrinth(1);
+    g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 72 * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pLabyrinthVB, NULL);
+    VOID** LabyrinthVertices;
+    g_pLabyrinthVB->Lock(0, sizeof(CUSTOMVERTEX) * 72 * 20, (void**)&LabyrinthVertices, 0);
+    memcpy(LabyrinthVertices, LabyrinthWallVertices, sizeof(CUSTOMVERTEX) * 72 * 20);
+    g_pLabyrinthVB->Unlock();
 
     // tile vertex 좌표 입력
     {
@@ -269,6 +277,8 @@ VOID CleanUp()
         g_pWallTexture->Release();
     if (g_pTileTexture != NULL)
         g_pTileTexture->Release();
+    if (g_pLabyrinthVB != NULL)
+        g_pLabyrinthVB->Release();
     if (g_pWallVB2 != NULL)
         g_pWallVB2->Release();
     if (g_pWallVB != NULL)
@@ -281,6 +291,15 @@ VOID CleanUp()
         g_pd3dDevice->Release();
     if (g_pD3D != NULL)
         g_pD3D->Release();
+
+    if (LabyrinthWallVertices != NULL)
+    {
+        for (int i = 0; i < sizeof(LabyrinthWallVertices) / (sizeof(CUSTOMVERTEX) * 20); i++)
+        {
+            delete[] LabyrinthWallVertices[i];
+        }
+        delete[] LabyrinthWallVertices;
+    }
 }
 
 VOID __KeyProc()
@@ -545,10 +564,18 @@ VOID Render()
         {
             g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
         }
-        g_pd3dDevice->SetStreamSource(0, g_pTmpBlockVB, 0, sizeof(CUSTOMVERTEX));
+        /*g_pd3dDevice->SetStreamSource(0, g_pTmpBlockVB, 0, sizeof(CUSTOMVERTEX));
         for (i = 0; i < 5; i++)
         {
             g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+        }*/
+        g_pd3dDevice->SetStreamSource(0, g_pLabyrinthVB, 0, sizeof(CUSTOMVERTEX));
+        for (i = 0; i < 72; i++)
+        {
+            for (j = 0; j < 5; j++)
+            {
+                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, j * 4, 2);
+            }
         }
 
         // 위치 표시용 구체
