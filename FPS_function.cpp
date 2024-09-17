@@ -29,36 +29,44 @@ POSITION_WITH_FRUSTUM CheckFrustumCulling(D3DXPLANE* FrustumPlane, D3DXVECTOR3 p
 // 맵 내부 구조를 ' '과 '*'로 이루어진 문자열로 표현하고, 이 문자열을 받으면 내부 vertex를 생성할 수 있게 만들면 베스트일듯...
 // 벽멱을 전부 vertex 정보로 저장할지, 아니면 한 칸 한 칸의 블록형태로 만들지 미지수
 // CUSTOMVERTEX (*MakeLabyrinth(int nMapNumber))[20]
-CUSTOMVERTEX** MakeLabyrinth(int nMapNumber)
+// CUSTOMVERTEX** MakeLabyrinth(int nMapNumber)
+VOID MakeLabyrinth(int nMapNumber, CUSTOMVERTEX(*Labyrinth)[20])
 {
     int i,j;
     int nBlockNum = 0;
     // 그냥 LabyrinthWallVertices랑 MapNumber를 받아와서 동적 할당 때려버릴까
     if (nMapNumber == 1)
     {
-        CUSTOMVERTEX** Labyrinth = new CUSTOMVERTEX*[72];
+        // CUSTOMVERTEX** Labyrinth = new CUSTOMVERTEX*[72];
+        // LabyrinthWallVertices = new CUSTOMVERTEX * [72];
         for (i = 0; i < NUM_OF_ROW; i++)
         {
             for (j = 0; j < NUM_OF_COLUMN; j++)
             {
                 if (chMap1[i][j] == '*')
                 {
-                    Labyrinth[nBlockNum++] = MakeWallBlock(D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
+                    MakeWallBlock(Labyrinth[nBlockNum++], D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
+                    //LabyrinthWallVertices[nBlockNum++] = MakeWallBlock(D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
+
+                    //Labyrinth[nBlockNum++] = MakeWallBlock(D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
                 }
             }
         }
 
-        return Labyrinth;
+        //return Labyrinth;
     }
     else
-        return NULL;
+        return;
 }
 
-CUSTOMVERTEX* MakeWallBlock(D3DXVECTOR3 position)
+// CUSTOMVERTEX* MakeWallBlock(D3DXVECTOR3 position)
+VOID MakeWallBlock(CUSTOMVERTEX* Block, D3DXVECTOR3 position)
 {
     int i;
-    CUSTOMVERTEX* Block = new CUSTOMVERTEX[20];
+    // CUSTOMVERTEX* Block = new CUSTOMVERTEX[20];
+    // vector<CUSTOMVERTEX> Block(20);
     // 밑면을 제외한 5개 면의 vertex만 생성해주자
+    // 여기서 겹치는 면 vertex는 없애주는 과정이 필요할듯?
     for (i = 0; i < 20; i++)
     {
         if (i % 4 == 0)
@@ -104,5 +112,5 @@ CUSTOMVERTEX* MakeWallBlock(D3DXVECTOR3 position)
     Block[18].v3VerPos = D3DXVECTOR3(position.x + LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
     Block[19].v3VerPos = D3DXVECTOR3(position.x - LENGTH_OF_TILE / 2, position.y + LENGTH_OF_TILE / 2, position.z - LENGTH_OF_TILE / 2);
     
-    return Block;
+    // return Block;
 }

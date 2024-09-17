@@ -3,6 +3,9 @@
 #include <d3dx9math.h>
 #include <d3dx9shape.h>
 #include <wchar.h>
+#include <vector>
+
+using namespace std;
 
 
 #define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
@@ -10,7 +13,7 @@
 #define TEXTURE_TILE "tex_tile.bmp"
 #define TEXTURE_GRASS "tex_grass.jpg"
 #define TEXTURE_WALL "tex_wall.jpg"
-#define TRANSLATION_DISTANCE 0.3f
+#define TRANSLATION_DISTANCE 0.1f
 #define ROTATION_AMOUNT D3DX_PI/180
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
@@ -84,7 +87,9 @@ static D3DXVECTOR3 v3DefaultPosition(0.0f, 0.0f, 0.0f);
 static CUSTOMVERTEX TileVertices[4 * NUM_OF_ROW * NUM_OF_COLUMN];
 static CUSTOMVERTEX WallVertices[4][4 * NUM_OF_ROW];
 static CUSTOMVERTEX WallVertices2[4][4 * NUM_OF_ROW];
-static CUSTOMVERTEX** LabyrinthWallVertices = NULL;
+
+static CUSTOMVERTEX LabyrinthWallVertices[72][20];
+
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
 // tile culling 수정: 정사각형 중심으로부터 거리가 변의 길이의 절반 이하(d <= LENGTH_OF_TILE / 2) culling 해주어야 함.

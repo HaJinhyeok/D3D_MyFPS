@@ -19,7 +19,8 @@ CPlayer player;
 RECT rt;
 char testSTR[255];
 wchar_t test2[255];
-CUSTOMVERTEX* tmpBlock;
+// CUSTOMVERTEX* tmpBlock;
+CUSTOMVERTEX tmpBlock[20];
 LPDIRECT3DVERTEXBUFFER9 g_pTmpBlockVB = NULL;
 
 HRESULT InitD3D(HWND hWnd)
@@ -33,10 +34,15 @@ HRESULT InitD3D(HWND hWnd)
     d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
     d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 
+    d3dpp.EnableAutoDepthStencil = TRUE;
+    d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+
     if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_pd3dDevice)))
         return E_FAIL;
 
     g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+    g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+
     return S_OK;
 }
 
@@ -49,15 +55,16 @@ VOID InitGeometry()
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
 
-    tmpBlock = MakeWallBlock(D3DXVECTOR3(25.0f, 5.0f, 25.0f));
+    /*MakeWallBlock(tmpBlock, D3DXVECTOR3(25.0f, 5.0f, 25.0f));
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pTmpBlockVB, NULL);
     VOID** tmpVertices;
     g_pTmpBlockVB->Lock(0, sizeof(CUSTOMVERTEX) * 20, (void**)&tmpVertices, 0);
-    memcpy(tmpVertices, tmpBlock, sizeof(CUSTOMVERTEX) * 20);
-    g_pTmpBlockVB->Unlock();
+    memcpy(tmpVertices, &tmpBlock, sizeof(CUSTOMVERTEX) * 20);
+    g_pTmpBlockVB->Unlock();*/
 
     // 미궁 내 벽을 구성할 vertex들의 buffer 생성
-    LabyrinthWallVertices = MakeLabyrinth(1);
+    //LabyrinthWallVertices = MakeLabyrinth(1);
+    MakeLabyrinth(1, LabyrinthWallVertices);
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 72 * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pLabyrinthVB, NULL);
     VOID** LabyrinthVertices;
     g_pLabyrinthVB->Lock(0, sizeof(CUSTOMVERTEX) * 72 * 20, (void**)&LabyrinthVertices, 0);
@@ -265,8 +272,8 @@ VOID InitGeometry()
 
 VOID CleanUp()
 {
-    if (tmpBlock != NULL)
-        delete tmpBlock;
+    /*if (tmpBlock != NULL)
+        delete tmpBlock;*/
     if (g_pTmpBlockVB != NULL)
         g_pTmpBlockVB->Release();
     if (g_pSphere != NULL)
@@ -292,14 +299,14 @@ VOID CleanUp()
     if (g_pD3D != NULL)
         g_pD3D->Release();
 
-    if (LabyrinthWallVertices != NULL)
+    /*if (LabyrinthWallVertices != NULL)
     {
-        for (int i = 0; i < sizeof(LabyrinthWallVertices) / (sizeof(CUSTOMVERTEX) * 20); i++)
+        for (int i = 0; i < 72; i++)
         {
             delete[] LabyrinthWallVertices[i];
         }
         delete[] LabyrinthWallVertices;
-    }
+    }*/
 }
 
 VOID __KeyProc()
@@ -475,6 +482,7 @@ VOID Render()
         return;
 
     g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
+    g_pd3dDevice->Clear(0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 
     if (SUCCEEDED(g_pd3dDevice->BeginScene()))
     {
@@ -574,7 +582,7 @@ VOID Render()
         {
             for (j = 0; j < 5; j++)
             {
-                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, j * 4, 2);
+                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 20 + j * 4, 2);
             }
         }
 
