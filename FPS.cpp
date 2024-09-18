@@ -42,6 +42,7 @@ HRESULT InitD3D(HWND hWnd)
 
     g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
     g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+    
 
     return S_OK;
 }
@@ -482,7 +483,7 @@ VOID Render()
         return;
 
     g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 255), 1.0f, 0);
-    g_pd3dDevice->Clear(0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+    g_pd3dDevice->Clear(0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
 
     if (SUCCEEDED(g_pd3dDevice->BeginScene()))
     {
