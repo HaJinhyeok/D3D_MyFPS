@@ -13,7 +13,7 @@ using namespace std;
 #define TEXTURE_TILE "tex_tile.bmp"
 #define TEXTURE_GRASS "tex_grass.jpg"
 #define TEXTURE_WALL "tex_wall.jpg"
-#define TRANSLATION_DISTANCE 0.1f
+#define TRANSLATION_DISTANCE 0.2f
 #define ROTATION_AMOUNT D3DX_PI/180
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이

@@ -15,6 +15,8 @@ LPDIRECT3DTEXTURE9 g_pWallTexture = NULL;
 LPD3DXFONT g_pFont = NULL;
 LPD3DXMESH g_pSphere = NULL;
 
+LPDIRECT3DSURFACE9 z_buffer = NULL;
+
 CPlayer player;
 RECT rt;
 char testSTR[255];
@@ -40,8 +42,12 @@ HRESULT InitD3D(HWND hWnd)
     if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_pd3dDevice)))
         return E_FAIL;
 
+    //g_pd3dDevice->CreateDepthStencilSurface(700, 700, D3DFMT_D16, D3DMULTISAMPLE_NONE, 0, TRUE, &z_buffer, NULL);
+
     g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
     g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+    //g_pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+    //g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
     
 
     return S_OK;
@@ -275,6 +281,8 @@ VOID CleanUp()
 {
     /*if (tmpBlock != NULL)
         delete tmpBlock;*/
+    if (z_buffer != NULL)
+        z_buffer->Release();
     if (g_pTmpBlockVB != NULL)
         g_pTmpBlockVB->Release();
     if (g_pSphere != NULL)
@@ -509,7 +517,7 @@ VOID Render()
         }
 
         D3DXMATRIX mtProjection;
-        D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 0.0f, 1000.0f);
+        D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 1.0f, 1000.0f);
         g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &mtProjection);
 
         D3DXPLANE FrustumPlane[6];
@@ -553,7 +561,8 @@ VOID Render()
             // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
             for (j = 0; j < 4; j++)
             {
-                if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
+                // if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
+                if (CheckFrustumCulling(FrustumPlane, CalculateMidPoint(TileVertices[i * 4 + j].v3VerPos, TileVertices[i * 4 + (j + 1) % 4].v3VerPos), 0.0f) != POSITION_WITH_FRUSTUM::outside)
                 {
                     g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
                     break;
