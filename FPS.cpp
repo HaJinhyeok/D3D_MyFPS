@@ -539,10 +539,12 @@ VOID Render()
             D3DXMATRIX mtViewTMP;
             D3DXMatrixLookAtLH(&mtViewTMP, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
             D3DXMatrixMultiply(&mtViewProjection, &mtViewTMP, &mtProjection);
+            // D3DXMatrixMultiply(&mtViewProjection, &mtProjection, &mtViewTMP);
         }
         else
         {
             D3DXMatrixMultiply(&mtViewProjection, &mtView, &mtProjection);
+            // D3DXMatrixMultiply(&mtViewProjection, &mtProjection, &mtView);
         }
         D3DXMatrixInverse(&mtViewProjection, NULL, &mtViewProjection);
         D3DXMatrixTranspose(&mtViewProjection, &mtViewProjection);
@@ -561,8 +563,8 @@ VOID Render()
             // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
             for (j = 0; j < 4; j++)
             {
-                // if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
-                if (CheckFrustumCulling(FrustumPlane, CalculateMidPoint(TileVertices[i * 4 + j].v3VerPos, TileVertices[i * 4 + (j + 1) % 4].v3VerPos), 0.0f) != POSITION_WITH_FRUSTUM::outside)
+                if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
+                // if (CheckFrustumCulling(FrustumPlane, CalculateMidPoint(TileVertices[i * 4 + j].v3VerPos, TileVertices[i * 4 + (j + 1) % 4].v3VerPos), 0.0f) != POSITION_WITH_FRUSTUM::outside)
                 {
                     g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
                     break;

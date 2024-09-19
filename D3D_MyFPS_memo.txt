@@ -1,0 +1,9 @@
+- depth buffer가 제대로 작동하지 않는다
+-> projection matrix 생성 시, near plane의 값을 0.0f에서 1.0f(혹은 0.0f가 아닌 다른 값)으로 바꾸니 해결
+-> 근데 이번엔 frustum culling이 제대로 작동하지 않는다
+-> D3DXMatrixPerspectiveFovLH 함수의 결과 행렬을 살펴보면, 다음과 같다고 한다.
+xScale  0       0         0
+0    yScale     0         0
+0     0     zf/(zf-zn)     1
+0     0    -zn*zf/(zf-zn)  0
+-> 여기서 zn이 0.0f에서 1.0f로 바뀌게 되면서 _43의 값이 0이 아니게 되었다. 이로 인한 차이인가?

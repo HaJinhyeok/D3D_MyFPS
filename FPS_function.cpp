@@ -11,7 +11,8 @@ POSITION_WITH_FRUSTUM CheckFrustumCulling(D3DXPLANE* FrustumPlane, D3DXVECTOR3 p
     // 점과 평면 사이의 거리 공식
     // (distance) = abs( ax_1 + by_1 + cz_1 + d ) / sqrt( a^2 + b^2 + c^2 )
     FLOAT distance;
-    for (int i = 0; i < 6; i++)
+    // for (int i = 0; i < 6; i++)
+    int i = 5;
     {
         distance = 0.0f;
         distance +=
