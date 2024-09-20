@@ -44,9 +44,9 @@ enum class POSITION_WITH_FRUSTUM : WORD
 static UI_VERTEX UIVertices[4] =
 {
     D3DXVECTOR3(10.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
-    D3DXVECTOR3(350.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
-    D3DXVECTOR3(350.0f, 150.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 255), D3DXVECTOR2(0.0f, 0.0f),
-    D3DXVECTOR3(10.0f, 150.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f)
+    D3DXVECTOR3(130.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(130.0f, 50.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(10.0f, 50.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f)
 };
 
 // 시점 변환 시 
@@ -93,6 +93,7 @@ static CUSTOMVERTEX LabyrinthWallVertices[72][20];
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
 // tile culling 수정: 정사각형 중심으로부터 거리가 변의 길이의 절반 이하(d <= LENGTH_OF_TILE / 2) culling 해주어야 함.
+// 추가할 기능: 플레이어 시점이 qe가 아닌 마우스 움직임에 따라 변하면 좋을 듯 
 
 //// 미로 찾기 게임
 // 맵은 한 개, 많아야 두 개(만들기 번거로울 듯?)

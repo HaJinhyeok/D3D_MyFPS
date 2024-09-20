@@ -12,8 +12,10 @@ LPDIRECT3DVERTEXBUFFER9 g_pWallVB2 = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pLabyrinthVB = NULL;
 LPDIRECT3DTEXTURE9 g_pTileTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pWallTexture = NULL;
+LPDIRECT3DTEXTURE9 g_pGrassTexture = NULL;
 LPD3DXFONT g_pFont = NULL;
 LPD3DXMESH g_pSphere = NULL;
+LPD3DXMESH g_pLookAtSphere = NULL;
 
 LPDIRECT3DSURFACE9 z_buffer = NULL;
 
@@ -58,9 +60,11 @@ VOID InitGeometry()
     InitInput();
     int i, j;
     D3DXCreateSphere(g_pd3dDevice, 1.0f, 10, 10, &g_pSphere, 0);
-    D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pFont);
+    D3DXCreateSphere(g_pd3dDevice, 3.0f, 10, 10, &g_pLookAtSphere, 0);
+    D3DXCreateFont(g_pd3dDevice, 30, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pFont);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
+    D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pGrassTexture);
 
     /*MakeWallBlock(tmpBlock, D3DXVECTOR3(25.0f, 5.0f, 25.0f));
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pTmpBlockVB, NULL);
@@ -285,10 +289,14 @@ VOID CleanUp()
         z_buffer->Release();
     if (g_pTmpBlockVB != NULL)
         g_pTmpBlockVB->Release();
+    if (g_pLookAtSphere != NULL)
+        g_pLookAtSphere->Release();
     if (g_pSphere != NULL)
         g_pSphere->Release();
     if (g_pFont != NULL)
         g_pFont->Release();
+    if (g_pGrassTexture != NULL)
+        g_pGrassTexture->Release();
     if (g_pWallTexture != NULL)
         g_pWallTexture->Release();
     if (g_pTileTexture != NULL)
@@ -462,6 +470,7 @@ VOID __KeyProc()
 
         }
         // 낮밤 변경
+        // 1에다 도움말을, 3에다 낮밤 변경?, 4에다 절두체 컬링?
         if (GetKeyDown('1') == TRUE)
         {
             char chTest[100];
@@ -517,7 +526,7 @@ VOID Render()
         }
 
         D3DXMATRIX mtProjection;
-        D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 1.0f, 1000.0f);
+        D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 0.0f, 1000.0f);
         g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &mtProjection);
 
         D3DXPLANE FrustumPlane[6];
@@ -551,7 +560,7 @@ VOID Render()
         D3DXPlaneTransformArray(FrustumPlane, sizeof(D3DXPLANE), FrustumPlane, sizeof(D3DXPLANE), &mtViewProjection, 6);
 
         g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
-        g_pd3dDevice->SetTexture(0, g_pTileTexture);
+        g_pd3dDevice->SetTexture(0, g_pGrassTexture);
         g_pd3dDevice->SetStreamSource(0, g_pTileVB, 0, sizeof(CUSTOMVERTEX));
         g_pd3dDevice->SetIndices(g_pTileIB);
         //// tile rendering
@@ -603,14 +612,18 @@ VOID Render()
         D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
         D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
         g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
-        g_pd3dDevice->SetTexture(0, NULL);
+        /*g_pd3dDevice->SetTexture(0, NULL);
         g_pSphere->DrawSubset(0);
-        // world matrix 다시 제자리로 돌려주기(필요없음)
-        // D3DXMatrixIdentity(&mtWorld);
-        // g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
+        
+        D3DXMatrixIdentity(&mtWorld);
+        D3DXMatrixTranslation(&tmpTranspose, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
+        D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
+        g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);*/
+        g_pd3dDevice->SetTexture(0, g_pTileTexture);
+        g_pLookAtSphere->DrawSubset(0);
 
         //// 좌상단 UI
-        if(FALSE)
+        // if(FALSE)
         {
             //// Transformed Vertex
             g_pd3dDevice->SetTexture(0, NULL);
@@ -619,8 +632,9 @@ VOID Render()
 
             //// DrawText
             SetRect(&rt, 20, 20, 0, 0);
-            swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
-            wsprintf(testSTR, "%ws", test2);
+            // swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
+            // wsprintf(testSTR, "%ws", test2);
+            wsprintf(testSTR, "2: 시점변환");
             g_pFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
         }
         
