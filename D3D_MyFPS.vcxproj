@@ -142,12 +142,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CFrustum.cpp" />
     <ClCompile Include="CPlayer.cpp" />
     <ClCompile Include="FPS.cpp" />
     <ClCompile Include="FPS_function.cpp" />
     <ClCompile Include="Input.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CFrustum.h" />
     <ClInclude Include="CPlayer.h" />
     <ClInclude Include="FPS.h" />
     <ClInclude Include="FPS_function.h" />
