@@ -24,5 +24,9 @@ VOID CFrustum::MakeFrustum(D3DXMATRIX* pMatViewProj)
 }
 BOOL CFrustum::bIsInFrustum(D3DXVECTOR3* position, FLOAT distance)
 {
+	//if ()
+	{
 
+	}
+	return TRUE;
 }
