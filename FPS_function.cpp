@@ -119,3 +119,14 @@ VOID MakeWallBlock(CUSTOMVERTEX* Block, D3DXVECTOR3 position)
     
     // return Block;
 }
+
+BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance)
+{
+    // character의 position이 주어지면, xz 평면으로 이루어진 map 상에서 어떤 칸에 위치해 있는지 알 수 있다.
+    // 그러면 그 주위 8칸에 대해서만 체크를 하면...? 되지않나
+    int i;
+    FLOAT fCurrentX = CharacterPositon.x, fCurrentZ = CharacterPositon.z;
+    
+    // 충돌하면 TRUE
+    return TRUE;
+}

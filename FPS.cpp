@@ -21,6 +21,7 @@ LPD3DXMESH g_pLookAtSphere = NULL;
 LPDIRECT3DSURFACE9 z_buffer = NULL;
 
 CPlayer player;
+CFrustum* g_pFrustum = NULL;
 RECT rt;
 char testSTR[500];
 wchar_t test2[500];
@@ -556,9 +557,11 @@ VOID Render()
             D3DXMatrixMultiply(&mtViewProjection, &mtView, &mtProjection);
             // D3DXMatrixMultiply(&mtViewProjection, &mtProjection, &mtView);
         }
-        D3DXMatrixInverse(&mtViewProjection, NULL, &mtViewProjection);
-        D3DXMatrixTranspose(&mtViewProjection, &mtViewProjection);
-        D3DXPlaneTransformArray(FrustumPlane, sizeof(D3DXPLANE), FrustumPlane, sizeof(D3DXPLANE), &mtViewProjection, 6);
+        // D3DXMatrixInverse(&mtViewProjection, NULL, &mtViewProjection);
+        // D3DXMatrixTranspose(&mtViewProjection, &mtViewProjection);
+        // D3DXPlaneTransformArray(FrustumPlane, sizeof(D3DXPLANE), FrustumPlane, sizeof(D3DXPLANE), &mtViewProjection, 6);
+
+        g_pFrustum->MakeFrustum(&mtViewProjection);
 
         g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
         g_pd3dDevice->SetTexture(0, g_pGrassTexture);
@@ -569,17 +572,23 @@ VOID Render()
         // 네 꼭짓점 중 하나라도 inside이면 rendering한다.
         for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
         {
-            // g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
-            // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
+            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+
+            /* 
+            **** culling 일단 보류 ****
+            * // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
             for (j = 0; j < 4; j++)
             {
-                if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
+                // if (g_pFrustum->bIsInFrustum(&TileVertices[i * 4 + j].v3VerPos, 0.0f) == TRUE)
+                //if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
                 // if (CheckFrustumCulling(FrustumPlane, CalculateMidPoint(TileVertices[i * 4 + j].v3VerPos, TileVertices[i * 4 + (j + 1) % 4].v3VerPos), 0.0f) != POSITION_WITH_FRUSTUM::outside)
                 {
                     g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
                     break;
                 }
             }
+            */
+            
         }
         //// wall rendering
         g_pd3dDevice->SetTexture(0, g_pWallTexture);
@@ -604,7 +613,7 @@ VOID Render()
         {
             for (j = 0; j < 5; j++)
             {
-                //g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 20 + j * 4, 2);
+                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 20 + j * 4, 2);
             }
         }
 
@@ -624,7 +633,7 @@ VOID Render()
         g_pLookAtSphere->DrawSubset(0);
 
         //// 좌상단 UI
-        // if(FALSE)
+        if(FALSE)
         {
             //// Transformed Vertex
             g_pd3dDevice->SetTexture(0, NULL);
@@ -681,6 +690,9 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
     HWND hWnd = CreateWindow("D3D_MyFPS", "D3D_MyFPS",
         WS_OVERLAPPEDWINDOW, 100, 100, 700, 700,
         GetDesktopWindow(), NULL, wc.hInstance, NULL);
+
+    g_pFrustum = new CFrustum;
+
     // Direct3D 초기화
     if (SUCCEEDED(InitD3D(hWnd)))
     {
@@ -708,6 +720,9 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
             }
         }
     }
+
+    delete g_pFrustum;
+
     // 등록된 클래스 소거
     UnregisterClass("D3D_MyFPS", wc.hInstance);
     return 0;

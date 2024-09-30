@@ -2,7 +2,8 @@
 
 CFrustum::CFrustum()
 {
-
+	ZeroMemory(m_vertex, sizeof(D3DXVECTOR3) * 8);
+	ZeroMemory(m_plane, sizeof(D3DXPLANE) * 6);
 }
 CFrustum::~CFrustum()
 {
@@ -10,7 +11,8 @@ CFrustum::~CFrustum()
 }
 VOID CFrustum::MakeFrustum(D3DXMATRIX* pMatViewProj)
 {
-	D3DXMATRIX pInv;
+	int i;
+	D3DXMATRIX matInv;
 	m_vertex[0].x = -1.0f;	m_vertex[0].y = -1.0f;	m_vertex[0].z = 0.0f;
 	m_vertex[1].x = 1.0f;	m_vertex[1].y = -1.0f;	m_vertex[1].z = 0.0f;
 	m_vertex[2].x = 1.0f;	m_vertex[2].y = -1.0f;	m_vertex[2].z = 1.0f;
@@ -20,13 +22,31 @@ VOID CFrustum::MakeFrustum(D3DXMATRIX* pMatViewProj)
 	m_vertex[6].x = 1.0f;	m_vertex[6].y = 1.0f;	m_vertex[6].z = 1.0f;
 	m_vertex[7].x = -1.0f;	m_vertex[7].y = 1.0f;	m_vertex[7].z = 1.0f;
 
-	D3DXMatrixInverse(&pInv, NULL, pMatViewProj);
+	D3DXMatrixInverse(&matInv, NULL, pMatViewProj);
+
+	for (i = 0; i < 8; i++)
+	{
+		D3DXVec3TransformCoord(&m_vertex[i], &m_vertex[i], &matInv);
+	}
+	// D3DXPlaneFromPoints´Â ¿Þ¼Õ ÁÂÇ¥°èÀÓ
+	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[7], &m_vertex[3], &m_vertex[0]); // ÁÂ
+	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[6], &m_vertex[5], &m_vertex[1]); // ¿ì
+	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[4], &m_vertex[5], &m_vertex[6]); // »ó
+	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[0], &m_vertex[3], &m_vertex[2]); // ÇÏ
+	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[0], &m_vertex[1], &m_vertex[5]); // ±Ù
+	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[2], &m_vertex[7], &m_vertex[6]); // ¿ø
 }
 BOOL CFrustum::bIsInFrustum(D3DXVECTOR3* position, FLOAT distance)
 {
-	//if ()
+	FLOAT fDistance;
+	int i;
+	for (i = 0; i < 6; i++)
 	{
-
+		fDistance = 0.0f;
+		fDistance += m_plane[i].a * position->x + m_plane[i].b * position->y + m_plane[i].c * position->z + m_plane[i].d;
+		fDistance /= sqrtf(m_plane[i].a * m_plane[i].a + m_plane[i].b * m_plane[i].b + m_plane[i].c * m_plane[i].c);
+		if (fDistance < -distance)
+			return FALSE;
 	}
 	return TRUE;
 }
