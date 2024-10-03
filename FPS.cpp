@@ -62,7 +62,7 @@ VOID InitGeometry()
     InitInput();
     int i, j;
     D3DXCreateSphere(g_pd3dDevice, 1.0f, 10, 10, &g_pSphere, 0);
-    D3DXCreateSphere(g_pd3dDevice, 3.0f, 10, 10, &g_pLookAtSphere, 0);
+    D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pLookAtSphere, 0);
     D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pFont);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
@@ -341,6 +341,11 @@ VOID __KeyProc()
     
     D3DXMATRIX mtTranslation, mtRotation, tmpMatrix;
     FLOAT fCoefficient;
+
+    // 이동 시, 벽과 일정 거리 이하로는 가까워지지 않도록 조정하기
+    // 현재 위치를 단순화하여 좌표로 나타내고, 그 점을 둘러싼 8개의 좌표에 대해 충돌 검사 시행
+    // 만약 현재 위치가 블록 사이 선에 걸쳐있다고 하더라도, 문제는 없을 것으로 예상.
+
     if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
     {
         v3Axis.x = -mtPlayerAxis._11;

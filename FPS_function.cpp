@@ -120,13 +120,62 @@ VOID MakeWallBlock(CUSTOMVERTEX* Block, D3DXVECTOR3 position)
     // return Block;
 }
 
-BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance)
+BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance, BOOL direction)
 {
     // character의 position이 주어지면, xz 평면으로 이루어진 map 상에서 어떤 칸에 위치해 있는지 알 수 있다.
     // 그러면 그 주위 8칸에 대해서만 체크를 하면...? 되지않나
-    int i;
+    // x축 이동인지 z축 이동인지도 매개변수로 받아서 확인
+    int nCoX, nCoZ, i, j;
     FLOAT fCurrentX = CharacterPositon.x, fCurrentZ = CharacterPositon.z;
-    
+    if (direction == X_MOVE)
+    {
+        nCoX = (int)(fCurrentX / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2;
+        for (i = -1; i < 2; i++)
+        {
+            if (i == 0 && j == 0) continue;
+            // 외곽 벽과의 충돌 검사
+            if (nCoX + i < 0)
+            {
+
+            }
+            else if (nCoX + i >= NUM_OF_COLUMN)
+            {
+
+            }
+        }
+    }
+    else
+    {
+        nCoZ = (int)(fCurrentZ / LENGTH_OF_TILE) - NUM_OF_ROW / 2 + 1;
+
+    }
+    for (int i = -1; i < 2; i++)
+    {
+        for (int j = -1; j < 2; j++)
+        {
+            if (i == 0 && j == 0) continue;
+            // 외곽 벽과의 충돌 검사
+            if (nCoX + i < 0)
+            {
+
+            }
+            else if (nCoX + i >= NUM_OF_COLUMN)
+            {
+
+            }
+            if (nCoZ + i < 0)
+            {
+
+            }
+            else if (nCoZ + i >= NUM_OF_ROW)
+            {
+
+            }
+            // '*' 표시된 블록 칸과의 충돌 검사
+
+        }
+    }
+
     // 충돌하면 TRUE
     return TRUE;
 }

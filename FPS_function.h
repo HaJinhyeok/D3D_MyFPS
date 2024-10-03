@@ -10,4 +10,4 @@ VOID MakeLabyrinth(int nMapNumber, CUSTOMVERTEX (*Labyrinth)[20]);
 // CUSTOMVERTEX* MakeWallBlock(D3DXVECTOR3 position);
 VOID MakeWallBlock(CUSTOMVERTEX* Block, D3DXVECTOR3 position);
 
-BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance);
+BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance, BOOL direction);
