@@ -44,6 +44,13 @@ enum class POSITION_WITH_FRUSTUM : WORD
     inside,
     intersection
 };
+enum class MOVE_DIRECTION :WORD
+{
+    left = 1,
+    right,
+    front,
+    back
+};
 
 static UI_VERTEX UIVertices[4] =
 {

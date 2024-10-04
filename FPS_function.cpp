@@ -120,6 +120,50 @@ VOID MakeWallBlock(CUSTOMVERTEX* Block, D3DXVECTOR3 position)
     // return Block;
 }
 
+// PLAYER MOVE
+// 바꾸어야 할 것: 플레이어 위치, 플레이어 LookAt
+// 필요한 것: 플레이어가 움직일 방향 벡터, 거리, 플에이어 현 위치, 플레이어 현 LookAt, 맵 정보
+
+VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const char (*map)[NUM_OF_COLUMN+1])
+{
+    D3DXVECTOR3 vecDirection, tmpPosition; // 벽을 생각하지 않고 이동된 위치. 주변 8개 벽과 이것을 대조해 최종 위치 결정
+    D3DXVECTOR3 vecPosition = player->GetPosition(), vecLookAt = player->GetLookAt();
+    FLOAT fCoefficient = distance;
+    int i, j;
+
+    if (direction == MOVE_DIRECTION::left)
+    {
+        vecDirection.x = -player->GetPlayerAxis()._11;
+        vecDirection.y = -player->GetPlayerAxis()._12;
+        vecDirection.z = -player->GetPlayerAxis()._13;
+        fCoefficient /= sqrtf(vecDirection.x * vecDirection.x + vecDirection.y * vecDirection.y + vecDirection.z * vecDirection.z);
+
+        tmpPosition.x = vecPosition.x + vecDirection.x * fCoefficient;
+        tmpPosition.y = vecPosition.y + vecDirection.y * fCoefficient;
+        tmpPosition.z = vecPosition.z + vecDirection.z * fCoefficient;
+        for (i = -1; i < 2; i++)
+        {
+            for (j = -1; j < 2; j++)
+            {
+
+            }
+        }
+    }
+    else if (direction == MOVE_DIRECTION::right)
+    {
+
+    }
+    else if (direction == MOVE_DIRECTION::front)
+    {
+
+    }
+    else if (direction == MOVE_DIRECTION::back)
+    {
+
+    }
+    player->SetPosition(vecPosition);
+    player->SetLookAt(vecLookAt);
+}
 BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance, BOOL direction)
 {
     // character의 position이 주어지면, xz 평면으로 이루어진 map 상에서 어떤 칸에 위치해 있는지 알 수 있다.
@@ -132,7 +176,7 @@ BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance, BO
         nCoX = (int)(fCurrentX / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2;
         for (i = -1; i < 2; i++)
         {
-            if (i == 0 && j == 0) continue;
+            if (i == 0) continue;
             // 외곽 벽과의 충돌 검사
             if (nCoX + i < 0)
             {
@@ -149,9 +193,9 @@ BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance, BO
         nCoZ = (int)(fCurrentZ / LENGTH_OF_TILE) - NUM_OF_ROW / 2 + 1;
 
     }
-    for (int i = -1; i < 2; i++)
+    for (i = -1; i < 2; i++)
     {
-        for (int j = -1; j < 2; j++)
+        for (j = -1; j < 2; j++)
         {
             if (i == 0 && j == 0) continue;
             // 외곽 벽과의 충돌 검사

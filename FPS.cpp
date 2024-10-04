@@ -1,7 +1,6 @@
 
 #include "FPS_function.h"
 #include "Input.h"
-#include "CPlayer.h"
 #include "CFrustum.h"
 
 LPDIRECT3D9 g_pD3D = NULL;
@@ -342,12 +341,13 @@ VOID __KeyProc()
     D3DXMATRIX mtTranslation, mtRotation, tmpMatrix;
     FLOAT fCoefficient;
 
-    // 이동 시, 벽과 일정 거리 이하로는 가까워지지 않도록 조정하기
+    // 이동 시, 벽과 일정 거리(PLAYER_RADIUS) 이하로는 가까워지지 않도록 조정하기
     // 현재 위치를 단순화하여 좌표로 나타내고, 그 점을 둘러싼 8개의 좌표에 대해 충돌 검사 시행
     // 만약 현재 위치가 블록 사이 선에 걸쳐있다고 하더라도, 문제는 없을 것으로 예상.
 
     if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
     {
+        PlayerMove(&player, MOVE_DIRECTION::left, TRANSLATION_DISTANCE, chMap1);
         v3Axis.x = -mtPlayerAxis._11;
         v3Axis.y = -mtPlayerAxis._12;
         v3Axis.z = -mtPlayerAxis._13;
@@ -363,9 +363,9 @@ VOID __KeyProc()
         v3CurrentLookAt.z += v3Axis.z * fCoefficient;
         player.SetLookAt(v3CurrentLookAt);
 
-        D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
+        /*D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
         D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
-        player.SetPlayerWorld(mtPlayerWorld);
+        player.SetPlayerWorld(mtPlayerWorld);*/
     }
     if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
     {
