@@ -129,7 +129,10 @@ VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const
     D3DXVECTOR3 vecDirection, tmpPosition; // 벽을 생각하지 않고 이동된 위치. 주변 8개 벽과 이것을 대조해 최종 위치 결정
     D3DXVECTOR3 vecPosition = player->GetPosition(), vecLookAt = player->GetLookAt();
     FLOAT fCoefficient = distance;
-    int i, j;
+    int i, j, nCoX, nCoZ;
+    // 현재 좌표
+    nCoX = (int)(vecPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2;
+    nCoZ = NUM_OF_ROW / 2 - (int)(vecPosition.z / LENGTH_OF_TILE);
 
     if (direction == MOVE_DIRECTION::left)
     {
@@ -141,12 +144,38 @@ VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const
         tmpPosition.x = vecPosition.x + vecDirection.x * fCoefficient;
         tmpPosition.y = vecPosition.y + vecDirection.y * fCoefficient;
         tmpPosition.z = vecPosition.z + vecDirection.z * fCoefficient;
-        for (i = -1; i < 2; i++)
+        // x축 음의 방향으로 이동일 경우
+        if (vecDirection.x < 0)
         {
-            for (j = -1; j < 2; j++)
+            for (i = 0; i < 3; i++)
             {
-
+                // 현재 위치 기준 왼쪽 3개 블록에 대해 검사
+                // 제일 외곽 벽일 경우 따로 검사
+                //if()
+                if (map[nCoZ - 1 + i][nCoX - 1] == '*')
+                {
+                    if (vecPosition.x - PLAYER_RADIUS < (nCoX - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE)
+                    {
+                        // 수정 필요. aabb 첨가
+                        if (vecPosition.z - PLAYER_RADIUS<(NUM_OF_ROW / 2 - nCoZ) * LENGTH_OF_TILE || vecPosition.z + PLAYER_RADIUS>(NUM_OF_ROW / 2 - nCoZ - 1) * LENGTH_OF_TILE)
+                        {
+                            tmpPosition.x = (nCoX - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
+                        }
+                    }
+                }
             }
+        }
+        else if (vecDirection.x > 0)
+        {
+
+        }
+        if (vecDirection.z < 0)
+        {
+
+        }
+        else if (vecDirection.z > 0)
+        {
+
         }
     }
     else if (direction == MOVE_DIRECTION::right)
