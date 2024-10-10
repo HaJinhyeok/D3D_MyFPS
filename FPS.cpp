@@ -348,7 +348,7 @@ VOID __KeyProc()
     if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
     {
         PlayerMove(&player, MOVE_DIRECTION::left, TRANSLATION_DISTANCE, chMap1);
-        v3Axis.x = -mtPlayerAxis._11;
+        /*v3Axis.x = -mtPlayerAxis._11;
         v3Axis.y = -mtPlayerAxis._12;
         v3Axis.z = -mtPlayerAxis._13;
         fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
@@ -361,7 +361,7 @@ VOID __KeyProc()
         v3CurrentLookAt.x += v3Axis.x * fCoefficient;
         v3CurrentLookAt.y += v3Axis.y * fCoefficient;
         v3CurrentLookAt.z += v3Axis.z * fCoefficient;
-        player.SetLookAt(v3CurrentLookAt);
+        player.SetLookAt(v3CurrentLookAt);*/
 
         /*D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
         D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
@@ -369,7 +369,9 @@ VOID __KeyProc()
     }
     if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
     {
-        v3Axis.x = mtPlayerAxis._11;
+        PlayerMove(&player, MOVE_DIRECTION::right, TRANSLATION_DISTANCE, chMap1);
+
+        /*v3Axis.x = mtPlayerAxis._11;
         v3Axis.y = mtPlayerAxis._12;
         v3Axis.z = mtPlayerAxis._13;
         fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
@@ -386,11 +388,13 @@ VOID __KeyProc()
 
         D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
         D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
-        player.SetPlayerWorld(mtPlayerWorld);
+        player.SetPlayerWorld(mtPlayerWorld);*/
     }
     if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP))
     {
-        v3Axis.x = mtPlayerAxis._31;
+        PlayerMove(&player, MOVE_DIRECTION::front, TRANSLATION_DISTANCE, chMap1);
+
+        /*v3Axis.x = mtPlayerAxis._31;
         v3Axis.y = mtPlayerAxis._32;
         v3Axis.z = mtPlayerAxis._33;
         fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
@@ -407,11 +411,13 @@ VOID __KeyProc()
 
         D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
         D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
-        player.SetPlayerWorld(mtPlayerWorld);
+        player.SetPlayerWorld(mtPlayerWorld);*/
     }
     if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN))
     {
-        v3Axis.x = -mtPlayerAxis._31;
+        PlayerMove(&player, MOVE_DIRECTION::back, TRANSLATION_DISTANCE, chMap1);
+
+        /*v3Axis.x = -mtPlayerAxis._31;
         v3Axis.y = -mtPlayerAxis._32;
         v3Axis.z = -mtPlayerAxis._33;
         fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
@@ -428,7 +434,7 @@ VOID __KeyProc()
 
         D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
         D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
-        player.SetPlayerWorld(mtPlayerWorld);
+        player.SetPlayerWorld(mtPlayerWorld);*/
     }
     
     // Q/E : 플레이어 CCW/CW 회전

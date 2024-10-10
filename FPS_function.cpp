@@ -128,6 +128,7 @@ VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const
 {
     D3DXVECTOR3 vecDirection, tmpPosition; // 벽을 생각하지 않고 이동된 위치. 주변 8개 벽과 이것을 대조해 최종 위치 결정
     D3DXVECTOR3 vecPosition = player->GetPosition(), vecLookAt = player->GetLookAt();
+    D3DXVECTOR2 WallPoint[2]; // 충돌을 검사할 블록의 왼쪽아래(minX, minZ)와 오른쪽위(maxX,maxZ) 두 점
     FLOAT fCoefficient = distance;
     int i, j, nCoX, nCoZ;
     // 현재 좌표
@@ -144,53 +145,151 @@ VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const
         tmpPosition.x = vecPosition.x + vecDirection.x * fCoefficient;
         tmpPosition.y = vecPosition.y + vecDirection.y * fCoefficient;
         tmpPosition.z = vecPosition.z + vecDirection.z * fCoefficient;
-        // x축 음의 방향으로 이동일 경우
-        if (vecDirection.x < 0)
-        {
-            for (i = 0; i < 3; i++)
-            {
-                // 현재 위치 기준 왼쪽 3개 블록에 대해 검사
-                // 제일 외곽 벽일 경우 따로 검사
-                //if()
-                if (map[nCoZ - 1 + i][nCoX - 1] == '*')
-                {
-                    if (vecPosition.x - PLAYER_RADIUS < (nCoX - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE)
-                    {
-                        // 수정 필요. aabb 첨가
-                        if (vecPosition.z - PLAYER_RADIUS<(NUM_OF_ROW / 2 - nCoZ) * LENGTH_OF_TILE || vecPosition.z + PLAYER_RADIUS>(NUM_OF_ROW / 2 - nCoZ - 1) * LENGTH_OF_TILE)
-                        {
-                            tmpPosition.x = (nCoX - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
-                        }
-                    }
-                }
-            }
-        }
-        else if (vecDirection.x > 0)
-        {
-
-        }
-        if (vecDirection.z < 0)
-        {
-
-        }
-        else if (vecDirection.z > 0)
-        {
-
-        }
     }
     else if (direction == MOVE_DIRECTION::right)
     {
+        vecDirection.x = player->GetPlayerAxis()._11;
+        vecDirection.y = player->GetPlayerAxis()._12;
+        vecDirection.z = player->GetPlayerAxis()._13;
+        fCoefficient /= sqrtf(vecDirection.x * vecDirection.x + vecDirection.y * vecDirection.y + vecDirection.z * vecDirection.z);
 
+        tmpPosition.x = vecPosition.x + vecDirection.x * fCoefficient;
+        tmpPosition.y = vecPosition.y + vecDirection.y * fCoefficient;
+        tmpPosition.z = vecPosition.z + vecDirection.z * fCoefficient;
     }
     else if (direction == MOVE_DIRECTION::front)
     {
+        vecDirection.x = player->GetPlayerAxis()._31;
+        vecDirection.y = player->GetPlayerAxis()._32;
+        vecDirection.z = player->GetPlayerAxis()._33;
+        fCoefficient /= sqrtf(vecDirection.x * vecDirection.x + vecDirection.y * vecDirection.y + vecDirection.z * vecDirection.z);
 
+        tmpPosition.x = vecPosition.x + vecDirection.x * fCoefficient;
+        tmpPosition.y = vecPosition.y + vecDirection.y * fCoefficient;
+        tmpPosition.z = vecPosition.z + vecDirection.z * fCoefficient;
     }
     else if (direction == MOVE_DIRECTION::back)
     {
+        vecDirection.x = -player->GetPlayerAxis()._31;
+        vecDirection.y = -player->GetPlayerAxis()._32;
+        vecDirection.z = -player->GetPlayerAxis()._33;
+        fCoefficient /= sqrtf(vecDirection.x * vecDirection.x + vecDirection.y * vecDirection.y + vecDirection.z * vecDirection.z);
+
+        tmpPosition.x = vecPosition.x + vecDirection.x * fCoefficient;
+        tmpPosition.y = vecPosition.y + vecDirection.y * fCoefficient;
+        tmpPosition.z = vecPosition.z + vecDirection.z * fCoefficient;
 
     }
-    player->SetPosition(vecPosition);
+    // 외곽 벽에 부딪히는 경우 추가, 몇몇 곳에서 블록 속으로 들어가버리는 버그 수정하기
+    // x축 음의 방향으로 이동일 경우
+    if (vecDirection.x < 0)
+    {
+        for (i = 0; i < 3; i++)
+        {
+            // 현재 위치 기준 왼쪽 3개 블록에 대해 검사
+            // 제일 외곽 벽일 경우 따로 검사
+            //if()
+            if (map[nCoZ - 1 + i][nCoX - 1] == '*')
+            {
+                WallPoint[0].x = (nCoX - 1 - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
+                WallPoint[0].y = (NUM_OF_ROW / 2 - (nCoZ - 1 + i) - 1) * LENGTH_OF_TILE;
+                WallPoint[1].x = (nCoX - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
+                WallPoint[1].y = (NUM_OF_ROW / 2 - (nCoZ - 1 + i)) * LENGTH_OF_TILE;
+
+                //충돌 시
+                if (WallPoint[0].x <= tmpPosition.x + PLAYER_RADIUS && WallPoint[1].x >= tmpPosition.x - PLAYER_RADIUS
+                    && WallPoint[0].y <= tmpPosition.z + PLAYER_RADIUS && WallPoint[1].y >= tmpPosition.z - PLAYER_RADIUS)
+                {
+                    OutputDebugStringA("Left Collision!!!\n");
+                    tmpPosition.x = WallPoint[1].x + PLAYER_RADIUS + 0.1f;
+                    break;
+                }
+            }
+        }
+    }
+    // x축 양의 방향으로 이동일 경우
+    else if (vecDirection.x > 0)
+    {
+        for (i = 0; i < 3; i++)
+        {
+            // 현재 위치 기준 오른쪽 3개 블록에 대해 검사
+            // 제일 외곽 벽일 경우 따로 검사
+            //if()
+            if (map[nCoZ - 1 + i][nCoX + 1] == '*')
+            {
+                WallPoint[0].x = (nCoX + 1 - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
+                WallPoint[0].y = (NUM_OF_ROW / 2 - (nCoZ - 1 + i) - 1) * LENGTH_OF_TILE;
+                WallPoint[1].x = (nCoX + 2 - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
+                WallPoint[1].y = (NUM_OF_ROW / 2 - (nCoZ - 1 + i)) * LENGTH_OF_TILE;
+
+                //충돌 시
+                if (WallPoint[0].x <= tmpPosition.x + PLAYER_RADIUS && WallPoint[1].x >= tmpPosition.x - PLAYER_RADIUS
+                    && WallPoint[0].y <= tmpPosition.z + PLAYER_RADIUS && WallPoint[1].y >= tmpPosition.z - PLAYER_RADIUS)
+                {
+                    OutputDebugStringA("Right Collision!!!\n");
+                    tmpPosition.x = WallPoint[0].x - PLAYER_RADIUS - 0.1f;
+                    break;
+                }
+            }
+        }
+    }
+
+    // z축 음의 방향으로 이동일 경우
+    if (vecDirection.z < 0)
+    {
+        for (i = 0; i < 3; i++)
+        {
+            // 현재 위치 기준 아래쪽 3개 블록에 대해 검사
+            // 제일 외곽 벽일 경우 따로 검사
+            //if()
+            if (map[nCoZ + 1][nCoX - 1 + i] == '*')
+            {
+                WallPoint[0].x = (nCoX - 1 + i - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
+                WallPoint[0].y = (NUM_OF_ROW / 2 - (nCoZ + 1) - 1) * LENGTH_OF_TILE;
+                WallPoint[1].x = (nCoX + i - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
+                WallPoint[1].y = (NUM_OF_ROW / 2 - (nCoZ + 1)) * LENGTH_OF_TILE;
+
+                //충돌 시
+                if (WallPoint[0].x <= tmpPosition.x + PLAYER_RADIUS && WallPoint[1].x >= tmpPosition.x - PLAYER_RADIUS
+                    && WallPoint[0].y <= tmpPosition.z + PLAYER_RADIUS && WallPoint[1].y >= tmpPosition.z - PLAYER_RADIUS)
+                {
+                    OutputDebugStringA("Back Collision!!!\n");
+                    tmpPosition.z = WallPoint[1].y + PLAYER_RADIUS + 0.1f;
+                    break;
+                }
+            }
+        }
+    }
+    // z축 양의 방향으로 이동일 경우
+    else if (vecDirection.z > 0)
+    {
+        for (i = 0; i < 3; i++)
+        {
+            // 현재 위치 기준 위쪽 3개 블록에 대해 검사
+            // 제일 외곽 벽일 경우 따로 검사
+            //if()
+            if (map[nCoZ - 1][nCoX - 1 + i] == '*')
+            {
+                WallPoint[0].x = (nCoX - 1 + i - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
+                WallPoint[0].y = (NUM_OF_ROW / 2 - (nCoZ - 1) - 1) * LENGTH_OF_TILE;
+                WallPoint[1].x = (nCoX + i - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
+                WallPoint[1].y = (NUM_OF_ROW / 2 - (nCoZ - 1)) * LENGTH_OF_TILE;
+
+                //충돌 시
+                if (WallPoint[0].x <= tmpPosition.x + PLAYER_RADIUS && WallPoint[1].x >= tmpPosition.x - PLAYER_RADIUS
+                    && WallPoint[0].y <= tmpPosition.z + PLAYER_RADIUS && WallPoint[1].y >= tmpPosition.z - PLAYER_RADIUS)
+                {
+                    OutputDebugStringA("Front Collision!!!\n");
+                    tmpPosition.z = WallPoint[0].y - PLAYER_RADIUS - 0.1f;
+                    break;
+                }
+            }
+        }
+    }
+    // LookAt은 Position이 이동한 만큼만 더하거나 빼주면 됨
+    vecLookAt.x += tmpPosition.x - vecPosition.x;
+    vecLookAt.z += tmpPosition.z - vecPosition.z;
+    player->SetPosition(tmpPosition);
     player->SetLookAt(vecLookAt);
 }
 BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance, BOOL direction)
