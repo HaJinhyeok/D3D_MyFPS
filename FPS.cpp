@@ -348,93 +348,18 @@ VOID __KeyProc()
     if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
     {
         PlayerMove(&player, MOVE_DIRECTION::left, TRANSLATION_DISTANCE, chMap1);
-        /*v3Axis.x = -mtPlayerAxis._11;
-        v3Axis.y = -mtPlayerAxis._12;
-        v3Axis.z = -mtPlayerAxis._13;
-        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
-
-        v3CurrentPosition.x += v3Axis.x * fCoefficient;
-        v3CurrentPosition.y += v3Axis.y * fCoefficient;
-        v3CurrentPosition.z += v3Axis.z * fCoefficient;
-        player.SetPosition(v3CurrentPosition);
-
-        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
-        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
-        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
-        player.SetLookAt(v3CurrentLookAt);*/
-
-        /*D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
-        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
-        player.SetPlayerWorld(mtPlayerWorld);*/
     }
     if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
     {
         PlayerMove(&player, MOVE_DIRECTION::right, TRANSLATION_DISTANCE, chMap1);
-
-        /*v3Axis.x = mtPlayerAxis._11;
-        v3Axis.y = mtPlayerAxis._12;
-        v3Axis.z = mtPlayerAxis._13;
-        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
-
-        v3CurrentPosition.x += v3Axis.x * fCoefficient;
-        v3CurrentPosition.y += v3Axis.y * fCoefficient;
-        v3CurrentPosition.z += v3Axis.z * fCoefficient;
-        player.SetPosition(v3CurrentPosition);
-
-        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
-        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
-        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
-        player.SetLookAt(v3CurrentLookAt);
-
-        D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
-        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
-        player.SetPlayerWorld(mtPlayerWorld);*/
     }
     if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP))
     {
         PlayerMove(&player, MOVE_DIRECTION::front, TRANSLATION_DISTANCE, chMap1);
-
-        /*v3Axis.x = mtPlayerAxis._31;
-        v3Axis.y = mtPlayerAxis._32;
-        v3Axis.z = mtPlayerAxis._33;
-        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
-
-        v3CurrentPosition.x += v3Axis.x * fCoefficient;
-        v3CurrentPosition.y += v3Axis.y * fCoefficient;
-        v3CurrentPosition.z += v3Axis.z * fCoefficient;
-        player.SetPosition(v3CurrentPosition);
-
-        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
-        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
-        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
-        player.SetLookAt(v3CurrentLookAt);
-
-        D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
-        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
-        player.SetPlayerWorld(mtPlayerWorld);*/
     }
     if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN))
     {
         PlayerMove(&player, MOVE_DIRECTION::back, TRANSLATION_DISTANCE, chMap1);
-
-        /*v3Axis.x = -mtPlayerAxis._31;
-        v3Axis.y = -mtPlayerAxis._32;
-        v3Axis.z = -mtPlayerAxis._33;
-        fCoefficient = TRANSLATION_DISTANCE / sqrtf(powf(v3Axis.x, 2.0f) + powf(v3Axis.y, 2.0f) + powf(v3Axis.z, 2.0f));
-
-        v3CurrentPosition.x += v3Axis.x * fCoefficient;
-        v3CurrentPosition.y += v3Axis.y * fCoefficient;
-        v3CurrentPosition.z += v3Axis.z * fCoefficient;
-        player.SetPosition(v3CurrentPosition);
-
-        v3CurrentLookAt.x += v3Axis.x * fCoefficient;
-        v3CurrentLookAt.y += v3Axis.y * fCoefficient;
-        v3CurrentLookAt.z += v3Axis.z * fCoefficient;
-        player.SetLookAt(v3CurrentLookAt);
-
-        D3DXMatrixTranslation(&mtTranslation, v3Axis.x * fCoefficient, v3Axis.y * fCoefficient, v3Axis.z * fCoefficient);
-        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtTranslation);
-        player.SetPlayerWorld(mtPlayerWorld);*/
     }
     
     // Q/E : 플레이어 CCW/CW 회전
@@ -644,7 +569,7 @@ VOID Render()
         g_pLookAtSphere->DrawSubset(0);
 
         //// 좌상단 UI
-        if(FALSE)
+        //if(FALSE)
         {
             //// Transformed Vertex
             g_pd3dDevice->SetTexture(0, NULL);
@@ -654,14 +579,17 @@ VOID Render()
             //// DrawText
             SetRect(&rt, 20, 20, 0, 0);
             // swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
-            swprintf_s(test2, 500, L"Left: %f, %f, %f, %f\nRight: %f, %f, %f, %f\nBottom: %f, %f, %f, %f\nTop: %f, %f, %f, %f\nNear: %f, %f, %f, %f\nFar: %f, %f, %f, %f\n\nposition: %f, %f, %f\nlook at : %f, %f, %f",
+            /*swprintf_s(test2, 500, L"Left: %f, %f, %f, %f\nRight: %f, %f, %f, %f\nBottom: %f, %f, %f, %f\nTop: %f, %f, %f, %f\nNear: %f, %f, %f, %f\nFar: %f, %f, %f, %f\n\nposition: %f, %f, %f\nlook at : %f, %f, %f",
                 FrustumPlane[0].a, FrustumPlane[0].b, FrustumPlane[0].c, FrustumPlane[0].d,
                 FrustumPlane[1].a, FrustumPlane[1].b, FrustumPlane[1].c, FrustumPlane[1].d,
                 FrustumPlane[2].a, FrustumPlane[2].b, FrustumPlane[2].c, FrustumPlane[2].d,
                 FrustumPlane[3].a, FrustumPlane[3].b, FrustumPlane[3].c, FrustumPlane[3].d,
                 FrustumPlane[4].a, FrustumPlane[4].b, FrustumPlane[4].c, FrustumPlane[4].d,
                 FrustumPlane[5].a, FrustumPlane[5].b, FrustumPlane[5].c, FrustumPlane[5].d,
-                v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
+                v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);*/
+
+            int nCoX = floorf(v3CurrentPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2, nCoZ = NUM_OF_ROW / 2 - floorf(v3CurrentPosition.z / LENGTH_OF_TILE) - 1;
+            swprintf_s(test2, 500, L"current position: (%f, %f)\ncurrent coordinate: (%d, %d)", v3CurrentPosition.x, v3CurrentPosition.z, nCoX, nCoZ);
             wsprintf(testSTR, "%ws", test2);
             // wsprintf(testSTR, "2: 시점변환");
             g_pFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));

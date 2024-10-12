@@ -132,8 +132,8 @@ VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const
     FLOAT fCoefficient = distance;
     int i, j, nCoX, nCoZ;
     // 현재 좌표
-    nCoX = (int)(vecPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2;
-    nCoZ = NUM_OF_ROW / 2 - (int)(vecPosition.z / LENGTH_OF_TILE);
+    nCoX = floorf(vecPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2;
+    nCoZ = NUM_OF_ROW / 2 - floorf(vecPosition.z / LENGTH_OF_TILE) - 1;
 
     if (direction == MOVE_DIRECTION::left)
     {
@@ -188,8 +188,14 @@ VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const
         {
             // 현재 위치 기준 왼쪽 3개 블록에 대해 검사
             // 제일 외곽 벽일 경우 따로 검사
-            //if()
-            if (map[nCoZ - 1 + i][nCoX - 1] == '*')
+            if (nCoX == 0)
+            {
+                if (tmpPosition.x - PLAYER_RADIUS <= -NUM_OF_COLUMN / 2 * LENGTH_OF_TILE)
+                {
+                    tmpPosition.x = -NUM_OF_COLUMN / 2 * LENGTH_OF_TILE + PLAYER_RADIUS;
+                }
+            }            
+            else if (map[nCoZ - 1 + i][nCoX - 1] == '*')
             {
                 WallPoint[0].x = (nCoX - 1 - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
                 WallPoint[0].y = (NUM_OF_ROW / 2 - (nCoZ - 1 + i) - 1) * LENGTH_OF_TILE;
@@ -214,8 +220,14 @@ VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const
         {
             // 현재 위치 기준 오른쪽 3개 블록에 대해 검사
             // 제일 외곽 벽일 경우 따로 검사
-            //if()
-            if (map[nCoZ - 1 + i][nCoX + 1] == '*')
+            if (nCoX == NUM_OF_COLUMN - 1)
+            {
+                if (tmpPosition.x + PLAYER_RADIUS >= NUM_OF_COLUMN / 2 * LENGTH_OF_TILE)
+                {
+                    tmpPosition.x = NUM_OF_COLUMN / 2 * LENGTH_OF_TILE - PLAYER_RADIUS;
+                }
+            }
+            else if (map[nCoZ - 1 + i][nCoX + 1] == '*')
             {
                 WallPoint[0].x = (nCoX + 1 - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
                 WallPoint[0].y = (NUM_OF_ROW / 2 - (nCoZ - 1 + i) - 1) * LENGTH_OF_TILE;
@@ -241,8 +253,14 @@ VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const
         {
             // 현재 위치 기준 아래쪽 3개 블록에 대해 검사
             // 제일 외곽 벽일 경우 따로 검사
-            //if()
-            if (map[nCoZ + 1][nCoX - 1 + i] == '*')
+            if (nCoZ == NUM_OF_ROW - 1)
+            {
+                if (tmpPosition.z - PLAYER_RADIUS <= -NUM_OF_ROW / 2 * LENGTH_OF_TILE)
+                {
+                    tmpPosition.z = -NUM_OF_ROW / 2 * LENGTH_OF_TILE + PLAYER_RADIUS;
+                }
+            }
+            else if (map[nCoZ + 1][nCoX - 1 + i] == '*')
             {
                 WallPoint[0].x = (nCoX - 1 + i - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
                 WallPoint[0].y = (NUM_OF_ROW / 2 - (nCoZ + 1) - 1) * LENGTH_OF_TILE;
@@ -267,8 +285,14 @@ VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const
         {
             // 현재 위치 기준 위쪽 3개 블록에 대해 검사
             // 제일 외곽 벽일 경우 따로 검사
-            //if()
-            if (map[nCoZ - 1][nCoX - 1 + i] == '*')
+            if (nCoZ == 0)
+            {
+                if (tmpPosition.z + PLAYER_RADIUS >= NUM_OF_ROW / 2 * LENGTH_OF_TILE)
+                {
+                    tmpPosition.z = NUM_OF_ROW / 2 * LENGTH_OF_TILE - PLAYER_RADIUS;
+                }
+            }
+            else if (map[nCoZ - 1][nCoX - 1 + i] == '*')
             {
                 WallPoint[0].x = (nCoX - 1 + i - NUM_OF_COLUMN / 2) * LENGTH_OF_TILE;
                 WallPoint[0].y = (NUM_OF_ROW / 2 - (nCoZ - 1) - 1) * LENGTH_OF_TILE;

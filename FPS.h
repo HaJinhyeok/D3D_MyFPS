@@ -3,6 +3,7 @@
 #include <d3dx9math.h>
 #include <d3dx9shape.h>
 #include <wchar.h>
+#include <cmath>
 #include <vector>
 
 using namespace std;
