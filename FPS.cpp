@@ -25,8 +25,8 @@ RECT rt;
 char testSTR[500];
 wchar_t test2[500];
 // CUSTOMVERTEX* tmpBlock;
-CUSTOMVERTEX tmpBlock[20];
-LPDIRECT3DVERTEXBUFFER9 g_pTmpBlockVB = NULL;
+// CUSTOMVERTEX tmpBlock[20];
+// LPDIRECT3DVERTEXBUFFER9 g_pTmpBlockVB = NULL;
 
 HRESULT InitD3D(HWND hWnd)
 {
@@ -288,8 +288,8 @@ VOID CleanUp()
         delete tmpBlock;*/
     if (z_buffer != NULL)
         z_buffer->Release();
-    if (g_pTmpBlockVB != NULL)
-        g_pTmpBlockVB->Release();
+    /*if (g_pTmpBlockVB != NULL)
+        g_pTmpBlockVB->Release();*/
     if (g_pLookAtSphere != NULL)
         g_pLookAtSphere->Release();
     if (g_pSphere != NULL)

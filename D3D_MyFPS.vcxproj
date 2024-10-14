@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CExit.cpp" />
     <ClCompile Include="CFrustum.cpp" />
     <ClCompile Include="CNotice.cpp" />
     <ClCompile Include="CPlayer.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="Input.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CExit.h" />
     <ClInclude Include="CFrustum.h" />
     <ClInclude Include="CNotice.h" />
     <ClInclude Include="CPlayer.h" />

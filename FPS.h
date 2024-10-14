@@ -105,7 +105,7 @@ static CUSTOMVERTEX LabyrinthWallVertices[72][20];
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
 // tile culling 수정: 정사각형 중심으로부터 거리가 변의 길이의 절반 이하(d <= LENGTH_OF_TILE / 2) culling 해주어야 함.
-// 추가할 기능: 플레이어 시점이 qe가 아닌 마우스 움직임에 따라 변하면 좋을 듯 
+// 추가할 기능: 플레이어 시점이 qe가 아닌 마우스 움직임에 따라 변하면 좋을 듯?
 
 //// 미로 찾기 게임
 // 맵은 한 개, 많아야 두 개(만들기 번거로울 듯?)
