@@ -331,15 +331,6 @@ VOID __KeyProc()
 {
     UpdateInput();
     // wasd 또는 방향키 : 플레이어 앞뒤좌우 움직임
-    D3DXVECTOR3 v3CurrentPosition = player.GetPosition();
-    D3DXVECTOR3 v3CurrentLookAt = player.GetLookAt();
-    D3DXMATRIX mtPlayerWorld = player.GetPlayerWorld();
-    D3DXMATRIX mtPlayerAxis = player.GetPlayerAxis();
-
-    D3DXVECTOR3 v3Axis;
-    
-    D3DXMATRIX mtTranslation, mtRotation, tmpMatrix;
-    FLOAT fCoefficient;
 
     // 이동 시, 벽과 일정 거리(PLAYER_RADIUS) 이하로는 가까워지지 않도록 조정하기
     // 현재 위치를 단순화하여 좌표로 나타내고, 그 점을 둘러싼 8개의 좌표에 대해 충돌 검사 시행
@@ -347,58 +338,29 @@ VOID __KeyProc()
 
     if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
     {
-        PlayerMove(&player, MOVE_DIRECTION::left, TRANSLATION_DISTANCE, chMap1);
+        player.Move(MOVE_DIRECTION::left, chMap1);
     }
     if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
     {
-        PlayerMove(&player, MOVE_DIRECTION::right, TRANSLATION_DISTANCE, chMap1);
+        player.Move(MOVE_DIRECTION::right, chMap1);
     }
     if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP))
     {
-        PlayerMove(&player, MOVE_DIRECTION::front, TRANSLATION_DISTANCE, chMap1);
+        player.Move(MOVE_DIRECTION::front, chMap1);
     }
     if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN))
     {
-        PlayerMove(&player, MOVE_DIRECTION::back, TRANSLATION_DISTANCE, chMap1);
+        player.Move(MOVE_DIRECTION::back, chMap1);
     }
     
     // Q/E : 플레이어 CCW/CW 회전
     if (GetAsyncKeyState('Q'))
     {
-        D3DXMatrixRotationY(&mtRotation, -ROTATION_AMOUNT);
-        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtRotation);
-        player.SetPlayerWorld(mtPlayerWorld);
-        D3DXMatrixMultiply(&mtPlayerAxis, &mtPlayerAxis, &mtRotation);
-        player.SetPlayerAxis(mtPlayerAxis);
-
-        // position은 그대로지만, look at은 회전해야함!
-        D3DXMatrixIdentity(&tmpMatrix);
-        tmpMatrix._11 = v3CurrentLookAt.x - v3CurrentPosition.x;
-        tmpMatrix._12 = v3CurrentLookAt.y - v3CurrentPosition.y;
-        tmpMatrix._13 = v3CurrentLookAt.z - v3CurrentPosition.z;
-        D3DXMatrixMultiply(&tmpMatrix, &tmpMatrix, &mtRotation);
-        v3CurrentLookAt.x = tmpMatrix._11 + v3CurrentPosition.x;
-        v3CurrentLookAt.y = tmpMatrix._12 + v3CurrentPosition.y;
-        v3CurrentLookAt.z = tmpMatrix._13 + v3CurrentPosition.z;
-        player.SetLookAt(v3CurrentLookAt);
+        player.Rotate(TRUE);
     }
     if (GetAsyncKeyState('E'))
     {
-        D3DXMatrixRotationY(&mtRotation, ROTATION_AMOUNT);
-        D3DXMatrixMultiply(&mtPlayerWorld, &mtPlayerWorld, &mtRotation);
-        player.SetPlayerWorld(mtPlayerWorld);
-        D3DXMatrixMultiply(&mtPlayerAxis, &mtPlayerAxis, &mtRotation);
-        player.SetPlayerAxis(mtPlayerAxis);
-        // position은 그대로지만, look at은 회전해야함!
-        D3DXMatrixIdentity(&tmpMatrix);
-        tmpMatrix._11 = v3CurrentLookAt.x - v3CurrentPosition.x;
-        tmpMatrix._12 = v3CurrentLookAt.y - v3CurrentPosition.y;
-        tmpMatrix._13 = v3CurrentLookAt.z - v3CurrentPosition.z;
-        D3DXMatrixMultiply(&tmpMatrix, &tmpMatrix, &mtRotation);
-        v3CurrentLookAt.x = tmpMatrix._11 + v3CurrentPosition.x;
-        v3CurrentLookAt.y = tmpMatrix._12 + v3CurrentPosition.y;
-        v3CurrentLookAt.z = tmpMatrix._13 + v3CurrentPosition.z;
-        player.SetLookAt(v3CurrentLookAt);
+        player.Rotate(FALSE);
     }
     //// 추후 생각해서 추가해볼 기능
     {
@@ -591,8 +553,20 @@ VOID Render()
             int nCoX = floorf(v3CurrentPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2, nCoZ = NUM_OF_ROW / 2 - floorf(v3CurrentPosition.z / LENGTH_OF_TILE) - 1;
             swprintf_s(test2, 500, L"current position: (%f, %f)\ncurrent coordinate: (%d, %d)", v3CurrentPosition.x, v3CurrentPosition.z, nCoX, nCoZ);
             wsprintf(testSTR, "%ws", test2);
-            // wsprintf(testSTR, "2: 시점변환");
             g_pFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+            
+            SetRect(&rt, 20, 60, 0, 0);
+            /*swprintf_s(test2, 500, L"current X - axis: (%f, %f, %f)\ncurrent Y-axis: (%f, %f, %f)\ncurrent Z-axis:(%f, %f, %f)",
+                player.GetPlayerAxis()._11, player.GetPlayerAxis()._12, player.GetPlayerAxis()._13,
+                player.GetPlayerAxis()._21, player.GetPlayerAxis()._22, player.GetPlayerAxis()._23,
+                player.GetPlayerAxis()._31, player.GetPlayerAxis()._32, player.GetPlayerAxis()._33);*/
+            swprintf_s(test2, 500, L"LookAt-Position:(%f, %f, %f)\ncurrent Z-axis:(%f, %f, %f)",
+                (v3CurrentLookAt.x - v3CurrentPosition.x) / 5.0f, (v3CurrentLookAt.y - v3CurrentPosition.y) / 5.0f, (v3CurrentLookAt.z - v3CurrentPosition.z) / 5.0f,
+                player.GetPlayerAxis()._31, player.GetPlayerAxis()._32, player.GetPlayerAxis()._33);
+            wsprintf(testSTR, "%ws", test2);
+            g_pFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+
+            // wsprintf(testSTR, "2: 시점변환");
         }
         
         g_pd3dDevice->EndScene();

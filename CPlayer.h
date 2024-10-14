@@ -2,6 +2,8 @@
 #include <d3d9.h>
 #include <d3dx9math.h>
 
+#include "FPS.h"
+
 class CPlayer
 {
 private:
@@ -55,5 +57,8 @@ public:
 	{
 		return m_Flashlight;
 	}
+
+	VOID Move(MOVE_DIRECTION direction, const char (*map)[NUM_OF_COLUMN+1]);
+	VOID Rotate(BOOL bIsCCW);
 };
 

@@ -8,13 +8,13 @@
 
 using namespace std;
 
-
 #define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
 #define D3DFVF_UI_VERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 #define TEXTURE_TILE "tex_tile.bmp"
 #define TEXTURE_GRASS "tex_grass.jpg"
 #define TEXTURE_WALL "tex_wall.jpg"
 #define TRANSLATION_DISTANCE 0.2f
+#define LOOKAT_DISTANCE 5.0f
 #define ROTATION_AMOUNT D3DX_PI/180
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이

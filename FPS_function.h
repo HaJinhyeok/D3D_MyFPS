@@ -1,6 +1,6 @@
 #pragma once
-#include "FPS.h"
 #include "CPlayer.h"
+#include "CNotice.h"
 
 POSITION_WITH_FRUSTUM CheckFrustumCulling(D3DXPLANE* FrustumPlane, D3DXVECTOR3 position, FLOAT distance);
 D3DXVECTOR3 CalculateMidPoint(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2);
@@ -10,7 +10,3 @@ D3DXVECTOR3 CalculateMidPoint(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2);
 VOID MakeLabyrinth(int nMapNumber, CUSTOMVERTEX (*Labyrinth)[20]);
 // CUSTOMVERTEX* MakeWallBlock(D3DXVECTOR3 position);
 VOID MakeWallBlock(CUSTOMVERTEX* Block, D3DXVECTOR3 position);
-
-VOID PlayerMove(CPlayer* player, MOVE_DIRECTION direction, FLOAT distance, const char (*map)[NUM_OF_COLUMN + 1]);
-
-BOOL CollisionCheck(char** map, D3DXVECTOR3 CharacterPositon, FLOAT distance, BOOL direction);
