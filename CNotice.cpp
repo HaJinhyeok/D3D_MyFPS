@@ -2,11 +2,17 @@
 
 BOOL CNotice::m_bIsCollision = FALSE;
 
+WORD CNotice::m_NoticeCount = 0;
+
 CNotice::CNotice()
 {
 
 }
-CNotice::CNotice(D3DXVECTOR3 position)
+CNotice::~CNotice()
+{
+
+}
+VOID CNotice::MakeNotice(D3DXVECTOR3 position)
 {
 	m_Position = position;
 	for (int i = 0; i < 4; i++)
@@ -23,9 +29,23 @@ CNotice::CNotice(D3DXVECTOR3 position)
 	m_Vertex[2].v3VerPos = D3DXVECTOR3(m_Position.x + LENGTH_OF_TILE / 2, 0.01f, m_Position.z - LENGTH_OF_TILE / 2);
 	m_Vertex[3].v3VerPos = D3DXVECTOR3(m_Position.x - LENGTH_OF_TILE / 2, 0.01f, m_Position.z - LENGTH_OF_TILE / 2);
 }
-CNotice::~CNotice()
+VOID CNotice::MakeNoticeVB(LPDIRECT3DDEVICE9 device)
 {
-
+	device->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 4, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &m_pNoticeVB, NULL);
+	VOID** NoticeVertices;
+	m_pNoticeVB->Lock(0, sizeof(CUSTOMVERTEX) * 4, (void**)&NoticeVertices, 0);
+	memcpy(NoticeVertices, m_Vertex, sizeof(CUSTOMVERTEX) * 4);
+	m_pNoticeVB->Unlock();
+}
+VOID CNotice::DrawNotice(LPDIRECT3DDEVICE9 device)
+{
+	device->SetStreamSource(0, m_pNoticeVB, 0, sizeof(CUSTOMVERTEX));
+	device->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, 2);
+}
+VOID CNotice::ReleaseNoticeVB()
+{
+	if (m_pNoticeVB != NULL)
+		m_pNoticeVB->Release();
 }
 BOOL CNotice::IsPossibleInteraction(D3DXVECTOR3 playerPosition)
 {

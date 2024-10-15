@@ -1,5 +1,9 @@
 #include "CExit.h"
 
+CExit::CExit()
+{
+
+}
 CExit::CExit(D3DXVECTOR3 position)
 {
 

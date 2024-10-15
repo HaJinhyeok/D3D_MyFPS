@@ -35,10 +35,10 @@ D3DXVECTOR3 CalculateMidPoint(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2)
 // 벽멱을 전부 vertex 정보로 저장할지, 아니면 한 칸 한 칸의 블록형태로 만들지 미지수
 // CUSTOMVERTEX (*MakeLabyrinth(int nMapNumber))[20]
 // CUSTOMVERTEX** MakeLabyrinth(int nMapNumber)
-VOID MakeLabyrinth(int nMapNumber, CUSTOMVERTEX(*Labyrinth)[20])
+VOID MakeLabyrinth(int nMapNumber, CUSTOMVERTEX(*Labyrinth)[20], vector<CNotice>* notice)
 {
     int i,j;
-    int nBlockNum = 0;
+    int nBlockNum = 0, nNoticeNum = 0;
     // 그냥 LabyrinthWallVertices랑 MapNumber를 받아와서 동적 할당 때려버릴까
     if (nMapNumber == 1)
     {
@@ -51,9 +51,13 @@ VOID MakeLabyrinth(int nMapNumber, CUSTOMVERTEX(*Labyrinth)[20])
                 if (chMap1[i][j] == '*')
                 {
                     MakeWallBlock(Labyrinth[nBlockNum++], D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
-                    //LabyrinthWallVertices[nBlockNum++] = MakeWallBlock(D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
-
-                    //Labyrinth[nBlockNum++] = MakeWallBlock(D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
+                }
+                else if (chMap1[i][j] == '@')
+                {
+                    CNotice tmpNotice;
+                    tmpNotice.MakeNotice(D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
+                    notice->push_back(tmpNotice);
+                    // notice 객체 push될 때마다 count 올리는 방법 연구
                 }
             }
         }

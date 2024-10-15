@@ -13,6 +13,7 @@ LPDIRECT3DVERTEXBUFFER9 g_pLabyrinthVB = NULL;
 LPDIRECT3DTEXTURE9 g_pTileTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pWallTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pGrassTexture = NULL;
+LPDIRECT3DTEXTURE9 g_pNoticeTexture = NULL;
 LPD3DXFONT g_pFont = NULL;
 LPD3DXMESH g_pSphere = NULL;
 LPD3DXMESH g_pLookAtSphere = NULL;
@@ -20,6 +21,7 @@ LPD3DXMESH g_pLookAtSphere = NULL;
 LPDIRECT3DSURFACE9 z_buffer = NULL;
 
 CPlayer player;
+vector<CNotice> notice;
 CFrustum* g_pFrustum = NULL;
 RECT rt;
 char testSTR[500];
@@ -52,7 +54,6 @@ HRESULT InitD3D(HWND hWnd)
     //g_pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
     //g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
     
-
     return S_OK;
 }
 
@@ -66,6 +67,7 @@ VOID InitGeometry()
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pGrassTexture);
+    D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_NOTICE, &g_pNoticeTexture);
 
     /*MakeWallBlock(tmpBlock, D3DXVECTOR3(25.0f, 5.0f, 25.0f));
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pTmpBlockVB, NULL);
@@ -74,15 +76,20 @@ VOID InitGeometry()
     memcpy(tmpVertices, &tmpBlock, sizeof(CUSTOMVERTEX) * 20);
     g_pTmpBlockVB->Unlock();*/
 
-    // 미궁 내 벽을 구성할 vertex들의 buffer 생성
+    //// 미궁 내 벽을 구성할 vertex들의 buffer 생성
     //LabyrinthWallVertices = MakeLabyrinth(1);
-    MakeLabyrinth(1, LabyrinthWallVertices);
+    MakeLabyrinth(1, LabyrinthWallVertices, &notice);
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 72 * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pLabyrinthVB, NULL);
     VOID** LabyrinthVertices;
     g_pLabyrinthVB->Lock(0, sizeof(CUSTOMVERTEX) * 72 * 20, (void**)&LabyrinthVertices, 0);
     memcpy(LabyrinthVertices, LabyrinthWallVertices, sizeof(CUSTOMVERTEX) * 72 * 20);
     g_pLabyrinthVB->Unlock();
 
+    //// Notice를 구성하는 vertex buffer 생성
+    for (i = 0; i < notice[0].GetNumOfNotice(); i++)
+    {
+        notice[i].MakeNoticeVB(g_pd3dDevice);
+    }
     // tile vertex 좌표 입력
     {
         for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
@@ -296,12 +303,18 @@ VOID CleanUp()
         g_pSphere->Release();
     if (g_pFont != NULL)
         g_pFont->Release();
+    if (g_pNoticeTexture != NULL)
+        g_pNoticeTexture->Release();
     if (g_pGrassTexture != NULL)
         g_pGrassTexture->Release();
     if (g_pWallTexture != NULL)
         g_pWallTexture->Release();
     if (g_pTileTexture != NULL)
         g_pTileTexture->Release();
+    for (int i = 0; i < sizeof(notice) / sizeof(CNotice); i++)
+    {
+        notice[i].ReleaseNoticeVB();
+    }
     if (g_pLabyrinthVB != NULL)
         g_pLabyrinthVB->Release();
     if (g_pWallVB2 != NULL)
@@ -316,15 +329,6 @@ VOID CleanUp()
         g_pd3dDevice->Release();
     if (g_pD3D != NULL)
         g_pD3D->Release();
-
-    /*if (LabyrinthWallVertices != NULL)
-    {
-        for (int i = 0; i < 72; i++)
-        {
-            delete[] LabyrinthWallVertices[i];
-        }
-        delete[] LabyrinthWallVertices;
-    }*/
 }
 
 VOID __KeyProc()
@@ -515,6 +519,13 @@ VOID Render()
             }
         }
 
+        //// notice rendering
+        g_pd3dDevice->SetTexture(0, g_pNoticeTexture);
+        for (i = 0; i < sizeof(notice) / sizeof(CNotice); i++)
+        {
+            notice[i].DrawNotice(g_pd3dDevice);
+        }
+
         // 위치 표시용 구체
         D3DXMATRIX tmpTranspose;
         D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
@@ -549,7 +560,7 @@ VOID Render()
                 FrustumPlane[4].a, FrustumPlane[4].b, FrustumPlane[4].c, FrustumPlane[4].d,
                 FrustumPlane[5].a, FrustumPlane[5].b, FrustumPlane[5].c, FrustumPlane[5].d,
                 v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);*/
-
+            
             int nCoX = floorf(v3CurrentPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2, nCoZ = NUM_OF_ROW / 2 - floorf(v3CurrentPosition.z / LENGTH_OF_TILE) - 1;
             swprintf_s(test2, 500, L"current position: (%f, %f)\ncurrent coordinate: (%d, %d)", v3CurrentPosition.x, v3CurrentPosition.z, nCoX, nCoZ);
             wsprintf(testSTR, "%ws", test2);

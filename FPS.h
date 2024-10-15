@@ -5,6 +5,7 @@
 #include <wchar.h>
 #include <cmath>
 #include <vector>
+#include <iterator>
 
 using namespace std;
 
@@ -13,6 +14,7 @@ using namespace std;
 #define TEXTURE_TILE "tex_tile.bmp"
 #define TEXTURE_GRASS "tex_grass.jpg"
 #define TEXTURE_WALL "tex_wall.jpg"
+#define TEXTURE_NOTICE "tex_question.png"
 #define TRANSLATION_DISTANCE 0.2f
 #define LOOKAT_DISTANCE 5.0f
 #define ROTATION_AMOUNT D3DX_PI/180
@@ -66,9 +68,9 @@ const static D3DXVECTOR3 v3EyeCeiling(0.0f, 200.0f, 0.0f);
 const static D3DXVECTOR3 v3UpCeiling(0.0f, 0.0f, 1.0f);
 
 const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
-    "    *  *  * ",
+    "    *@ * @* ",
     "*** ** * ** ",
-    "  * ** * ** ",
+    " @* ** * ** ",
     " ** ** *    ",
     "    ** **** ",
     " **       * ",
@@ -79,7 +81,7 @@ const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
     " * * ** * * ",
     " *   ** * * ",
     " * **** *** ",
-    " * *        "
+    "@*@*        "
 };
 
 // const static D3DXVECTOR3 v3EyeDefault(0.0f, 5.0f, 0.0f);
@@ -103,6 +105,7 @@ static CUSTOMVERTEX WallVertices2[4][4 * NUM_OF_ROW];
 static CUSTOMVERTEX LabyrinthWallVertices[72][20];
 
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
+
 
 // tile culling 수정: 정사각형 중심으로부터 거리가 변의 길이의 절반 이하(d <= LENGTH_OF_TILE / 2) culling 해주어야 함.
 // 추가할 기능: 플레이어 시점이 qe가 아닌 마우스 움직임에 따라 변하면 좋을 듯?

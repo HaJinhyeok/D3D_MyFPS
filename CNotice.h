@@ -7,15 +7,38 @@ class CNotice
 private:
 	D3DXVECTOR3 m_Position;
 	CUSTOMVERTEX m_Vertex[4];
+	LPDIRECT3DVERTEXBUFFER9 m_pNoticeVB = NULL;
 
 	BOOL m_bIsNotice = TRUE;
 	static BOOL m_bIsCollision;
+	static WORD m_NoticeCount;
 
 public:
 	CNotice();
-	CNotice(D3DXVECTOR3 position);
 	~CNotice();
+
+	VOID MakeNotice(D3DXVECTOR3 position);
+	VOID MakeNoticeVB(LPDIRECT3DDEVICE9 device);
+	VOID DrawNotice(LPDIRECT3DDEVICE9 device);
+	VOID ReleaseNoticeVB();
+
 	BOOL IsPossibleInteraction(D3DXVECTOR3 playerPosition);
+	BOOL IsNotice()
+	{
+		return m_bIsNotice;
+	}
+	BOOL IsCollision()
+	{
+		return m_bIsCollision;
+	}
+	VOID AddNumOfNotice()
+	{
+		m_NoticeCount++;
+	}
+	WORD GetNumOfNotice()
+	{
+		return m_NoticeCount;
+	}
 };
 
 // 일단 현재 map1에서 필요한 notice는 5개, exit는 1개이다.
