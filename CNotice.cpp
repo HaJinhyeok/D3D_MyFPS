@@ -24,10 +24,13 @@ VOID CNotice::MakeNotice(D3DXVECTOR3 position)
 	m_Vertex[2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
 	m_Vertex[3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
 
-	m_Vertex[0].v3VerPos = D3DXVECTOR3(m_Position.x - LENGTH_OF_TILE / 2, 0.01f, m_Position.z + LENGTH_OF_TILE / 2);
-	m_Vertex[1].v3VerPos = D3DXVECTOR3(m_Position.x + LENGTH_OF_TILE / 2, 0.01f, m_Position.z + LENGTH_OF_TILE / 2);
-	m_Vertex[2].v3VerPos = D3DXVECTOR3(m_Position.x + LENGTH_OF_TILE / 2, 0.01f, m_Position.z - LENGTH_OF_TILE / 2);
-	m_Vertex[3].v3VerPos = D3DXVECTOR3(m_Position.x - LENGTH_OF_TILE / 2, 0.01f, m_Position.z - LENGTH_OF_TILE / 2);
+	m_Vertex[0].v3VerPos = D3DXVECTOR3(m_Position.x - LENGTH_OF_TILE / 2, m_Position.y + LENGTH_OF_TILE / 2, m_Position.z);
+	m_Vertex[1].v3VerPos = D3DXVECTOR3(m_Position.x + LENGTH_OF_TILE / 2, m_Position.y + LENGTH_OF_TILE / 2, m_Position.z);
+	m_Vertex[2].v3VerPos = D3DXVECTOR3(m_Position.x + LENGTH_OF_TILE / 2, m_Position.y - LENGTH_OF_TILE / 2, m_Position.z);
+	m_Vertex[3].v3VerPos = D3DXVECTOR3(m_Position.x - LENGTH_OF_TILE / 2, m_Position.y - LENGTH_OF_TILE / 2, m_Position.z);
+
+	m_LookAt = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+	m_NoticeCount++;
 }
 VOID CNotice::MakeNoticeVB(LPDIRECT3DDEVICE9 device)
 {
@@ -36,6 +39,31 @@ VOID CNotice::MakeNoticeVB(LPDIRECT3DDEVICE9 device)
 	m_pNoticeVB->Lock(0, sizeof(CUSTOMVERTEX) * 4, (void**)&NoticeVertices, 0);
 	memcpy(NoticeVertices, m_Vertex, sizeof(CUSTOMVERTEX) * 4);
 	m_pNoticeVB->Unlock();
+}
+VOID CNotice::RotateNotice(D3DXVECTOR3 player_position)
+{
+	D3DXVECTOR3 v3Cross, v3Dst = player_position - m_Position;
+	v3Dst.y = 0.0f;
+	FLOAT angle, cos, fDst, fCurrent;
+	// Calculate angle between current LookAt and goal LookAt, using dot product
+	fDst = sqrtf(v3Dst.x * v3Dst.x + v3Dst.z * v3Dst.z);
+	fCurrent = sqrtf(m_LookAt.x * m_LookAt.x + m_LookAt.z * m_LookAt.z);
+	cos = D3DXVec3Dot(&v3Dst, &m_LookAt) / (fDst * fCurrent);
+	cos = min(1.0f, max(-1.0f, cos));
+	angle = acosf(cos);
+	D3DXVec3Cross(&v3Cross, &m_LookAt, &v3Dst);
+	// Update LookAt vector
+	m_LookAt = v3Dst;
+	// If the result of cross product heads to +y, +angle
+	if (v3Cross.y > 0)
+	{
+		
+	}
+	// If the result of cross product heads to -y, -angle
+	else
+	{
+
+	}
 }
 VOID CNotice::DrawNotice(LPDIRECT3DDEVICE9 device)
 {

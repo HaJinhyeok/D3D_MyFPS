@@ -53,6 +53,10 @@ HRESULT InitD3D(HWND hWnd)
     g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
     //g_pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
     //g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+
+    g_pd3dDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+    g_pd3dDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_NOTEQUAL);
+    g_pd3dDevice->SetRenderState(D3DRS_ALPHAREF, 0);
     
     return S_OK;
 }
@@ -67,7 +71,14 @@ VOID InitGeometry()
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pGrassTexture);
-    D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_NOTICE, &g_pNoticeTexture);
+    D3DXCreateTextureFromFileEx(g_pd3dDevice, TEXTURE_NOTICE, 
+        D3DX_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN,
+        D3DPOOL_MANAGED, D3DX_FILTER_TRIANGLE | D3DX_FILTER_MIRROR,
+        D3DX_FILTER_TRIANGLE | D3DX_FILTER_MIRROR,
+        TRANSPARENCY_COLOR,
+        NULL, NULL,
+        &g_pNoticeTexture);
+    // D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_NOTICE, &g_pNoticeTexture);
 
     /*MakeWallBlock(tmpBlock, D3DXVECTOR3(25.0f, 5.0f, 25.0f));
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pTmpBlockVB, NULL);
@@ -311,7 +322,7 @@ VOID CleanUp()
         g_pWallTexture->Release();
     if (g_pTileTexture != NULL)
         g_pTileTexture->Release();
-    for (int i = 0; i < sizeof(notice) / sizeof(CNotice); i++)
+    for (int i = 0; i < notice[0].GetNumOfNotice(); i++)
     {
         notice[i].ReleaseNoticeVB();
     }
@@ -356,7 +367,11 @@ VOID __KeyProc()
     {
         player.Move(MOVE_DIRECTION::back, chMap1);
     }
-    
+    for (int i = 0; i < notice[0].GetNumOfNotice(); i++)
+    {
+        notice[i].RotateNotice(player.GetPosition());
+    }
+
     // Q/E : 플레이어 CCW/CW 회전
     if (GetAsyncKeyState('Q'))
     {
@@ -521,7 +536,7 @@ VOID Render()
 
         //// notice rendering
         g_pd3dDevice->SetTexture(0, g_pNoticeTexture);
-        for (i = 0; i < sizeof(notice) / sizeof(CNotice); i++)
+        for (i = 0; i < notice[0].GetNumOfNotice(); i++)
         {
             notice[i].DrawNotice(g_pd3dDevice);
         }
@@ -531,13 +546,6 @@ VOID Render()
         D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
         D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
         g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
-        /*g_pd3dDevice->SetTexture(0, NULL);
-        g_pSphere->DrawSubset(0);
-        
-        D3DXMatrixIdentity(&mtWorld);
-        D3DXMatrixTranslation(&tmpTranspose, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
-        D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
-        g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);*/
         g_pd3dDevice->SetTexture(0, g_pTileTexture);
         g_pLookAtSphere->DrawSubset(0);
 
@@ -593,7 +601,6 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         CleanUp();
         PostQuitMessage(0);
         return 0;
-
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
