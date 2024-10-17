@@ -1,6 +1,6 @@
 #include "CNotice.h"
 
-BOOL CNotice::m_bIsCollision = FALSE;
+// BOOL CNotice::m_bIsCollision = FALSE;
 
 WORD CNotice::m_NoticeCount = 0;
 
@@ -14,6 +14,7 @@ CNotice::~CNotice()
 }
 VOID CNotice::MakeNotice(D3DXVECTOR3 position)
 {
+	D3DXMatrixIdentity(&m_World);
 	m_Position = position;
 	for (int i = 0; i < 4; i++)
 	{
@@ -24,10 +25,10 @@ VOID CNotice::MakeNotice(D3DXVECTOR3 position)
 	m_Vertex[2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
 	m_Vertex[3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
 
-	m_Vertex[0].v3VerPos = D3DXVECTOR3(m_Position.x - LENGTH_OF_TILE / 2, m_Position.y + LENGTH_OF_TILE / 2, m_Position.z);
-	m_Vertex[1].v3VerPos = D3DXVECTOR3(m_Position.x + LENGTH_OF_TILE / 2, m_Position.y + LENGTH_OF_TILE / 2, m_Position.z);
-	m_Vertex[2].v3VerPos = D3DXVECTOR3(m_Position.x + LENGTH_OF_TILE / 2, m_Position.y - LENGTH_OF_TILE / 2, m_Position.z);
-	m_Vertex[3].v3VerPos = D3DXVECTOR3(m_Position.x - LENGTH_OF_TILE / 2, m_Position.y - LENGTH_OF_TILE / 2, m_Position.z);
+	m_Vertex[0].v3VerPos = D3DXVECTOR3(m_Position.x - LENGTH_OF_TILE / 4, m_Position.y + LENGTH_OF_TILE / 4, m_Position.z);
+	m_Vertex[1].v3VerPos = D3DXVECTOR3(m_Position.x + LENGTH_OF_TILE / 4, m_Position.y + LENGTH_OF_TILE / 4, m_Position.z);
+	m_Vertex[2].v3VerPos = D3DXVECTOR3(m_Position.x + LENGTH_OF_TILE / 4, m_Position.y - LENGTH_OF_TILE / 4, m_Position.z);
+	m_Vertex[3].v3VerPos = D3DXVECTOR3(m_Position.x - LENGTH_OF_TILE / 4, m_Position.y - LENGTH_OF_TILE / 4, m_Position.z);
 
 	m_LookAt = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 	m_NoticeCount++;
@@ -42,9 +43,13 @@ VOID CNotice::MakeNoticeVB(LPDIRECT3DDEVICE9 device)
 }
 VOID CNotice::RotateNotice(D3DXVECTOR3 player_position)
 {
-	D3DXVECTOR3 v3Cross, v3Dst = player_position - m_Position;
+	D3DXVECTOR3 v3Vertices[4], v3Cross, v3Dst = player_position - m_Position;
+	D3DXMATRIX mtRotation, mtTranslation;
 	v3Dst.y = 0.0f;
 	FLOAT angle, cos, fDst, fCurrent;
+	// 원점으로 옮기기
+	D3DXMatrixTranslation(&mtTranslation, -m_Position.x, -m_Position.y, -m_Position.z);
+	D3DXMatrixMultiply(&m_World, &m_World, &mtTranslation);
 	// Calculate angle between current LookAt and goal LookAt, using dot product
 	fDst = sqrtf(v3Dst.x * v3Dst.x + v3Dst.z * v3Dst.z);
 	fCurrent = sqrtf(m_LookAt.x * m_LookAt.x + m_LookAt.z * m_LookAt.z);
@@ -57,13 +62,17 @@ VOID CNotice::RotateNotice(D3DXVECTOR3 player_position)
 	// If the result of cross product heads to +y, +angle
 	if (v3Cross.y > 0)
 	{
-		
+		D3DXMatrixRotationY(&mtRotation, angle);
 	}
 	// If the result of cross product heads to -y, -angle
 	else
 	{
-
+		D3DXMatrixRotationY(&mtRotation, -angle);
 	}
+	D3DXMatrixMultiply(&m_World, &m_World, &mtRotation);
+	// 제자리로 복귀
+	D3DXMatrixTranslation(&mtTranslation, m_Position.x, m_Position.y, m_Position.z);
+	D3DXMatrixMultiply(&m_World, &m_World, &mtTranslation);
 }
 VOID CNotice::DrawNotice(LPDIRECT3DDEVICE9 device)
 {
@@ -89,14 +98,14 @@ BOOL CNotice::IsPossibleInteraction(D3DXVECTOR3 playerPosition)
 		&& NoticePoint[0].y <= playerPosition.z + PLAYER_RADIUS && NoticePoint[1].y >= playerPosition.z - PLAYER_RADIUS)
 	{
 		OutputDebugStringA("Notice Collision!!!\n");
-		m_bIsCollision = TRUE;
+		//m_bIsCollision = TRUE;
 
 		return TRUE;
 	}
 	// 충돌을 벗어나면 다시 원래 시점으로 복구
 	else
 	{
-		m_bIsCollision = FALSE;
+		//m_bIsCollision = FALSE;
 
 		return FALSE;
 	}

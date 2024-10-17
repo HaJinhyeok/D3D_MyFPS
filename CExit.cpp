@@ -4,15 +4,11 @@ CExit::CExit()
 {
 
 }
-CExit::CExit(D3DXVECTOR3 position)
-{
-
-}
 CExit::~CExit()
 {
 
 }
-BOOL CExit::IsPossibleInteraction(D3DXVECTOR3 playerPosition)
+VOID CExit::MakeExit(D3DXVECTOR3 position)
 {
-	return FALSE;
+	MakeNotice(position);
 }

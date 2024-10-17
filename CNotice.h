@@ -7,11 +7,12 @@ class CNotice
 private:
 	D3DXVECTOR3 m_Position;
 	D3DXVECTOR3 m_LookAt;
+	D3DXMATRIX m_World;
 	CUSTOMVERTEX m_Vertex[4];
 	LPDIRECT3DVERTEXBUFFER9 m_pNoticeVB = NULL;
 
 	BOOL m_bIsNotice = TRUE;
-	static BOOL m_bIsCollision;
+	//static BOOL m_bIsCollision;
 	static WORD m_NoticeCount;
 
 public:
@@ -29,10 +30,10 @@ public:
 	{
 		return m_bIsNotice;
 	}
-	BOOL IsCollision()
+	/*BOOL IsCollision()
 	{
 		return m_bIsCollision;
-	}
+	}*/
 	VOID AddNumOfNotice()
 	{
 		m_NoticeCount++;
@@ -40,6 +41,10 @@ public:
 	WORD GetNumOfNotice()
 	{
 		return m_NoticeCount;
+	}
+	D3DXMATRIX GetNoticeWorld()
+	{
+		return m_World;
 	}
 };
 

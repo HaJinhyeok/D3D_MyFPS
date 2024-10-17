@@ -35,7 +35,7 @@ D3DXVECTOR3 CalculateMidPoint(D3DXVECTOR3 pos1, D3DXVECTOR3 pos2)
 // 벽멱을 전부 vertex 정보로 저장할지, 아니면 한 칸 한 칸의 블록형태로 만들지 미지수
 // CUSTOMVERTEX (*MakeLabyrinth(int nMapNumber))[20]
 // CUSTOMVERTEX** MakeLabyrinth(int nMapNumber)
-VOID MakeLabyrinth(int nMapNumber, CUSTOMVERTEX(*Labyrinth)[20], vector<CNotice>* notice)
+VOID MakeLabyrinth(int nMapNumber, CUSTOMVERTEX(*Labyrinth)[20], vector<CNotice>* notice, CExit* Exit)
 {
     int i,j;
     int nBlockNum = 0, nNoticeNum = 0;
@@ -57,7 +57,11 @@ VOID MakeLabyrinth(int nMapNumber, CUSTOMVERTEX(*Labyrinth)[20], vector<CNotice>
                     CNotice tmpNotice;
                     tmpNotice.MakeNotice(D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
                     notice->push_back(tmpNotice);
-                    // notice 객체 push될 때마다 count 올리는 방법 연구
+                }
+                // 탈출구는 모든 맵마다 단 하나만 존재
+                else if (chMap1[i][j] == 'X')
+                {
+                    Exit->MakeExit(D3DXVECTOR3((-NUM_OF_COLUMN / 2 + j + 0.5f) * LENGTH_OF_TILE, 5.0f, (NUM_OF_ROW / 2 - i - 0.5f) * LENGTH_OF_TILE));
                 }
             }
         }

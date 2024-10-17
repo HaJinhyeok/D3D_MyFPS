@@ -22,6 +22,7 @@ LPDIRECT3DSURFACE9 z_buffer = NULL;
 
 CPlayer player;
 vector<CNotice> notice;
+CExit Exit;
 CFrustum* g_pFrustum = NULL;
 RECT rt;
 char testSTR[500];
@@ -89,7 +90,7 @@ VOID InitGeometry()
 
     //// 미궁 내 벽을 구성할 vertex들의 buffer 생성
     //LabyrinthWallVertices = MakeLabyrinth(1);
-    MakeLabyrinth(1, LabyrinthWallVertices, &notice);
+    MakeLabyrinth(1, LabyrinthWallVertices, &notice, &Exit);
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 72 * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pLabyrinthVB, NULL);
     VOID** LabyrinthVertices;
     g_pLabyrinthVB->Lock(0, sizeof(CUSTOMVERTEX) * 72 * 20, (void**)&LabyrinthVertices, 0);
@@ -101,6 +102,9 @@ VOID InitGeometry()
     {
         notice[i].MakeNoticeVB(g_pd3dDevice);
     }
+    //// Exit vertex buffer 생성
+    Exit.MakeNoticeVB(g_pd3dDevice);
+
     // tile vertex 좌표 입력
     {
         for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
@@ -322,6 +326,7 @@ VOID CleanUp()
         g_pWallTexture->Release();
     if (g_pTileTexture != NULL)
         g_pTileTexture->Release();
+    Exit.ReleaseNoticeVB();
     for (int i = 0; i < notice[0].GetNumOfNotice(); i++)
     {
         notice[i].ReleaseNoticeVB();
@@ -344,6 +349,8 @@ VOID CleanUp()
 
 VOID __KeyProc()
 {
+    int i;
+
     UpdateInput();
     // wasd 또는 방향키 : 플레이어 앞뒤좌우 움직임
 
@@ -367,10 +374,30 @@ VOID __KeyProc()
     {
         player.Move(MOVE_DIRECTION::back, chMap1);
     }
-    for (int i = 0; i < notice[0].GetNumOfNotice(); i++)
+    for (i = 0; i < notice[0].GetNumOfNotice(); i++)
     {
         notice[i].RotateNotice(player.GetPosition());
     }
+    for (i = 0; i < notice[0].GetNumOfNotice(); i++)
+    {
+        if (notice[i].IsPossibleInteraction(player.GetPosition()) == TRUE)
+        {
+            bIsInteractive = TRUE;
+            bIsSkyView = TRUE;
+            break;
+        }
+        else
+        {
+            bIsInteractive = FALSE;
+            bIsSkyView = FALSE;
+        }
+    }
+
+    // interactive한 상태에서 G를 눌렀을 경우 시점 변환
+    /*if (bIsInteractive == TRUE && GetAsyncKeyState('G'))
+    {
+        bIsSkyView = TRUE;
+    }*/
 
     // Q/E : 플레이어 CCW/CW 회전
     if (GetAsyncKeyState('Q'))
@@ -536,8 +563,11 @@ VOID Render()
 
         //// notice rendering
         g_pd3dDevice->SetTexture(0, g_pNoticeTexture);
+        D3DXMATRIX mtNoticeWorld;
         for (i = 0; i < notice[0].GetNumOfNotice(); i++)
         {
+            mtNoticeWorld = notice[i].GetNoticeWorld();
+            g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtNoticeWorld);
             notice[i].DrawNotice(g_pd3dDevice);
         }
 
@@ -550,7 +580,7 @@ VOID Render()
         g_pLookAtSphere->DrawSubset(0);
 
         //// 좌상단 UI
-        //if(FALSE)
+        if(FALSE)
         {
             //// Transformed Vertex
             g_pd3dDevice->SetTexture(0, NULL);

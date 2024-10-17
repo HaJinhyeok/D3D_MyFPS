@@ -17,9 +17,9 @@ using namespace std;
 #define TEXTURE_GRASS "tex_grass.jpg"
 #define TEXTURE_WALL "tex_wall.jpg"
 #define TEXTURE_NOTICE "tex_question.png"
-#define TRANSLATION_DISTANCE 0.2f
-#define LOOKAT_DISTANCE 5.0f
-#define ROTATION_AMOUNT D3DX_PI/180
+#define TRANSLATION_DISTANCE 0.1f   // 플레이어 이동거리
+#define LOOKAT_DISTANCE 5.0f    //
+#define ROTATION_AMOUNT D3DX_PI/360 // 플레이어 회전각
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
 #define NUM_OF_ROW 14    // 즉, 세로 길이
@@ -93,6 +93,10 @@ const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
 static BOOL bIsSkyView = FALSE;
 // 컬링 확인 변수
 static BOOL bIsFrustumCulling = TRUE;
+// 상호작용 확인 변수
+static BOOL bIsInteractive = FALSE;
+// 게임 종료 확인 변수
+static BOOL bIsPlaying = TRUE;
 
 static D3DXVECTOR3 v3CurrentLookAt(0.0f, 5.0f, 10.0f);
 static D3DXVECTOR3 v3LookAt(v3CurrentLookAt);
