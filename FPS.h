@@ -17,7 +17,8 @@ using namespace std;
 #define TEXTURE_GRASS "tex_grass.jpg"
 #define TEXTURE_WALL "tex_wall.jpg"
 #define TEXTURE_NOTICE "tex_question.png"
-#define TRANSLATION_DISTANCE 0.1f   // 플레이어 이동거리
+#define TEXTURE_EXIT "tex_exit.png"
+#define TRANSLATION_DISTANCE 0.5f   // 플레이어 이동거리
 #define LOOKAT_DISTANCE 5.0f    //
 #define ROTATION_AMOUNT D3DX_PI/360 // 플레이어 회전각
 // #define NUM_OF_TILE 10
@@ -63,6 +64,14 @@ static UI_VERTEX UIVertices[4] =
     D3DXVECTOR3(130.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
     D3DXVECTOR3(130.0f, 50.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
     D3DXVECTOR3(10.0f, 50.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f)
+};
+
+static UI_VERTEX PopUpVertices[4] =
+{
+    D3DXVECTOR3(100.0f, 150.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 255, 0), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(600.0f, 150.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 255, 0), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(600.0f, 550.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 255, 0), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(100.0f, 550.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 255, 0), D3DXVECTOR2(0.0f, 0.0f)
 };
 
 // 시점 변환 시 

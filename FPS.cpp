@@ -14,6 +14,7 @@ LPDIRECT3DTEXTURE9 g_pTileTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pWallTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pGrassTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pNoticeTexture = NULL;
+LPDIRECT3DTEXTURE9 g_pExitTexture = NULL;
 LPD3DXFONT g_pFont = NULL;
 LPD3DXMESH g_pSphere = NULL;
 LPD3DXMESH g_pLookAtSphere = NULL;
@@ -79,7 +80,7 @@ VOID InitGeometry()
         TRANSPARENCY_COLOR,
         NULL, NULL,
         &g_pNoticeTexture);
-    // D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_NOTICE, &g_pNoticeTexture);
+    D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_EXIT, &g_pExitTexture);
 
     /*MakeWallBlock(tmpBlock, D3DXVECTOR3(25.0f, 5.0f, 25.0f));
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pTmpBlockVB, NULL);
@@ -318,6 +319,8 @@ VOID CleanUp()
         g_pSphere->Release();
     if (g_pFont != NULL)
         g_pFont->Release();
+    if (g_pExitTexture != NULL)
+        g_pExitTexture->Release();
     if (g_pNoticeTexture != NULL)
         g_pNoticeTexture->Release();
     if (g_pGrassTexture != NULL)
@@ -326,6 +329,7 @@ VOID CleanUp()
         g_pWallTexture->Release();
     if (g_pTileTexture != NULL)
         g_pTileTexture->Release();
+
     Exit.ReleaseNoticeVB();
     for (int i = 0; i < notice[0].GetNumOfNotice(); i++)
     {
@@ -374,10 +378,13 @@ VOID __KeyProc()
     {
         player.Move(MOVE_DIRECTION::back, chMap1);
     }
+    // Notice & Exit rotation
     for (i = 0; i < notice[0].GetNumOfNotice(); i++)
     {
         notice[i].RotateNotice(player.GetPosition());
     }
+    Exit.RotateNotice(player.GetPosition());
+
     for (i = 0; i < notice[0].GetNumOfNotice(); i++)
     {
         if (notice[i].IsPossibleInteraction(player.GetPosition()) == TRUE)
@@ -392,6 +399,9 @@ VOID __KeyProc()
             bIsSkyView = FALSE;
         }
     }
+    bIsPlaying = Exit.IsPossibleInteraction(player.GetPosition()) ? FALSE : TRUE;
+
+    if (bIsPlaying == FALSE) exit(0);
 
     // interactive한 상태에서 G를 눌렀을 경우 시점 변환
     /*if (bIsInteractive == TRUE && GetAsyncKeyState('G'))
@@ -571,6 +581,12 @@ VOID Render()
             notice[i].DrawNotice(g_pd3dDevice);
         }
 
+        //// Exit rendering
+        g_pd3dDevice->SetTexture(0, g_pExitTexture);
+        mtNoticeWorld = Exit.GetNoticeWorld();
+        g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtNoticeWorld);
+        Exit.DrawNotice(g_pd3dDevice);
+
         // 위치 표시용 구체
         D3DXMATRIX tmpTranspose;
         D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
@@ -586,6 +602,7 @@ VOID Render()
             g_pd3dDevice->SetTexture(0, NULL);
             g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
             // g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UIVertices, sizeof(UI_VERTEX));
+            g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, PopUpVertices, sizeof(UI_VERTEX));
 
             //// DrawText
             SetRect(&rt, 20, 20, 0, 0);

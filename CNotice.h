@@ -11,13 +11,14 @@ private:
 	CUSTOMVERTEX m_Vertex[4];
 	LPDIRECT3DVERTEXBUFFER9 m_pNoticeVB = NULL;
 
-	BOOL m_bIsNotice = TRUE;
 	//static BOOL m_bIsCollision;
-	static WORD m_NoticeCount;
 
 public:
 	CNotice();
 	~CNotice();
+
+	BOOL m_bIsNotice = TRUE;
+	static WORD m_NoticeCount;
 
 	VOID MakeNotice(D3DXVECTOR3 position);
 	VOID MakeNoticeVB(LPDIRECT3DDEVICE9 device);
@@ -34,10 +35,6 @@ public:
 	{
 		return m_bIsCollision;
 	}*/
-	VOID AddNumOfNotice()
-	{
-		m_NoticeCount++;
-	}
 	WORD GetNumOfNotice()
 	{
 		return m_NoticeCount;
