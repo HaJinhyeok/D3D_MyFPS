@@ -3,6 +3,8 @@
 #include "Input.h"
 #include "CFrustum.h"
 
+HWND hButtonExit;
+
 LPDIRECT3D9 g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pTileVB = NULL;
@@ -596,8 +598,9 @@ VOID Render()
         g_pLookAtSphere->DrawSubset(0);
 
         //// 좌상단 UI
-        if(FALSE)
+        // if(FALSE)
         {
+            SetWindowPos(hButtonExit, NULL, 400, 400, 100, 50, SWP_NOSIZE | SWP_NOZORDER);
             //// Transformed Vertex
             g_pd3dDevice->SetTexture(0, NULL);
             g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
@@ -644,6 +647,19 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
+    case WM_CREATE:
+        hButtonExit = CreateWindow("BUTTON", "게임 종료",
+            WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+            500, 500,   // x & y position
+            100, 50,    // width & height
+            hWnd, NULL, // parent window, no menu
+            (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
+            NULL);
+        break;
+    case WM_LBUTTONDOWN:
+        break;
+    case WM_LBUTTONUP:
+        break;
     case WM_DESTROY:
         CleanUp();
         PostQuitMessage(0);

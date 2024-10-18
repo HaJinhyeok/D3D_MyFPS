@@ -20,7 +20,7 @@ using namespace std;
 #define TEXTURE_EXIT "tex_exit.png"
 #define TRANSLATION_DISTANCE 0.5f   // 플레이어 이동거리
 #define LOOKAT_DISTANCE 5.0f    //
-#define ROTATION_AMOUNT D3DX_PI/360 // 플레이어 회전각
+#define ROTATION_AMOUNT D3DX_PI/180 // 플레이어 회전각
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
 #define NUM_OF_ROW 14    // 즉, 세로 길이
