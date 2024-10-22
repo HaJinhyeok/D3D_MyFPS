@@ -111,6 +111,8 @@ static BOOL bIsFrustumCulling = TRUE;
 static BOOL bIsInteractive = FALSE;
 // 게임 종료 확인 변수
 static BOOL bIsPlaying = TRUE;
+// 버튼 클릭 확인 변수
+static BOOL bIsClicked = FALSE;
 
 static D3DXVECTOR3 v3CurrentLookAt(0.0f, 5.0f, 10.0f);
 static D3DXVECTOR3 v3LookAt(v3CurrentLookAt);

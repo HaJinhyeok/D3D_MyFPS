@@ -604,7 +604,7 @@ VOID Render()
         g_pLookAtSphere->DrawSubset(0);
 
         // Ż�ⱸ UI
-        if (!bIsPlaying)
+        if (bIsPlaying)
         {
             g_pd3dDevice->SetTexture(0, NULL);
             g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
@@ -668,21 +668,42 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_LBUTTONDOWN:
         g_pMouse->x = LOWORD(lParam);
         g_pMouse->y = HIWORD(lParam);
+        bIsClicked = TRUE;
         GetWindowRect(hWnd, &rtWindow);
-        wsprintf(testSTR, "current X: %d, current Y: %d", g_pMouse->x, g_pMouse->y);
+        g_pMouse->x -= rtWindow.left;
+        g_pMouse->y -= rtWindow.top;
+        wsprintf(testSTR, "current X: %d, current Y: %d\n", g_pMouse->x, g_pMouse->y);
         OutputDebugString(testSTR);
-        if (!bIsPlaying && PtInRect(&rt, *g_pMouse))
+        if (bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
         {
 			Exit.ButtonPressed();
             OutputDebugString("Clicked");
         }
         break;
+    case WM_MOUSEMOVE:
+        g_pMouse->x = LOWORD(lParam);
+        g_pMouse->y = HIWORD(lParam);
+        GetWindowRect(hWnd, &rtWindow);
+        g_pMouse->x -= rtWindow.left;
+        g_pMouse->y -= rtWindow.top;
+        wsprintf(testSTR, "current X: %d, current Y: %d\n", g_pMouse->x, g_pMouse->y);
+        //OutputDebugString(testSTR);
+        if (bIsPlaying && PtInRect(&rtExitButton, *g_pMouse) && bIsClicked)
+        {
+            Exit.ButtonPressed();
+            OutputDebugString("Clicked");
+        }
+        else
+            Exit.ButtonUnpressed();
+        break;
     case WM_LBUTTONUP:
         g_pMouse->x = LOWORD(lParam);
         g_pMouse->y = HIWORD(lParam);
-        if (!bIsPlaying && PtInRect(&rt, *g_pMouse))
+		Exit.ButtonUnpressed();
+        bIsClicked = FALSE;
+        if (bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
         {
-            Exit.ButtonUnpressed();
+            Sleep(1000);
             exit(0);
         }
         break;
