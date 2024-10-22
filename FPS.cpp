@@ -3,8 +3,6 @@
 #include "Input.h"
 #include "CFrustum.h"
 
-HWND hButtonExit;
-
 LPDIRECT3D9 g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pTileVB = NULL;
@@ -21,6 +19,7 @@ LPD3DXFONT g_pClearFont = NULL;
 LPD3DXFONT g_pExitFont = NULL;
 LPD3DXMESH g_pSphere = NULL;
 LPD3DXMESH g_pLookAtSphere = NULL;
+LPPOINT g_pMouse = new POINT;
 
 LPDIRECT3DSURFACE9 z_buffer = NULL;
 
@@ -28,7 +27,7 @@ CPlayer player;
 vector<CNotice> notice;
 CExit Exit;
 CFrustum* g_pFrustum = NULL;
-RECT rt;
+RECT rt, rtExitButton, rtWindow;
 char testSTR[500];
 wchar_t test2[500];
 // CUSTOMVERTEX* tmpBlock;
@@ -67,6 +66,7 @@ HRESULT InitD3D(HWND hWnd)
 VOID InitGeometry()
 {
     InitInput();
+    SetRect(&rtExitButton, 300, 450, 400, 500);
     int i, j;
     D3DXCreateSphere(g_pd3dDevice, 1.0f, 10, 10, &g_pSphere, 0);
     D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pLookAtSphere, 0);
@@ -315,6 +315,7 @@ VOID CleanUp()
         z_buffer->Release();
     /*if (g_pTmpBlockVB != NULL)
         g_pTmpBlockVB->Release();*/
+    delete g_pMouse;
     if (g_pLookAtSphere != NULL)
         g_pLookAtSphere->Release();
     if (g_pSphere != NULL)
@@ -422,6 +423,9 @@ VOID __KeyProc()
     {
         player.Rotate(FALSE);
     }
+
+    
+
     //// 추후 생각해서 추가해볼 기능
     {
         // 점프?는 일단 제외
@@ -600,7 +604,7 @@ VOID Render()
         g_pLookAtSphere->DrawSubset(0);
 
         // 탈출구 UI
-        if (bIsPlaying)
+        if (!bIsPlaying)
         {
             g_pd3dDevice->SetTexture(0, NULL);
             g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
@@ -617,7 +621,7 @@ VOID Render()
         //// 좌상단 UI
         if(FALSE)
         {
-            SetWindowPos(hButtonExit, NULL, 400, 400, 100, 50, SWP_NOSIZE | SWP_NOZORDER);
+            // SetWindowPos(hButtonExit, NULL, 400, 400, 100, 50, SWP_NOSIZE | SWP_NOZORDER);
             //// Transformed Vertex
             // g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UIVertices, sizeof(UI_VERTEX));
 
@@ -661,18 +665,26 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
-    case WM_CREATE:
-        hButtonExit = CreateWindow("BUTTON", "게임 종료",
-            WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-            500, 500,   // x & y position
-            100, 50,    // width & height
-            hWnd, NULL, // parent window, no menu
-            (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE),
-            NULL);
-        break;
     case WM_LBUTTONDOWN:
+        g_pMouse->x = LOWORD(lParam);
+        g_pMouse->y = HIWORD(lParam);
+        GetWindowRect(hWnd, &rtWindow);
+        wsprintf(testSTR, "current X: %d, current Y: %d", g_pMouse->x, g_pMouse->y);
+        OutputDebugString(testSTR);
+        if (!bIsPlaying && PtInRect(&rt, *g_pMouse))
+        {
+			Exit.ButtonPressed();
+            OutputDebugString("Clicked");
+        }
         break;
     case WM_LBUTTONUP:
+        g_pMouse->x = LOWORD(lParam);
+        g_pMouse->y = HIWORD(lParam);
+        if (!bIsPlaying && PtInRect(&rt, *g_pMouse))
+        {
+            Exit.ButtonUnpressed();
+            exit(0);
+        }
         break;
     case WM_DESTROY:
         CleanUp();
@@ -696,7 +708,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
     RegisterClassEx(&wc);
     // 윈도우 생성
     HWND hWnd = CreateWindow("D3D_MyFPS", "D3D_MyFPS",
-        WS_OVERLAPPEDWINDOW, 100, 100, 700, 700,
+        WS_OVERLAPPEDWINDOW, 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT,
         GetDesktopWindow(), NULL, wc.hInstance, NULL);
 
     g_pFrustum = new CFrustum;

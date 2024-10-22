@@ -127,3 +127,8 @@ VOID MakeWallBlock(CUSTOMVERTEX* Block, D3DXVECTOR3 position)
     
     // return Block;
 }
+
+BOOL IsPointInRect(const RECT* rtDst, const RECT* rtWin, LPPOINT point)
+{
+    return FALSE;
+}
