@@ -22,12 +22,14 @@ LPD3DXMESH g_pLookAtSphere = NULL;
 LPPOINT g_pMouse = new POINT;
 
 LPDIRECT3DSURFACE9 z_buffer = NULL;
+D3DMATERIAL9 material;
 
 CPlayer player;
 vector<CNotice> notice;
 CExit Exit;
+
 CFrustum* g_pFrustum = NULL;
-RECT rt, rtExitButton, rtWindow;
+RECT rt, rtExitButton;
 char testSTR[500];
 wchar_t test2[500];
 // CUSTOMVERTEX* tmpBlock;
@@ -53,21 +55,30 @@ HRESULT InitD3D(HWND hWnd)
 
     //g_pd3dDevice->CreateDepthStencilSurface(700, 700, D3DFMT_D16, D3DMULTISAMPLE_NONE, 0, TRUE, &z_buffer, NULL);
 
-    g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+    g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
     g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 
     g_pd3dDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
     g_pd3dDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_NOTEQUAL);
     g_pd3dDevice->SetRenderState(D3DRS_ALPHAREF, 0);
+
+    g_pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
     
     return S_OK;
 }
 
 VOID InitGeometry()
 {
+    int i, j;
+
     InitInput();
     SetRect(&rtExitButton, 300, 450, 400, 500);
-    int i, j;
+
+    ZeroMemory(&material, sizeof(D3DMATERIAL9));
+    material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+    g_pd3dDevice->SetMaterial(&material);
+    
+
     D3DXCreateSphere(g_pd3dDevice, 1.0f, 10, 10, &g_pSphere, 0);
     D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pLookAtSphere, 0);
     D3DXCreateFont(g_pd3dDevice, 50, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pClearFont);
@@ -469,6 +480,10 @@ VOID Render()
     if (SUCCEEDED(g_pd3dDevice->BeginScene()))
     {
         int i, j;
+        D3DLIGHT9 light = player.GetPlayerLight();
+        g_pd3dDevice->SetLight(0, &light);
+        g_pd3dDevice->LightEnable(0, TRUE);
+
         D3DXMATRIX mtWorld;
         D3DXMatrixIdentity(&mtWorld);
         g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
@@ -530,54 +545,57 @@ VOID Render()
         g_pd3dDevice->SetStreamSource(0, g_pTileVB, 0, sizeof(CUSTOMVERTEX));
         g_pd3dDevice->SetIndices(g_pTileIB);
         //// tile rendering
-        // frustum plane과 사각형 단위로 비교한다
-        // 네 꼭짓점 중 하나라도 inside이면 rendering한다.
-        for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
         {
-            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
-
-            /* 
-            **** culling 일단 보류 ****
-            * // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
-            for (j = 0; j < 4; j++)
+            // frustum plane과 사각형 단위로 비교한다
+            // 네 꼭짓점 중 하나라도 inside이면 rendering한다.
+            for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
             {
-                // if (g_pFrustum->bIsInFrustum(&TileVertices[i * 4 + j].v3VerPos, 0.0f) == TRUE)
-                //if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
-                // if (CheckFrustumCulling(FrustumPlane, CalculateMidPoint(TileVertices[i * 4 + j].v3VerPos, TileVertices[i * 4 + (j + 1) % 4].v3VerPos), 0.0f) != POSITION_WITH_FRUSTUM::outside)
+                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+
+                /*
+                **** culling 일단 보류 ****
+                * // checkFrustumCulling(plane, position, 0.0f)로 판별 가능하겠다
+                for (j = 0; j < 4; j++)
                 {
-                    g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
-                    break;
+                    // if (g_pFrustum->bIsInFrustum(&TileVertices[i * 4 + j].v3VerPos, 0.0f) == TRUE)
+                    //if (CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
+                    // if (CheckFrustumCulling(FrustumPlane, CalculateMidPoint(TileVertices[i * 4 + j].v3VerPos, TileVertices[i * 4 + (j + 1) % 4].v3VerPos), 0.0f) != POSITION_WITH_FRUSTUM::outside)
+                    {
+                        g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+                        break;
+                    }
+                }
+                */
+
+            }
+            //// wall rendering
+            g_pd3dDevice->SetTexture(0, g_pWallTexture);
+            g_pd3dDevice->SetStreamSource(0, g_pWallVB, 0, sizeof(CUSTOMVERTEX));
+            //// wall culling도 추후 필요
+            for (i = 0; i < NUM_OF_ROW * 4; i++)
+            {
+                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+            }
+            g_pd3dDevice->SetStreamSource(0, g_pWallVB2, 0, sizeof(CUSTOMVERTEX));
+            for (i = 0; i < NUM_OF_ROW * 4; i++)
+            {
+                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+            }
+            /*g_pd3dDevice->SetStreamSource(0, g_pTmpBlockVB, 0, sizeof(CUSTOMVERTEX));
+            for (i = 0; i < 5; i++)
+            {
+                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+            }*/
+            g_pd3dDevice->SetStreamSource(0, g_pLabyrinthVB, 0, sizeof(CUSTOMVERTEX));
+            for (i = 0; i < 72; i++)
+            {
+                for (j = 0; j < 5; j++)
+                {
+                    g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 20 + j * 4, 2);
                 }
             }
-            */
-            
         }
-        //// wall rendering
-        g_pd3dDevice->SetTexture(0, g_pWallTexture);
-        g_pd3dDevice->SetStreamSource(0, g_pWallVB, 0, sizeof(CUSTOMVERTEX));
-        //// wall culling도 추후 필요
-        for (i = 0; i < NUM_OF_ROW * 4; i++)
-        {
-            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
-        }
-        g_pd3dDevice->SetStreamSource(0, g_pWallVB2, 0, sizeof(CUSTOMVERTEX));
-        for (i = 0; i < NUM_OF_ROW * 4; i++)
-        {
-            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
-        }
-        /*g_pd3dDevice->SetStreamSource(0, g_pTmpBlockVB, 0, sizeof(CUSTOMVERTEX));
-        for (i = 0; i < 5; i++)
-        {
-            g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
-        }*/
-        g_pd3dDevice->SetStreamSource(0, g_pLabyrinthVB, 0, sizeof(CUSTOMVERTEX));
-        for (i = 0; i < 72; i++)
-        {
-            for (j = 0; j < 5; j++)
-            {
-                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 20 + j * 4, 2);
-            }
-        }
+        
 
         //// notice rendering
         g_pd3dDevice->SetTexture(0, g_pNoticeTexture);
@@ -604,7 +622,7 @@ VOID Render()
         g_pLookAtSphere->DrawSubset(0);
 
         // 탈출구 UI
-        if (bIsPlaying)
+        if (!bIsPlaying)
         {
             g_pd3dDevice->SetTexture(0, NULL);
             g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
@@ -669,12 +687,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         g_pMouse->x = LOWORD(lParam);
         g_pMouse->y = HIWORD(lParam);
         bIsClicked = TRUE;
-        GetWindowRect(hWnd, &rtWindow);
-        g_pMouse->x -= rtWindow.left;
-        g_pMouse->y -= rtWindow.top;
         wsprintf(testSTR, "current X: %d, current Y: %d\n", g_pMouse->x, g_pMouse->y);
         OutputDebugString(testSTR);
-        if (bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
+        if (!bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
         {
 			Exit.ButtonPressed();
             OutputDebugString("Clicked");
@@ -683,15 +698,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_MOUSEMOVE:
         g_pMouse->x = LOWORD(lParam);
         g_pMouse->y = HIWORD(lParam);
-        GetWindowRect(hWnd, &rtWindow);
-        g_pMouse->x -= rtWindow.left;
-        g_pMouse->y -= rtWindow.top;
-        wsprintf(testSTR, "current X: %d, current Y: %d\n", g_pMouse->x, g_pMouse->y);
-        //OutputDebugString(testSTR);
-        if (bIsPlaying && PtInRect(&rtExitButton, *g_pMouse) && bIsClicked)
+        if (!bIsPlaying && PtInRect(&rtExitButton, *g_pMouse) && bIsClicked)
         {
             Exit.ButtonPressed();
-            OutputDebugString("Clicked");
         }
         else
             Exit.ButtonUnpressed();
@@ -701,7 +710,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         g_pMouse->y = HIWORD(lParam);
 		Exit.ButtonUnpressed();
         bIsClicked = FALSE;
-        if (bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
+        if (!bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
         {
             Sleep(1000);
             exit(0);

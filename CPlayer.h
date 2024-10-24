@@ -11,7 +11,8 @@ private:
 	D3DXVECTOR3 m_LookAt;
 	D3DXMATRIX m_PlayerWorld;
 	D3DXMATRIX m_PlayerAxis; // x√‡ axis∞° LookAt vector
-	BOOL m_Flashlight;
+	BOOL m_IsLightOn;
+	D3DLIGHT9 m_FlashLight;
 
 public:
 	CPlayer();
@@ -35,7 +36,7 @@ public:
 	}
 	VOID SetFlashlight(BOOL flash)
 	{
-		m_Flashlight = flash;
+		m_IsLightOn = flash;
 	}
 	D3DXVECTOR3 GetPosition()
 	{
@@ -53,9 +54,13 @@ public:
 	{
 		return m_PlayerAxis;
 	}
-	BOOL GetFlashlight()
+	BOOL IsFlashlightOn()
 	{
-		return m_Flashlight;
+		return m_IsLightOn;
+	}
+	D3DLIGHT9 GetPlayerLight()
+	{
+		return m_FlashLight;
 	}
 
 	VOID Move(MOVE_DIRECTION direction, const char (*map)[NUM_OF_COLUMN+1]);

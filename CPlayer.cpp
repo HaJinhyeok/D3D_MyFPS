@@ -9,7 +9,21 @@ CPlayer::CPlayer()
 	D3DXMatrixTranslation(&tmpMatrix, m_Position.x, m_Position.y, m_Position.z);
 	D3DXMatrixMultiply(&m_PlayerWorld, &m_PlayerWorld, &tmpMatrix);
 	D3DXMatrixIdentity(&m_PlayerAxis);
-	m_Flashlight = TRUE;
+
+    //// light setting
+    m_IsLightOn = TRUE;
+    ZeroMemory(&m_FlashLight, sizeof(D3DLIGHT9));
+    m_FlashLight.Type = D3DLIGHT_SPOT;
+    m_FlashLight.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+    m_FlashLight.Position = m_Position;
+    m_FlashLight.Direction = D3DXVECTOR3(m_PlayerAxis._31, m_PlayerAxis._32, m_PlayerAxis._33);
+    m_FlashLight.Range = 100.0f;
+    m_FlashLight.Attenuation0 = 0.0f;
+    m_FlashLight.Attenuation1 = 0.125f;
+    m_FlashLight.Attenuation2 = 0.0f;
+    m_FlashLight.Falloff = 1.0f;
+    m_FlashLight.Phi = D3DXToRadian(45.0f);
+    m_FlashLight.Theta = D3DXToRadian(30.0f);
 }
 CPlayer::~CPlayer()
 {
@@ -209,6 +223,8 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
     m_LookAt.x += tmpPosition.x - m_Position.x;
     m_LookAt.z += tmpPosition.z - m_Position.z;
     SetPosition(tmpPosition);
+
+    m_FlashLight.Position = m_Position;
 }
 
 VOID CPlayer::Rotate(BOOL bIsCCW)
@@ -231,4 +247,6 @@ VOID CPlayer::Rotate(BOOL bIsCCW)
 	m_LookAt.x = m_Position.x + m_PlayerAxis._31 * fCoefficient;
 	m_LookAt.y = m_Position.y + m_PlayerAxis._32 * fCoefficient;
 	m_LookAt.z = m_Position.z + m_PlayerAxis._33 * fCoefficient;
+
+    m_FlashLight.Direction = D3DXVECTOR3(m_PlayerAxis._31, m_PlayerAxis._32, m_PlayerAxis._33);
 }
