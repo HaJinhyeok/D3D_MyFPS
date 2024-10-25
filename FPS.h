@@ -31,7 +31,7 @@ using namespace std;
 #define NUM_OF_ROW 14    // 즉, 세로 길이
 #define LENGTH_OF_TILE 10.0f
 
-#define PLAYER_RADIUS 3.0f
+#define PLAYER_RADIUS 2.0f
 #define X_MOVE 1
 #define Z_MOVE 0
 

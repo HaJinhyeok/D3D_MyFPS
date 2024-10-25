@@ -412,7 +412,7 @@ VOID __KeyProc()
         else
         {
             bIsInteractive = FALSE;
-            bIsSkyView = FALSE;
+            // bIsSkyView = FALSE;
         }
     }
     bIsPlaying = Exit.IsPossibleInteraction(player.GetPosition()) ? FALSE : TRUE;
@@ -481,6 +481,8 @@ VOID Render()
     {
         int i, j;
         D3DLIGHT9 light = player.GetPlayerLight();
+        // bIsSkyView == TRUE 이면 player의 spot light,
+        // FALSE 이면 하늘 시점에서 point light로 바꿔서 맵 전체가 어느 정도 보이게 하는 것도 좋을듯
         g_pd3dDevice->SetLight(0, &light);
         g_pd3dDevice->LightEnable(0, TRUE);
 
@@ -614,12 +616,17 @@ VOID Render()
         Exit.DrawNotice(g_pd3dDevice);
 
         // 위치 표시용 구체
-        D3DXMATRIX tmpTranspose;
-        D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
-        D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
-        g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
-        g_pd3dDevice->SetTexture(0, g_pTileTexture);
-        g_pLookAtSphere->DrawSubset(0);
+        // if (bIsSkyView == TRUE)
+        if (FALSE)
+        {
+            D3DXMATRIX tmpTranspose;
+            D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
+            D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
+            g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
+            g_pd3dDevice->SetTexture(0, g_pTileTexture);
+            g_pLookAtSphere->DrawSubset(0);
+        }
+        
 
         // 탈출구 UI
         if (!bIsPlaying)

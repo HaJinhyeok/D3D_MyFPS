@@ -17,13 +17,15 @@ CPlayer::CPlayer()
     m_FlashLight.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
     m_FlashLight.Position = m_Position;
     m_FlashLight.Direction = D3DXVECTOR3(m_PlayerAxis._31, m_PlayerAxis._32, m_PlayerAxis._33);
+    D3DXVec3Normalize((D3DXVECTOR3*)&m_FlashLight.Direction, (D3DXVECTOR3*)&m_FlashLight.Direction);
     m_FlashLight.Range = 100.0f;
     m_FlashLight.Attenuation0 = 0.0f;
-    m_FlashLight.Attenuation1 = 0.125f;
-    m_FlashLight.Attenuation2 = 0.0f;
-    m_FlashLight.Falloff = 1.0f;
-    m_FlashLight.Phi = D3DXToRadian(45.0f);
-    m_FlashLight.Theta = D3DXToRadian(30.0f);
+    m_FlashLight.Attenuation1 = 0.001f;
+    m_FlashLight.Attenuation2 = 0.0001f;
+    m_FlashLight.Falloff = 0.5f;
+    m_FlashLight.Phi = D3DXToRadian(60.0f);
+    //m_FlashLight.Theta = 0.0f;
+    //m_FlashLight.Theta = D3DXToRadian(30.0f);
 }
 CPlayer::~CPlayer()
 {
