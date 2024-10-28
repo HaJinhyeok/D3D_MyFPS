@@ -17,12 +17,14 @@ LPDIRECT3DTEXTURE9 g_pNoticeTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pExitTexture = NULL;
 LPD3DXFONT g_pClearFont = NULL;
 LPD3DXFONT g_pExitFont = NULL;
+LPD3DXFONT g_pTestFont = NULL;
 LPD3DXMESH g_pSphere = NULL;
 LPD3DXMESH g_pLookAtSphere = NULL;
 LPPOINT g_pMouse = new POINT;
 
 LPDIRECT3DSURFACE9 z_buffer = NULL;
 D3DMATERIAL9 material;
+D3DLIGHT9 light;
 
 CPlayer player;
 vector<CNotice> notice;
@@ -32,6 +34,7 @@ CFrustum* g_pFrustum = NULL;
 RECT rt, rtExitButton;
 char testSTR[500];
 wchar_t test2[500];
+BOOL bIsLightOn = TRUE;
 // CUSTOMVERTEX* tmpBlock;
 // CUSTOMVERTEX tmpBlock[20];
 // LPDIRECT3DVERTEXBUFFER9 g_pTmpBlockVB = NULL;
@@ -76,13 +79,20 @@ VOID InitGeometry()
 
     ZeroMemory(&material, sizeof(D3DMATERIAL9));
     material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+    material.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
     g_pd3dDevice->SetMaterial(&material);
+
+    ZeroMemory(&light, sizeof(D3DLIGHT9));
+    light.Type = D3DLIGHT_DIRECTIONAL;
+    light.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+    light.Direction = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
     
 
     D3DXCreateSphere(g_pd3dDevice, 1.0f, 10, 10, &g_pSphere, 0);
     D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pLookAtSphere, 0);
     D3DXCreateFont(g_pd3dDevice, 50, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pClearFont);
     D3DXCreateFont(g_pd3dDevice, 30, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pExitFont);
+    D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pTestFont);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pGrassTexture);
@@ -331,6 +341,8 @@ VOID CleanUp()
         g_pLookAtSphere->Release();
     if (g_pSphere != NULL)
         g_pSphere->Release();
+    if (g_pTestFont != NULL)
+        g_pTestFont->Release();
     if (g_pExitFont != NULL)
         g_pExitFont->Release();
     if (g_pClearFont != NULL)
@@ -448,9 +460,16 @@ VOID __KeyProc()
         // 1에다 도움말을, 3에다 낮밤 변경?, 4에다 절두체 컬링?
         if (GetKeyDown('1') == TRUE)
         {
-            char chTest[100];
-            wsprintf(chTest, "숫자 1 입력\n");
-            OutputDebugString(chTest);
+            if (bIsLightOn == TRUE)
+            {
+                g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+                bIsLightOn = FALSE;
+            }
+            else
+            {
+                g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+                bIsLightOn = TRUE;
+            }
         }
         // 카메라 시점 변경
         if (GetKeyDown('2') == TRUE)
@@ -617,7 +636,7 @@ VOID Render()
 
         // 위치 표시용 구체
         // if (bIsSkyView == TRUE)
-        if (FALSE)
+        if (bIsLightOn == FALSE)
         {
             D3DXMATRIX tmpTranspose;
             D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
@@ -644,11 +663,13 @@ VOID Render()
             g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
         }
         //// 좌상단 UI
-        if(FALSE)
+        //if(FALSE)
         {
             // SetWindowPos(hButtonExit, NULL, 400, 400, 100, 50, SWP_NOSIZE | SWP_NOZORDER);
             //// Transformed Vertex
-            // g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UIVertices, sizeof(UI_VERTEX));
+            g_pd3dDevice->SetTexture(0, NULL);
+            g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
+            g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UIVertices, sizeof(UI_VERTEX));
 
             //// DrawText
             SetRect(&rt, 20, 20, 0, 0);
@@ -665,7 +686,7 @@ VOID Render()
             int nCoX = floorf(v3CurrentPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2, nCoZ = NUM_OF_ROW / 2 - floorf(v3CurrentPosition.z / LENGTH_OF_TILE) - 1;
             swprintf_s(test2, 500, L"current position: (%f, %f)\ncurrent coordinate: (%d, %d)", v3CurrentPosition.x, v3CurrentPosition.z, nCoX, nCoZ);
             wsprintf(testSTR, "%ws", test2);
-            g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
             
             SetRect(&rt, 20, 60, 0, 0);
             /*swprintf_s(test2, 500, L"current X - axis: (%f, %f, %f)\ncurrent Y-axis: (%f, %f, %f)\ncurrent Z-axis:(%f, %f, %f)",
@@ -676,7 +697,7 @@ VOID Render()
                 (v3CurrentLookAt.x - v3CurrentPosition.x) / 5.0f, (v3CurrentLookAt.y - v3CurrentPosition.y) / 5.0f, (v3CurrentLookAt.z - v3CurrentPosition.z) / 5.0f,
                 player.GetPlayerAxis()._31, player.GetPlayerAxis()._32, player.GetPlayerAxis()._33);
             wsprintf(testSTR, "%ws", test2);
-            g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+            //g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
 
             // wsprintf(testSTR, "2: 시점변환");
         }
