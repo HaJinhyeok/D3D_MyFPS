@@ -58,9 +58,9 @@ public:
 	{
 		return m_IsLightOn;
 	}
-	D3DLIGHT9 GetPlayerLight()
+	D3DLIGHT9* GetPlayerLight()
 	{
-		return m_FlashLight;
+		return &m_FlashLight;
 	}
 
 	VOID Move(MOVE_DIRECTION direction, const char (*map)[NUM_OF_COLUMN+1]);

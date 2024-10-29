@@ -23,15 +23,15 @@ using namespace std;
 #define TEXTURE_WALL "tex_wall.jpg"
 #define TEXTURE_NOTICE "tex_question.png"
 #define TEXTURE_EXIT "tex_exit.png"
-#define TRANSLATION_DISTANCE 0.5f   // 플레이어 이동거리
+#define TRANSLATION_DISTANCE 0.2f   // 플레이어 이동거리
 #define LOOKAT_DISTANCE 5.0f    //
-#define ROTATION_AMOUNT D3DX_PI/150 // 플레이어 회전각
+#define ROTATION_AMOUNT D3DX_PI/250 // 플레이어 회전각
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
 #define NUM_OF_ROW 14    // 즉, 세로 길이
 #define LENGTH_OF_TILE 10.0f
 
-#define PLAYER_RADIUS 2.0f
+#define PLAYER_RADIUS 4.0f
 #define X_MOVE 1
 #define Z_MOVE 0
 

@@ -499,10 +499,10 @@ VOID Render()
     if (SUCCEEDED(g_pd3dDevice->BeginScene()))
     {
         int i, j;
-        D3DLIGHT9 light = player.GetPlayerLight();
+        D3DLIGHT9* p_light = player.GetPlayerLight();
         // bIsSkyView == TRUE 이면 player의 spot light,
         // FALSE 이면 하늘 시점에서 point light로 바꿔서 맵 전체가 어느 정도 보이게 하는 것도 좋을듯
-        g_pd3dDevice->SetLight(0, &light);
+        g_pd3dDevice->SetLight(0, p_light);
         g_pd3dDevice->LightEnable(0, TRUE);
 
         D3DXMATRIX mtWorld;
@@ -526,7 +526,7 @@ VOID Render()
         }
 
         D3DXMATRIX mtProjection;
-        D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 1.0f, 1000.0f);
+        D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 0.1f, 1000.0f);
         g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &mtProjection);
 
         D3DXPLANE FrustumPlane[6];
@@ -684,7 +684,8 @@ VOID Render()
                 v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);*/
             
             int nCoX = floorf(v3CurrentPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2, nCoZ = NUM_OF_ROW / 2 - floorf(v3CurrentPosition.z / LENGTH_OF_TILE) - 1;
-            swprintf_s(test2, 500, L"current position: (%f, %f)\ncurrent coordinate: (%d, %d)", v3CurrentPosition.x, v3CurrentPosition.z, nCoX, nCoZ);
+            swprintf_s(test2, 500, L"current position: (%f, %f)\ncurrent coordinate: (%d, %d)\ncurrent flashlight position: (%f,%f)", 
+                v3CurrentPosition.x, v3CurrentPosition.z, nCoX, nCoZ, p_light->Position.x, p_light->Position.z);
             wsprintf(testSTR, "%ws", test2);
             g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
             

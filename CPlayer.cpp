@@ -15,18 +15,26 @@ CPlayer::CPlayer()
     ZeroMemory(&m_FlashLight, sizeof(D3DLIGHT9));
     m_FlashLight.Type = D3DLIGHT_SPOT;
     m_FlashLight.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+    m_FlashLight.Ambient.r = 1.0f;
+    m_FlashLight.Ambient.g = 1.0f;
+    m_FlashLight.Ambient.b = 1.0f;
+    m_FlashLight.Specular.r = 1.0f;
+    m_FlashLight.Specular.g = 1.0f;
+    m_FlashLight.Specular.b = 1.0f;
     m_FlashLight.Position = m_Position;
     m_FlashLight.Direction = D3DXVECTOR3(m_PlayerAxis._31, m_PlayerAxis._32, m_PlayerAxis._33);
     D3DXVec3Normalize((D3DXVECTOR3*)&m_FlashLight.Direction, (D3DXVECTOR3*)&m_FlashLight.Direction);
-    m_FlashLight.Range = 150.0f;
+    m_FlashLight.Range = 1500.0f;
     m_FlashLight.Attenuation0 = 1.0f;
-    m_FlashLight.Attenuation1 = 0.001f;
+    m_FlashLight.Attenuation1 = 0.01f;
     m_FlashLight.Attenuation2 = 0.0001f;
     m_FlashLight.Falloff = 1.0f;
-    /*m_FlashLight.Phi = D3DXToRadian(30.0f);
-    m_FlashLight.Theta = D3DXToRadian(20.0f);*/
-    m_FlashLight.Phi = 1.0f;
-    m_FlashLight.Theta = 0.7f;
+    m_FlashLight.Phi = D3DX_PI / 2;
+    m_FlashLight.Theta = D3DX_PI / 4;
+    //m_FlashLight.Phi = D3DXToRadian(100.0f);
+    //m_FlashLight.Theta = D3DXToRadian(100.0f);
+    //m_FlashLight.Phi = 1.0f;
+    //m_FlashLight.Theta = 0.7f;
 }
 CPlayer::~CPlayer()
 {
