@@ -28,9 +28,9 @@ CPlayer::CPlayer()
     m_FlashLight.Attenuation0 = 1.0f;
     m_FlashLight.Attenuation1 = 0.01f;
     m_FlashLight.Attenuation2 = 0.0001f;
-    m_FlashLight.Falloff = 1.0f;
-    m_FlashLight.Phi = D3DX_PI / 2;
-    m_FlashLight.Theta = D3DX_PI / 4;
+    m_FlashLight.Falloff = 2.0f;
+    m_FlashLight.Phi = D3DXToRadian(60.0f);
+    m_FlashLight.Theta = D3DXToRadian(30.0f);
     //m_FlashLight.Phi = D3DXToRadian(100.0f);
     //m_FlashLight.Theta = D3DXToRadian(100.0f);
     //m_FlashLight.Phi = 1.0f;

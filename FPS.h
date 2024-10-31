@@ -23,15 +23,15 @@ using namespace std;
 #define TEXTURE_WALL "tex_wall.jpg"
 #define TEXTURE_NOTICE "tex_question.png"
 #define TEXTURE_EXIT "tex_exit.png"
-#define TRANSLATION_DISTANCE 0.2f   // 플레이어 이동거리
+#define TRANSLATION_DISTANCE 0.3f   // 플레이어 이동거리
 #define LOOKAT_DISTANCE 5.0f    //
-#define ROTATION_AMOUNT D3DX_PI/250 // 플레이어 회전각
+#define ROTATION_AMOUNT D3DX_PI/200 // 플레이어 회전각
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
 #define NUM_OF_ROW 14    // 즉, 세로 길이
 #define LENGTH_OF_TILE 10.0f
 
-#define PLAYER_RADIUS 4.0f
+#define PLAYER_RADIUS 2.0f
 #define X_MOVE 1
 #define Z_MOVE 0
 
@@ -65,10 +65,10 @@ enum class MOVE_DIRECTION :WORD
 
 static UI_VERTEX UIVertices[4] =
 {
-    D3DXVECTOR3(10.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(125, 255, 255), D3DXVECTOR2(0.0f, 0.0f),
-    D3DXVECTOR3(360.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(125, 255, 255), D3DXVECTOR2(1.0f, 0.0f),
-    D3DXVECTOR3(360.0f, 60.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(125, 255, 255), D3DXVECTOR2(1.0f, 1.0f),
-    D3DXVECTOR3(10.0f, 60.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(125, 255, 255), D3DXVECTOR2(0.0f, 1.0f)
+    D3DXVECTOR3(10.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(210.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(1.0f, 0.0f),
+    D3DXVECTOR3(210.0f, 100.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(1.0f, 1.0f),
+    D3DXVECTOR3(10.0f, 100.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 1.0f)
 };
 
 static UI_VERTEX PopUpVertices[4] =
@@ -113,6 +113,8 @@ static BOOL bIsInteractive = FALSE;
 static BOOL bIsPlaying = TRUE;
 // 버튼 클릭 확인 변수
 static BOOL bIsClicked = FALSE;
+// 낮밤 확인 변수
+static BOOL bIsLightOn = FALSE;
 
 static D3DXVECTOR3 v3CurrentLookAt(0.0f, 5.0f, 10.0f);
 static D3DXVECTOR3 v3LookAt(v3CurrentLookAt);

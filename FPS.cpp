@@ -24,7 +24,7 @@ LPPOINT g_pMouse = new POINT;
 
 LPDIRECT3DSURFACE9 z_buffer = NULL;
 D3DMATERIAL9 material;
-D3DLIGHT9 light;
+D3DLIGHT9 skyLight;
 
 CPlayer player;
 vector<CNotice> notice;
@@ -34,7 +34,6 @@ CFrustum* g_pFrustum = NULL;
 RECT rt, rtExitButton;
 char testSTR[500];
 wchar_t test2[500];
-BOOL bIsLightOn = TRUE;
 // CUSTOMVERTEX* tmpBlock;
 // CUSTOMVERTEX tmpBlock[20];
 // LPDIRECT3DVERTEXBUFFER9 g_pTmpBlockVB = NULL;
@@ -81,12 +80,7 @@ VOID InitGeometry()
     material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
     material.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
     g_pd3dDevice->SetMaterial(&material);
-
-    ZeroMemory(&light, sizeof(D3DLIGHT9));
-    light.Type = D3DLIGHT_DIRECTIONAL;
-    light.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-    light.Direction = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
-    
+        
 
     D3DXCreateSphere(g_pd3dDevice, 1.0f, 10, 10, &g_pSphere, 0);
     D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pLookAtSphere, 0);
@@ -449,7 +443,7 @@ VOID __KeyProc()
 
     
 
-    //// 추후 생각해서 추가해볼 기능
+    //// 추가 기능
     {
         // 점프?는 일단 제외
         if (GetAsyncKeyState(VK_SPACE))
@@ -462,12 +456,12 @@ VOID __KeyProc()
         {
             if (bIsLightOn == TRUE)
             {
-                g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+                g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
                 bIsLightOn = FALSE;
             }
             else
             {
-                g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+                g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
                 bIsLightOn = TRUE;
             }
         }
@@ -479,10 +473,13 @@ VOID __KeyProc()
             else
                 bIsSkyView = FALSE;
         }
-        // 절두체 컬링
+        // player flashlight on/off
         if (GetKeyDown('3') == TRUE)
         {
-
+            if (player.IsFlashlightOn() == TRUE)
+                player.SetFlashlight(FALSE);
+            else
+                player.SetFlashlight(TRUE);
         }
     }
     
@@ -493,7 +490,10 @@ VOID Render()
     if (NULL == g_pd3dDevice)
         return;
 
-    g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
+    if(bIsLightOn==TRUE)
+        g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
+    else
+        g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(23, 23, 23), 1.0f, 0);
     g_pd3dDevice->Clear(0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(255, 255, 255), 1.0f, 0);
 
     if (SUCCEEDED(g_pd3dDevice->BeginScene()))
@@ -503,7 +503,27 @@ VOID Render()
         // bIsSkyView == TRUE 이면 player의 spot light,
         // FALSE 이면 하늘 시점에서 point light로 바꿔서 맵 전체가 어느 정도 보이게 하는 것도 좋을듯
         g_pd3dDevice->SetLight(0, p_light);
-        g_pd3dDevice->LightEnable(0, TRUE);
+        if (player.IsFlashlightOn() == TRUE)
+        {
+			g_pd3dDevice->LightEnable(0, TRUE);
+        }
+        else
+        {
+            g_pd3dDevice->LightEnable(0, FALSE);
+        }
+        // 하늘에서 플레이어를 향해 비추는 빛
+        ZeroMemory(&skyLight, sizeof(D3DLIGHT9));
+        skyLight.Type = D3DLIGHT_SPOT;
+        skyLight.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+        skyLight.Direction = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
+        skyLight.Position = player.GetPosition() + D3DXVECTOR3(0.0f, 10.0f, 0.0f);
+        skyLight.Range = 300.0f;
+        skyLight.Attenuation0 = 1.0f;
+        skyLight.Falloff = 1.0f;
+        skyLight.Phi = D3DXToRadian(90.0f);
+        skyLight.Theta = D3DXToRadian(30.0f);
+        g_pd3dDevice->SetLight(1, &skyLight);
+        g_pd3dDevice->LightEnable(1, TRUE);
 
         D3DXMATRIX mtWorld;
         D3DXMatrixIdentity(&mtWorld);
@@ -635,8 +655,8 @@ VOID Render()
         Exit.DrawNotice(g_pd3dDevice);
 
         // 위치 표시용 구체
-        // if (bIsSkyView == TRUE)
-        if (bIsLightOn == FALSE)
+        if (bIsSkyView == TRUE)
+        // if (bIsLightOn == FALSE)
         {
             D3DXMATRIX tmpTranspose;
             D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
@@ -663,9 +683,8 @@ VOID Render()
             g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
         }
         //// 좌상단 UI
-        //if(FALSE)
+        if (bIsSkyView == FALSE)
         {
-            // SetWindowPos(hButtonExit, NULL, 400, 400, 100, 50, SWP_NOSIZE | SWP_NOZORDER);
             //// Transformed Vertex
             g_pd3dDevice->SetTexture(0, NULL);
             g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
@@ -687,9 +706,9 @@ VOID Render()
             swprintf_s(test2, 500, L"current position: (%f, %f)\ncurrent coordinate: (%d, %d)\ncurrent flashlight position: (%f,%f)", 
                 v3CurrentPosition.x, v3CurrentPosition.z, nCoX, nCoZ, p_light->Position.x, p_light->Position.z);
             wsprintf(testSTR, "%ws", test2);
-            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+            // g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
             
-            SetRect(&rt, 20, 60, 0, 0);
+            SetRect(&rt, 20, 20, 0, 0);
             /*swprintf_s(test2, 500, L"current X - axis: (%f, %f, %f)\ncurrent Y-axis: (%f, %f, %f)\ncurrent Z-axis:(%f, %f, %f)",
                 player.GetPlayerAxis()._11, player.GetPlayerAxis()._12, player.GetPlayerAxis()._13,
                 player.GetPlayerAxis()._21, player.GetPlayerAxis()._22, player.GetPlayerAxis()._23,
@@ -697,10 +716,10 @@ VOID Render()
             swprintf_s(test2, 500, L"LookAt-Position:(%f, %f, %f)\ncurrent Z-axis:(%f, %f, %f)",
                 (v3CurrentLookAt.x - v3CurrentPosition.x) / 5.0f, (v3CurrentLookAt.y - v3CurrentPosition.y) / 5.0f, (v3CurrentLookAt.z - v3CurrentPosition.z) / 5.0f,
                 player.GetPlayerAxis()._31, player.GetPlayerAxis()._32, player.GetPlayerAxis()._33);
-            wsprintf(testSTR, "%ws", test2);
-            //g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+            // wsprintf(testSTR, "%ws", test2);
 
-            // wsprintf(testSTR, "2: 시점변환");
+            wsprintf(testSTR, "1: 낮밤 전환\n2: 시점변환\n3: 손전등 on/off");
+            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
         }
         
         g_pd3dDevice->EndScene();

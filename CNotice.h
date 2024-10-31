@@ -27,7 +27,6 @@ public:
 	VOID ReleaseNoticeVB();
 
 	BOOL IsPossibleInteraction(D3DXVECTOR3 playerPosition);
-	BOOL __PtInRect(LPPOINT point);
 	BOOL IsNotice()
 	{
 		return m_bIsNotice;
