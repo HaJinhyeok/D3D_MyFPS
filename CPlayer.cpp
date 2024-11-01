@@ -126,9 +126,9 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
                 if (WallPoint[0].x <= tmpPosition.x + PLAYER_RADIUS && WallPoint[1].x >= tmpPosition.x - PLAYER_RADIUS
                     && WallPoint[0].y <= tmpPosition.z + PLAYER_RADIUS && WallPoint[1].y >= tmpPosition.z - PLAYER_RADIUS)
                 {
-                    OutputDebugStringA("Left Collision!!!\n");
-                    tmpPosition.x = WallPoint[1].x + PLAYER_RADIUS + 0.1f;
-                    break;
+					if (map[nCoZ][nCoX - 1] == '*')
+						tmpPosition.x = WallPoint[1].x + PLAYER_RADIUS + 0.1f;
+					break;
                 }
             }
         }
@@ -157,10 +157,10 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
                 //Ãæµ¹ ½Ã
                 if (WallPoint[0].x <= tmpPosition.x + PLAYER_RADIUS && WallPoint[1].x >= tmpPosition.x - PLAYER_RADIUS
                     && WallPoint[0].y <= tmpPosition.z + PLAYER_RADIUS && WallPoint[1].y >= tmpPosition.z - PLAYER_RADIUS)
-                {
-                    OutputDebugStringA("Right Collision!!!\n");
-                    tmpPosition.x = WallPoint[0].x - PLAYER_RADIUS - 0.1f;
-                    break;
+				{
+					if (map[nCoZ][nCoX + 1] == '*')
+						tmpPosition.x = WallPoint[0].x - PLAYER_RADIUS - 0.1f;
+					break;
                 }
             }
         }
@@ -191,7 +191,6 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
                 if (WallPoint[0].x <= tmpPosition.x + PLAYER_RADIUS && WallPoint[1].x >= tmpPosition.x - PLAYER_RADIUS
                     && WallPoint[0].y <= tmpPosition.z + PLAYER_RADIUS && WallPoint[1].y >= tmpPosition.z - PLAYER_RADIUS)
                 {
-                    OutputDebugStringA("Back Collision!!!\n");
                     tmpPosition.z = WallPoint[1].y + PLAYER_RADIUS + 0.1f;
                     break;
                 }
@@ -223,7 +222,6 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
                 if (WallPoint[0].x <= tmpPosition.x + PLAYER_RADIUS && WallPoint[1].x >= tmpPosition.x - PLAYER_RADIUS
                     && WallPoint[0].y <= tmpPosition.z + PLAYER_RADIUS && WallPoint[1].y >= tmpPosition.z - PLAYER_RADIUS)
                 {
-                    OutputDebugStringA("Front Collision!!!\n");
                     tmpPosition.z = WallPoint[0].y - PLAYER_RADIUS - 0.1f;
                     break;
                 }
