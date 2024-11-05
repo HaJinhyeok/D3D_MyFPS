@@ -32,3 +32,4 @@ ex)
 2. 장애물 요소 추가(DX xfile)
 
 3. 예전에 건드려봤던 FPS(FRAME), Frustum Culling 등등
+4. 마우스 클릭 시 총알 날아가는 이펙트(총알은 구체 혹은 육면체)

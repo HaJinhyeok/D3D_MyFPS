@@ -259,3 +259,9 @@ VOID CPlayer::Rotate(BOOL bIsCCW)
 
     m_FlashLight.Direction = D3DXVECTOR3(m_PlayerAxis._31, m_PlayerAxis._32, m_PlayerAxis._33);
 }
+
+VOID CPlayer::Attack(LPPOINT CursorPosition)
+{
+    // 마우스 클릭 시, 클릭한 방향으로 벡터를 설정하고 일직선으로 날아가는 투사체 발사
+    // 총알 크기, 속도, 연사(마우스 꾹 누르고 있을 때), 벽이나 오브젝트에 닿으면 사라지도록
+}

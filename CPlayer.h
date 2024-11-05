@@ -65,5 +65,6 @@ public:
 
 	VOID Move(MOVE_DIRECTION direction, const char (*map)[NUM_OF_COLUMN+1]);
 	VOID Rotate(BOOL bIsCCW);
+	VOID Attack(LPPOINT CursorPosition);
 };
 
