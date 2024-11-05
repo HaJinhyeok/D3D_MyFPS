@@ -264,4 +264,16 @@ VOID CPlayer::Attack(LPPOINT CursorPosition)
 {
     // 마우스 클릭 시, 클릭한 방향으로 벡터를 설정하고 일직선으로 날아가는 투사체 발사
     // 총알 크기, 속도, 연사(마우스 꾹 누르고 있을 때), 벽이나 오브젝트에 닿으면 사라지도록
+
+}
+VOID CPlayer::MoveBullet()
+{
+    // 매 프레임마다 호출해서 총알의 이동 및 충돌 후 제거 연산 수행
+    // 발사된 총알이 없을 시 건너뜀
+    if (m_Bullet.size() == 0)
+        return;
+    else
+    {
+        for(auto i)
+    }
 }

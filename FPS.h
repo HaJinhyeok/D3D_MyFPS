@@ -5,6 +5,7 @@
 #include <wchar.h>
 #include <cmath>
 #include <vector>
+#include <deque>
 #include <iterator>
 
 using namespace std;
@@ -49,6 +50,12 @@ struct UI_VERTEX
     D3DCOLOR VerColor;
     D3DXVECTOR2 v2VerTex;
 };
+struct Bullet
+{
+    D3DXVECTOR3 v3Position;
+    D3DXVECTOR3 v3Direction;
+};
+
 enum class POSITION_WITH_FRUSTUM : WORD
 {
     outside,
