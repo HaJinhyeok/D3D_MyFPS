@@ -33,9 +33,14 @@ using namespace std;
 #define LENGTH_OF_TILE 10.0f
 
 #define PLAYER_RADIUS 2.0f
+#define BULLET_RADIUS 0.2F
 #define X_MOVE 1
 #define Z_MOVE 0
 
+inline FLOAT Length(D3DXVECTOR3 myVec)
+{
+    return sqrtf(myVec.x * myVec.x + myVec.y * myVec.y + myVec.z * myVec.z);
+}
 
 struct CUSTOMVERTEX
 {

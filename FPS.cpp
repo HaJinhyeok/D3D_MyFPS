@@ -18,8 +18,8 @@ LPDIRECT3DTEXTURE9 g_pExitTexture = NULL;
 LPD3DXFONT g_pClearFont = NULL;
 LPD3DXFONT g_pExitFont = NULL;
 LPD3DXFONT g_pTestFont = NULL;
-LPD3DXMESH g_pSphere = NULL;
-LPD3DXMESH g_pLookAtSphere = NULL;
+LPD3DXMESH g_pPlayerSphere = NULL;
+LPD3DXMESH g_pBulletSphere = NULL;
 LPPOINT g_pMouse = new POINT;
 
 LPDIRECT3DSURFACE9 z_buffer = NULL;
@@ -82,8 +82,8 @@ VOID InitGeometry()
     g_pd3dDevice->SetMaterial(&material);
         
 
-    D3DXCreateSphere(g_pd3dDevice, 1.0f, 10, 10, &g_pSphere, 0);
-    D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pLookAtSphere, 0);
+    D3DXCreateSphere(g_pd3dDevice, BULLET_RADIUS, 10, 10, &g_pBulletSphere, 0);
+    D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pPlayerSphere, 0);
     D3DXCreateFont(g_pd3dDevice, 50, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pClearFont);
     D3DXCreateFont(g_pd3dDevice, 30, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pExitFont);
     D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pTestFont);
@@ -331,10 +331,10 @@ VOID CleanUp()
     /*if (g_pTmpBlockVB != NULL)
         g_pTmpBlockVB->Release();*/
     delete g_pMouse;
-    if (g_pLookAtSphere != NULL)
-        g_pLookAtSphere->Release();
-    if (g_pSphere != NULL)
-        g_pSphere->Release();
+    if (g_pBulletSphere != NULL)
+        g_pBulletSphere->Release();
+    if (g_pPlayerSphere != NULL)
+        g_pPlayerSphere->Release();
     if (g_pTestFont != NULL)
         g_pTestFont->Release();
     if (g_pExitFont != NULL)
@@ -500,6 +500,7 @@ VOID Render()
     {
         int i, j;
         D3DLIGHT9* p_light = player.GetPlayerLight();
+        player.MoveBullet();
         // bIsSkyView == TRUE 이면 player의 spot light,
         // FALSE 이면 하늘 시점에서 point light로 바꿔서 맵 전체가 어느 정도 보이게 하는 것도 좋을듯
         g_pd3dDevice->SetLight(0, p_light);
@@ -654,6 +655,9 @@ VOID Render()
         g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtNoticeWorld);
         Exit.DrawNotice(g_pd3dDevice);
 
+        //// Bullet rendering
+
+
         // 위치 표시용 구체
         if (bIsSkyView == TRUE)
         // if (bIsLightOn == FALSE)
@@ -663,7 +667,7 @@ VOID Render()
             D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
             g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
             g_pd3dDevice->SetTexture(0, g_pTileTexture);
-            g_pLookAtSphere->DrawSubset(0);
+            g_pPlayerSphere->DrawSubset(0);
         }
         
 

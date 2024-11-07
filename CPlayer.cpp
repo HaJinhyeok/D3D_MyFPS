@@ -263,8 +263,11 @@ VOID CPlayer::Rotate(BOOL bIsCCW)
 VOID CPlayer::Attack(LPPOINT CursorPosition)
 {
     // 마우스 클릭 시, 클릭한 방향으로 벡터를 설정하고 일직선으로 날아가는 투사체 발사
+    // world 상에서 플레이어 위치를 (0,0,0)으로 생각하고, 마우스가 클릭되는 평면을 
     // 총알 크기, 속도, 연사(마우스 꾹 누르고 있을 때), 벽이나 오브젝트에 닿으면 사라지도록
-
+    Bullet tmpBullet;
+    tmpBullet.v3Position = this->GetPosition();
+    tmpBullet.v3Direction = this->GetLookAt();
 }
 VOID CPlayer::MoveBullet()
 {
@@ -274,6 +277,24 @@ VOID CPlayer::MoveBullet()
         return;
     else
     {
-        for(auto i)
+        FLOAT fCoefficient = this->m_BulletVelocity;
+        for (int i = 0; i < m_Bullet.size(); i++)
+        {
+            // 우선 이동
+            fCoefficient /= sqrtf(m_Bullet[i].v3Direction.x * m_Bullet[i].v3Direction.x + m_Bullet[i].v3Direction.y * m_Bullet[i].v3Direction.y + m_Bullet[i].v3Direction.z * m_Bullet[i].v3Direction.z);
+            m_Bullet[i].v3Position.x += fCoefficient * m_Bullet[i].v3Direction.x;
+            m_Bullet[i].v3Position.y += fCoefficient * m_Bullet[i].v3Direction.y;
+            m_Bullet[i].v3Position.z += fCoefficient * m_Bullet[i].v3Direction.z;
+            // 벽 또는 장애물과 충돌 검사
+            // 일단은 플레이어로부터 100만큼 떨어지면 제거되게
+            if (Length(m_Bullet[i].v3Position - this->m_Position) >= 100.0f)
+            {
+                // 만약 이렇게 해서 맨 앞 원소를 pop_front하게 되면, 원래 두번째 원소였던 애가 첫번째 원소가 되어버린다.
+                // 근데 i값은 반복문 진행되면서 ++되므로 이러면 나가린데
+                m_Bullet.pop_front();
+                // 그러면 i 값을 하나 줄여주면 되겠네
+                i--;
+            }
+        }
     }
 }
