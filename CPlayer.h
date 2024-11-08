@@ -14,7 +14,7 @@ private:
 	BOOL m_IsLightOn;
 	D3DLIGHT9 m_FlashLight;
 	deque<Bullet> m_Bullet;
-	const FLOAT m_BulletVelocity = 2.0f;
+	const FLOAT m_BulletVelocity = 0.7f;
 	const WORD m_RPM = 600;
 	// 플레이어가 발사한 총알 객체를 하나하나 다 갖고 있는게 아니라,
 	// 위치값만 갖고 있다가 매 프레임마다 위치에 총알 그림 그려주면 되지 않을까?
@@ -76,5 +76,6 @@ public:
 	VOID Rotate(BOOL bIsCCW);
 	VOID Attack(LPPOINT CursorPosition);
 	VOID MoveBullet();
+	VOID DrawBullet(LPDIRECT3DDEVICE9 device, LPD3DXMESH sphere);
 };
 

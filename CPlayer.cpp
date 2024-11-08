@@ -54,7 +54,7 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
     // 현재 좌표
     nCoX = floorf(m_Position.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2;
     nCoZ = NUM_OF_ROW / 2 - floorf(m_Position.z / LENGTH_OF_TILE) - 1;
-
+    // y축 움직임은 없으므로 y축 정보는 걍 빼고 계산
     if (direction == MOVE_DIRECTION::left)
     {
         vecDirection.x = -m_PlayerAxis._11;
@@ -63,7 +63,7 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
         fCoefficient /= sqrtf(vecDirection.x * vecDirection.x + vecDirection.y * vecDirection.y + vecDirection.z * vecDirection.z);
 
         tmpPosition.x = m_Position.x + vecDirection.x * fCoefficient;
-        tmpPosition.y = m_Position.y + vecDirection.y * fCoefficient;
+        // tmpPosition.y = m_Position.y + vecDirection.y * fCoefficient;
         tmpPosition.z = m_Position.z + vecDirection.z * fCoefficient;
     }
     else if (direction == MOVE_DIRECTION::right)
@@ -74,7 +74,7 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
         fCoefficient /= sqrtf(vecDirection.x * vecDirection.x + vecDirection.y * vecDirection.y + vecDirection.z * vecDirection.z);
 
         tmpPosition.x = m_Position.x + vecDirection.x * fCoefficient;
-        tmpPosition.y = m_Position.y + vecDirection.y * fCoefficient;
+        // tmpPosition.y = m_Position.y + vecDirection.y * fCoefficient;
         tmpPosition.z = m_Position.z + vecDirection.z * fCoefficient;
     }
     else if (direction == MOVE_DIRECTION::front)
@@ -85,7 +85,7 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
         fCoefficient /= sqrtf(vecDirection.x * vecDirection.x + vecDirection.y * vecDirection.y + vecDirection.z * vecDirection.z);
 
         tmpPosition.x = m_Position.x + vecDirection.x * fCoefficient;
-        tmpPosition.y = m_Position.y + vecDirection.y * fCoefficient;
+        // tmpPosition.y = m_Position.y + vecDirection.y * fCoefficient;
         tmpPosition.z = m_Position.z + vecDirection.z * fCoefficient;
     }
     else if (direction == MOVE_DIRECTION::back)
@@ -96,7 +96,7 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
         fCoefficient /= sqrtf(vecDirection.x * vecDirection.x + vecDirection.y * vecDirection.y + vecDirection.z * vecDirection.z);
 
         tmpPosition.x = m_Position.x + vecDirection.x * fCoefficient;
-        tmpPosition.y = m_Position.y + vecDirection.y * fCoefficient;
+        // tmpPosition.y = m_Position.y + vecDirection.y * fCoefficient;
         tmpPosition.z = m_Position.z + vecDirection.z * fCoefficient;
 
     }
@@ -267,7 +267,8 @@ VOID CPlayer::Attack(LPPOINT CursorPosition)
     // 총알 크기, 속도, 연사(마우스 꾹 누르고 있을 때), 벽이나 오브젝트에 닿으면 사라지도록
     Bullet tmpBullet;
     tmpBullet.v3Position = this->GetPosition();
-    tmpBullet.v3Direction = this->GetLookAt();
+    tmpBullet.v3Direction = this->GetLookAt() - this->GetPosition();
+    m_Bullet.push_back(tmpBullet);
 }
 VOID CPlayer::MoveBullet()
 {
@@ -296,5 +297,16 @@ VOID CPlayer::MoveBullet()
                 i--;
             }
         }
+    }
+}
+VOID CPlayer::DrawBullet(LPDIRECT3DDEVICE9 device, LPD3DXMESH sphere)
+{
+    D3DXMATRIX world;
+    for (int i = 0; i < m_Bullet.size(); i++)
+    {
+        D3DXMatrixIdentity(&world);
+        D3DXMatrixTranslation(&world, m_Bullet[i].v3Position.x, m_Bullet[i].v3Position.y, m_Bullet[i].v3Position.z);
+        device->SetTransform(D3DTS_WORLD, &world);
+        sphere->DrawSubset(0);
     }
 }

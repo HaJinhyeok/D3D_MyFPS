@@ -22,7 +22,7 @@ LPD3DXMESH g_pPlayerSphere = NULL;
 LPD3DXMESH g_pBulletSphere = NULL;
 LPPOINT g_pMouse = new POINT;
 
-LPDIRECT3DSURFACE9 z_buffer = NULL;
+// LPDIRECT3DSURFACE9 z_buffer = NULL;
 D3DMATERIAL9 material;
 D3DLIGHT9 skyLight;
 
@@ -30,7 +30,7 @@ CPlayer player;
 vector<CNotice> notice;
 CExit Exit;
 
-CFrustum* g_pFrustum = NULL;
+CFrustum* g_pFrustum = new CFrustum;
 RECT rt, rtExitButton;
 char testSTR[500];
 wchar_t test2[500];
@@ -324,12 +324,9 @@ VOID InitGeometry()
 
 VOID CleanUp()
 {
-    /*if (tmpBlock != NULL)
-        delete tmpBlock;*/
-    if (z_buffer != NULL)
-        z_buffer->Release();
-    /*if (g_pTmpBlockVB != NULL)
-        g_pTmpBlockVB->Release();*/
+    /*if (z_buffer != NULL)
+        z_buffer->Release();*/
+    delete g_pFrustum;
     delete g_pMouse;
     if (g_pBulletSphere != NULL)
         g_pBulletSphere->Release();
@@ -378,6 +375,10 @@ VOID __KeyProc()
     int i;
 
     UpdateInput();
+
+    // 총알 움직임 계산
+    player.MoveBullet();
+
     // wasd 또는 방향키 : 플레이어 앞뒤좌우 움직임
 
     // 이동 시, 벽과 일정 거리(PLAYER_RADIUS) 이하로는 가까워지지 않도록 조정하기
@@ -441,7 +442,6 @@ VOID __KeyProc()
         player.Rotate(FALSE);
     }
 
-    
 
     //// 추가 기능
     {
@@ -656,7 +656,8 @@ VOID Render()
         Exit.DrawNotice(g_pd3dDevice);
 
         //// Bullet rendering
-
+        g_pd3dDevice->SetTexture(0, g_pTileTexture);
+        player.DrawBullet(g_pd3dDevice, g_pBulletSphere);
 
         // 위치 표시용 구체
         if (bIsSkyView == TRUE)
@@ -762,6 +763,8 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         g_pMouse->y = HIWORD(lParam);
 		Exit.ButtonUnpressed();
         bIsClicked = FALSE;
+        player.Attack(g_pMouse);
+        OutputDebugString("Clicked");
         if (!bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
         {
             Sleep(1000);
@@ -793,8 +796,6 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
         WS_OVERLAPPEDWINDOW, 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT,
         GetDesktopWindow(), NULL, wc.hInstance, NULL);
 
-    g_pFrustum = new CFrustum;
-
     // Direct3D 초기화
     if (SUCCEEDED(InitD3D(hWnd)))
     {
@@ -823,7 +824,6 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
         }
     }
 
-    delete g_pFrustum;
 
     // 등록된 클래스 소거
     UnregisterClass("D3D_MyFPS", wc.hInstance);

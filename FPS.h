@@ -33,7 +33,7 @@ using namespace std;
 #define LENGTH_OF_TILE 10.0f
 
 #define PLAYER_RADIUS 2.0f
-#define BULLET_RADIUS 0.2F
+#define BULLET_RADIUS 0.4f
 #define X_MOVE 1
 #define Z_MOVE 0
 
