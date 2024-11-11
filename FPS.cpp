@@ -21,6 +21,7 @@ LPD3DXFONT g_pTestFont = NULL;
 LPD3DXMESH g_pPlayerSphere = NULL;
 LPD3DXMESH g_pBulletSphere = NULL;
 LPPOINT g_pMouse = new POINT;
+LPPOINT g_pCurrentMouse = new POINT; // 마우스 이동 시, 이동한 좌표 받아올 임시 마우스 좌표
 
 // LPDIRECT3DSURFACE9 z_buffer = NULL;
 D3DMATERIAL9 material;
@@ -34,9 +35,6 @@ CFrustum* g_pFrustum = new CFrustum;
 RECT rt, rtExitButton;
 char testSTR[500];
 wchar_t test2[500];
-// CUSTOMVERTEX* tmpBlock;
-// CUSTOMVERTEX tmpBlock[20];
-// LPDIRECT3DVERTEXBUFFER9 g_pTmpBlockVB = NULL;
 
 HRESULT InitD3D(HWND hWnd)
 {
@@ -324,9 +322,8 @@ VOID InitGeometry()
 
 VOID CleanUp()
 {
-    /*if (z_buffer != NULL)
-        z_buffer->Release();*/
     delete g_pFrustum;
+    delete g_pCurrentMouse;
     delete g_pMouse;
     if (g_pBulletSphere != NULL)
         g_pBulletSphere->Release();
@@ -695,8 +692,11 @@ VOID Render()
             g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
             g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UIVertices, sizeof(UI_VERTEX));
 
-            //// DrawText
             SetRect(&rt, 20, 20, 0, 0);
+            wsprintf(testSTR, "1: 낮밤 전환\n2: 시점변환\n3: 손전등 on/off");
+            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+
+            //// DrawText
             // swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
             /*swprintf_s(test2, 500, L"Left: %f, %f, %f, %f\nRight: %f, %f, %f, %f\nBottom: %f, %f, %f, %f\nTop: %f, %f, %f, %f\nNear: %f, %f, %f, %f\nFar: %f, %f, %f, %f\n\nposition: %f, %f, %f\nlook at : %f, %f, %f",
                 FrustumPlane[0].a, FrustumPlane[0].b, FrustumPlane[0].c, FrustumPlane[0].d,
@@ -706,12 +706,16 @@ VOID Render()
                 FrustumPlane[4].a, FrustumPlane[4].b, FrustumPlane[4].c, FrustumPlane[4].d,
                 FrustumPlane[5].a, FrustumPlane[5].b, FrustumPlane[5].c, FrustumPlane[5].d,
                 v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);*/
-            
+
+            g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, Log_UI_Vertices, sizeof(UI_VERTEX));
+            SetRect(&rt, 20, 120, 0, 0);
             int nCoX = floorf(v3CurrentPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2, nCoZ = NUM_OF_ROW / 2 - floorf(v3CurrentPosition.z / LENGTH_OF_TILE) - 1;
-            swprintf_s(test2, 500, L"current position: (%f, %f)\ncurrent coordinate: (%d, %d)\ncurrent flashlight position: (%f,%f)", 
-                v3CurrentPosition.x, v3CurrentPosition.z, nCoX, nCoZ, p_light->Position.x, p_light->Position.z);
+            swprintf_s(test2, 500, L"current position: (%f, %f, %f)\ncurrent coordinate: (%d, %d)\ncurrent flashlight position: (%f,%f)", 
+                v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, nCoX, nCoZ, p_light->Position.x, p_light->Position.z);
             wsprintf(testSTR, "%ws", test2);
-            // g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+            RECT tmpRt;
+            //wsprintf(testSTR,"current mouse: (%l, %l),current window rect: top(%d)-bottom(%d)-right(%d)-left(%d)",g_pMouse->x,g_pMouse->y,)
+            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
             
             SetRect(&rt, 20, 20, 0, 0);
             /*swprintf_s(test2, 500, L"current X - axis: (%f, %f, %f)\ncurrent Y-axis: (%f, %f, %f)\ncurrent Z-axis:(%f, %f, %f)",
@@ -723,8 +727,6 @@ VOID Render()
                 player.GetPlayerAxis()._31, player.GetPlayerAxis()._32, player.GetPlayerAxis()._33);
             // wsprintf(testSTR, "%ws", test2);
 
-            wsprintf(testSTR, "1: 낮밤 전환\n2: 시점변환\n3: 손전등 on/off");
-            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
         }
         
         g_pd3dDevice->EndScene();
@@ -749,14 +751,47 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_MOUSEMOVE:
-        g_pMouse->x = LOWORD(lParam);
-        g_pMouse->y = HIWORD(lParam);
+        //SetCapture(hWnd);
+        g_pCurrentMouse->x = LOWORD(lParam);
+        g_pCurrentMouse->y = HIWORD(lParam);
+        if (!bIsSkyView)
+        {
+            if (g_pCurrentMouse->x >= g_pMouse->x)
+            {
+                player.Rotate(FALSE, FALSE, (g_pCurrentMouse->x - g_pMouse->x) * ROTATION_LEFT_RIGHT);
+            }
+            else
+            {
+                player.Rotate(TRUE, FALSE, (g_pMouse->x - g_pCurrentMouse->x) * ROTATION_LEFT_RIGHT);
+            }
+            if (g_pCurrentMouse->y >= g_pMouse->y)
+            {
+                player.Rotate(TRUE, TRUE, (g_pCurrentMouse->y - g_pMouse->y) * ROTATION_UP_DOWN);
+            }
+            else
+            {
+                player.Rotate(FALSE, TRUE, (g_pMouse->y - g_pCurrentMouse->y) * ROTATION_UP_DOWN);
+            }
+        }
+        g_pMouse->x = g_pCurrentMouse->x;
+        g_pMouse->y = g_pCurrentMouse->y;
+        RECT rt;
+        GetWindowRect(hWnd, &rt);
+        /*if (rt.right < g_pMouse->x)
+            g_pMouse->x -= rt.right - rt.left;
+        else if (rt.left > g_pMouse->x)
+            g_pMouse->x += rt.right - rt.left;
+        if (rt.top < g_pMouse->y)
+            g_pMouse->y -= rt.top - rt.bottom;
+        else if (rt.bottom > g_pMouse->y)
+            g_pMouse->y += rt.top - rt.bottom;*/
         if (!bIsPlaying && PtInRect(&rtExitButton, *g_pMouse) && bIsClicked)
         {
             Exit.ButtonPressed();
         }
         else
             Exit.ButtonUnpressed();
+        //ReleaseCapture();
         break;
     case WM_LBUTTONUP:
         g_pMouse->x = LOWORD(lParam);

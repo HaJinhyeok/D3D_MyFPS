@@ -231,6 +231,7 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
     // LookAt은 Position이 이동한 만큼만 더하거나 빼주면 됨
     m_LookAt.x += tmpPosition.x - m_Position.x;
     m_LookAt.z += tmpPosition.z - m_Position.z;
+    tmpPosition.y = this->GetPosition().y;
     SetPosition(tmpPosition);
 
     m_FlashLight.Position = m_Position;
@@ -256,6 +257,52 @@ VOID CPlayer::Rotate(BOOL bIsCCW)
 	m_LookAt.x = m_Position.x + m_PlayerAxis._31 * fCoefficient;
 	m_LookAt.y = m_Position.y + m_PlayerAxis._32 * fCoefficient;
 	m_LookAt.z = m_Position.z + m_PlayerAxis._33 * fCoefficient;
+
+    m_FlashLight.Direction = D3DXVECTOR3(m_PlayerAxis._31, m_PlayerAxis._32, m_PlayerAxis._33);
+}
+VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
+{
+    // 위아래일때 ccw면 위, !ccw면 아래
+    D3DXMATRIX mtRotation;
+    D3DXVECTOR3 v3RotationAxis;
+    FLOAT fCoefficient = LOOKAT_DISTANCE;
+
+    // 좌우 회전
+    if (bIsUpDown == FALSE)
+    {
+        v3RotationAxis = D3DXVECTOR3(m_PlayerAxis._21, m_PlayerAxis._22, m_PlayerAxis._23);
+        if (bIsCCW == TRUE)
+        {
+            // D3DXMatrixRotationY(&mtRotation, -angle);
+            D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
+        }
+        else
+        {
+            // D3DXMatrixRotationY(&mtRotation, angle);
+            D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
+        }
+    }
+    // 상하 회전
+    else
+    {
+        v3RotationAxis = D3DXVECTOR3(m_PlayerAxis._11, m_PlayerAxis._12, m_PlayerAxis._13);
+        if (bIsCCW == TRUE)
+        {
+            // D3DXMatrixRotationX(&mtRotation, angle);
+            D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
+        }
+        else
+        {
+            // D3DXMatrixRotationX(&mtRotation, -angle);
+            D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
+        }
+    }
+    D3DXMatrixMultiply(&m_PlayerAxis, &m_PlayerAxis, &mtRotation);
+
+    fCoefficient /= sqrtf(m_PlayerAxis._31 * m_PlayerAxis._31 + m_PlayerAxis._32 * m_PlayerAxis._32 + m_PlayerAxis._33 * m_PlayerAxis._33);
+    m_LookAt.x = m_Position.x + m_PlayerAxis._31 * fCoefficient;
+    m_LookAt.y = m_Position.y + m_PlayerAxis._32 * fCoefficient;
+    m_LookAt.z = m_Position.z + m_PlayerAxis._33 * fCoefficient;
 
     m_FlashLight.Direction = D3DXVECTOR3(m_PlayerAxis._31, m_PlayerAxis._32, m_PlayerAxis._33);
 }

@@ -27,6 +27,8 @@ using namespace std;
 #define TRANSLATION_DISTANCE 0.3f   // 플레이어 이동거리
 #define LOOKAT_DISTANCE 5.0f    //
 #define ROTATION_AMOUNT D3DX_PI/200 // 플레이어 회전각
+#define ROTATION_LEFT_RIGHT D3DX_PI/720 // 좌우 1pixel 당 회전각 (0.5 호도)
+#define ROTATION_UP_DOWN D3DX_PI/720 // 상하 1pixel 당 회전각 (0.5 호도)
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
 #define NUM_OF_ROW 14    // 즉, 세로 길이
@@ -81,6 +83,14 @@ static UI_VERTEX UIVertices[4] =
     D3DXVECTOR3(210.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(1.0f, 0.0f),
     D3DXVECTOR3(210.0f, 100.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(1.0f, 1.0f),
     D3DXVECTOR3(10.0f, 100.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 1.0f)
+};
+
+static UI_VERTEX Log_UI_Vertices[4] =
+{
+    D3DXVECTOR3(10.0f, 110.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 255, 255), D3DXVECTOR2(0.0f, 0.0f),
+    D3DXVECTOR3(410.0f, 110.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 255, 255), D3DXVECTOR2(1.0f, 0.0f),
+    D3DXVECTOR3(410.0f, 200.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 255, 255), D3DXVECTOR2(1.0f, 1.0f),
+    D3DXVECTOR3(10.0f, 200.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 255, 255), D3DXVECTOR2(0.0f, 1.0f)
 };
 
 static UI_VERTEX PopUpVertices[4] =
@@ -144,7 +154,7 @@ static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
 
 // tile culling 수정: 정사각형 중심으로부터 거리가 변의 길이의 절반 이하(d <= LENGTH_OF_TILE / 2) culling 해주어야 함.
-// 추가할 기능: 플레이어 시점이 qe가 아닌 마우스 움직임에 따라 변하면 좋을 듯?
+// 추가할 기능: 플레이어 시점이 qe가 아닌 마우스 움직임에 따라 변하면 좋을 듯? ==> 창모드에서는 뭔가뭔가임 창 밖에서 마우스 움직임 제어는 어케
 
 //// 미로 찾기 게임
 // 맵은 한 개, 많아야 두 개(만들기 번거로울 듯?)
