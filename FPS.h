@@ -2,6 +2,7 @@
 #include <d3d9.h>
 #include <d3dx9math.h>
 #include <d3dx9shape.h>
+#include <dinput.h>
 #include <wchar.h>
 #include <cmath>
 #include <vector>
@@ -93,6 +94,7 @@ static UI_VERTEX Log_UI_Vertices[4] =
     D3DXVECTOR3(10.0f, 200.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 255, 255), D3DXVECTOR2(0.0f, 1.0f)
 };
 
+// 게임 화면 크기에 따라 달라질 수 있게 위치 다시 찍어야할듯
 static UI_VERTEX PopUpVertices[4] =
 {
     D3DXVECTOR3(100.0f, 150.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 255, 0), D3DXVECTOR2(0.0f, 0.0f),

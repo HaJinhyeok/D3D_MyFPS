@@ -72,6 +72,8 @@ VOID InitGeometry()
     int i, j;
 
     InitInput();
+    //ShowCursor(FALSE);
+
     SetRect(&rtExitButton, 300, 450, 400, 500);
 
     ZeroMemory(&material, sizeof(D3DMATERIAL9));
@@ -478,6 +480,11 @@ VOID __KeyProc()
             else
                 player.SetFlashlight(TRUE);
         }
+        // esc 눌러서 환경설정 UI
+        if (GetKeyDown(VK_ESCAPE) == TRUE)
+        {
+            OutputDebugString("hello world\n");
+        }
     }
     
 }
@@ -672,6 +679,7 @@ VOID Render()
         // 탈출구 UI
         if (!bIsPlaying)
         {
+            ShowCursor(TRUE);
             g_pd3dDevice->SetTexture(0, NULL);
             g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
             g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, PopUpVertices, sizeof(UI_VERTEX));
@@ -738,6 +746,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
+    case WM_CREATE:
+        SetCursorPos(100 + WINDOW_WIDTH / 2, 100 + WINDOW_HEIGHT / 2);
+        break;
     case WM_LBUTTONDOWN:
         g_pMouse->x = LOWORD(lParam);
         g_pMouse->y = HIWORD(lParam);
@@ -751,10 +762,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_MOUSEMOVE:
-        //SetCapture(hWnd);
         g_pCurrentMouse->x = LOWORD(lParam);
         g_pCurrentMouse->y = HIWORD(lParam);
-        if (!bIsSkyView)
+        if (!bIsSkyView && bIsPlaying)
         {
             if (g_pCurrentMouse->x >= g_pMouse->x)
             {
@@ -791,7 +801,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         else
             Exit.ButtonUnpressed();
-        //ReleaseCapture();
+        
         break;
     case WM_LBUTTONUP:
         g_pMouse->x = LOWORD(lParam);
@@ -802,7 +812,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         OutputDebugString("Clicked");
         if (!bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
         {
-            Sleep(1000);
+            Sleep(100);
             exit(0);
         }
         break;
