@@ -129,6 +129,8 @@ const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
 
 // 시점 변환 확인 변수
 static BOOL bIsSkyView = FALSE;
+// 일시정지(or 환경설정) 확인 변수
+static BOOL bIsPaused = FALSE;
 // 컬링 확인 변수
 static BOOL bIsFrustumCulling = TRUE;
 // 상호작용 확인 변수

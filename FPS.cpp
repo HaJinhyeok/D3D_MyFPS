@@ -16,6 +16,7 @@ LPDIRECT3DTEXTURE9 g_pGrassTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pNoticeTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pExitTexture = NULL;
 LPD3DXFONT g_pClearFont = NULL;
+LPD3DXFONT g_pSettingFont = NULL;
 LPD3DXFONT g_pExitFont = NULL;
 LPD3DXFONT g_pTestFont = NULL;
 LPD3DXMESH g_pPlayerSphere = NULL;
@@ -30,6 +31,7 @@ D3DLIGHT9 skyLight;
 CPlayer player;
 vector<CNotice> notice;
 CExit Exit;
+CSetting setting;
 
 CFrustum* g_pFrustum = new CFrustum;
 RECT rt, rtExitButton;
@@ -85,6 +87,7 @@ VOID InitGeometry()
     D3DXCreateSphere(g_pd3dDevice, BULLET_RADIUS, 10, 10, &g_pBulletSphere, 0);
     D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pPlayerSphere, 0);
     D3DXCreateFont(g_pd3dDevice, 50, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pClearFont);
+    D3DXCreateFont(g_pd3dDevice, 40, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pSettingFont);
     D3DXCreateFont(g_pd3dDevice, 30, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pExitFont);
     D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pTestFont);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
@@ -335,6 +338,8 @@ VOID CleanUp()
         g_pTestFont->Release();
     if (g_pExitFont != NULL)
         g_pExitFont->Release();
+    if (g_pSettingFont != NULL)
+        g_pSettingFont->Release();
     if (g_pClearFont != NULL)
         g_pClearFont->Release();
     if (g_pExitTexture != NULL)
@@ -484,6 +489,14 @@ VOID __KeyProc()
         if (GetKeyDown(VK_ESCAPE) == TRUE)
         {
             OutputDebugString("hello world\n");
+            if (bIsPaused == TRUE)
+            {
+                bIsPaused = FALSE;
+            }
+            else
+            {
+                bIsPaused = TRUE;
+            }
         }
     }
     
@@ -673,15 +686,14 @@ VOID Render()
             g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
             g_pd3dDevice->SetTexture(0, g_pTileTexture);
             g_pPlayerSphere->DrawSubset(0);
-        }
-        
-
+        }        
+        //// UI rendering
+        g_pd3dDevice->SetTexture(0, NULL);
+        g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
         // 탈출구 UI
         if (!bIsPlaying)
         {
             ShowCursor(TRUE);
-            g_pd3dDevice->SetTexture(0, NULL);
-            g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
             g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, PopUpVertices, sizeof(UI_VERTEX));
             wsprintf(testSTR, "C L E A R");
             SetRect(&rt, 250, 200, 0, 0);
@@ -721,7 +733,6 @@ VOID Render()
             swprintf_s(test2, 500, L"current position: (%f, %f, %f)\ncurrent coordinate: (%d, %d)\ncurrent flashlight position: (%f,%f)", 
                 v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, nCoX, nCoZ, p_light->Position.x, p_light->Position.z);
             wsprintf(testSTR, "%ws", test2);
-            RECT tmpRt;
             //wsprintf(testSTR,"current mouse: (%l, %l),current window rect: top(%d)-bottom(%d)-right(%d)-left(%d)",g_pMouse->x,g_pMouse->y,)
             g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
             
@@ -736,7 +747,20 @@ VOID Render()
             // wsprintf(testSTR, "%ws", test2);
 
         }
-        
+        // 환경설정 및 일시정지 UI
+        if (bIsPaused)
+        {
+            setting.DrawSetting(g_pd3dDevice);
+            wsprintf(testSTR, "P A U S E");
+            SetRect(&rt, 280, 200, 0, 0);
+            g_pSettingFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+            
+            Exit.DrawExitButton(g_pd3dDevice);
+            wsprintf(testSTR, "e x i t");
+            SetRect(&rt, 320, 460, 0, 0);
+            g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+        }
+
         g_pd3dDevice->EndScene();
     }    
     g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
@@ -755,16 +779,19 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         bIsClicked = TRUE;
         wsprintf(testSTR, "current X: %d, current Y: %d\n", g_pMouse->x, g_pMouse->y);
         OutputDebugString(testSTR);
-        if (!bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
+        if (!bIsPlaying || bIsPaused)
         {
-			Exit.ButtonPressed();
-            OutputDebugString("Clicked");
+            if (PtInRect(&rtExitButton, *g_pMouse))
+			{
+				Exit.ButtonPressed();
+				OutputDebugString("Clicked");
+			}
         }
         break;
     case WM_MOUSEMOVE:
         g_pCurrentMouse->x = LOWORD(lParam);
         g_pCurrentMouse->y = HIWORD(lParam);
-        if (!bIsSkyView && bIsPlaying)
+        if (!bIsSkyView && bIsPlaying && !bIsPaused)
         {
             if (g_pCurrentMouse->x >= g_pMouse->x)
             {
@@ -795,9 +822,10 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             g_pMouse->y -= rt.top - rt.bottom;
         else if (rt.bottom > g_pMouse->y)
             g_pMouse->y += rt.top - rt.bottom;*/
-        if (!bIsPlaying && PtInRect(&rtExitButton, *g_pMouse) && bIsClicked)
+        if (!bIsPlaying || bIsPaused)
         {
-            Exit.ButtonPressed();
+			if (PtInRect(&rtExitButton, *g_pMouse) && bIsClicked)
+				Exit.ButtonPressed();
         }
         else
             Exit.ButtonUnpressed();
@@ -810,11 +838,14 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         bIsClicked = FALSE;
         player.Attack(g_pMouse);
         OutputDebugString("Clicked");
-        if (!bIsPlaying && PtInRect(&rtExitButton, *g_pMouse))
-        {
-            Sleep(100);
-            exit(0);
-        }
+		if (!bIsPlaying || bIsPaused)
+		{
+			if (PtInRect(&rtExitButton, *g_pMouse))
+			{
+				Sleep(100);
+				exit(0);
+			}
+		}
         break;
     case WM_DESTROY:
         CleanUp();
