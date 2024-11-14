@@ -107,6 +107,7 @@ static UI_VERTEX PopUpVertices[4] =
 const static D3DXVECTOR3 v3EyeCeiling(0.0f, 200.0f, 0.0f);
 const static D3DXVECTOR3 v3UpCeiling(0.0f, 0.0f, 1.0f);
 
+
 const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
     "X   *@ * @* ",
     "*** ** * ** ",

@@ -18,9 +18,11 @@ LPDIRECT3DTEXTURE9 g_pExitTexture = NULL;
 LPD3DXFONT g_pClearFont = NULL;
 LPD3DXFONT g_pSettingFont = NULL;
 LPD3DXFONT g_pExitFont = NULL;
+LPD3DXFONT g_pFrameFont = NULL;
 LPD3DXFONT g_pTestFont = NULL;
 LPD3DXMESH g_pPlayerSphere = NULL;
 LPD3DXMESH g_pBulletSphere = NULL;
+LPPOINT g_pMidPoint = new POINT; // 마우스는 클라이언트 중앙으로 고정
 LPPOINT g_pMouse = new POINT;
 LPPOINT g_pCurrentMouse = new POINT; // 마우스 이동 시, 이동한 좌표 받아올 임시 마우스 좌표
 
@@ -330,12 +332,15 @@ VOID CleanUp()
     delete g_pFrustum;
     delete g_pCurrentMouse;
     delete g_pMouse;
+    delete g_pMidPoint;
     if (g_pBulletSphere != NULL)
         g_pBulletSphere->Release();
     if (g_pPlayerSphere != NULL)
         g_pPlayerSphere->Release();
     if (g_pTestFont != NULL)
         g_pTestFont->Release();
+    if (g_pFrameFont != NULL)
+        g_pFrameFont->Release();
     if (g_pExitFont != NULL)
         g_pExitFont->Release();
     if (g_pSettingFont != NULL)
@@ -771,7 +776,13 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
     case WM_CREATE:
-        SetCursorPos(100 + WINDOW_WIDTH / 2, 100 + WINDOW_HEIGHT / 2);
+        g_pMidPoint->x = WINDOW_WIDTH / 2;
+        g_pMidPoint->y = WINDOW_HEIGHT / 2;
+
+        ClientToScreen(hWnd, g_pMidPoint);
+        SetCursorPos(g_pMidPoint->x, g_pMidPoint->y);
+
+        // ShowCursor(FALSE);
         break;
     case WM_LBUTTONDOWN:
         g_pMouse->x = LOWORD(lParam);
@@ -789,8 +800,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_MOUSEMOVE:
-        g_pCurrentMouse->x = LOWORD(lParam);
-        g_pCurrentMouse->y = HIWORD(lParam);
+        // g_pCurrentMouse->x = LOWORD(lParam);
+        // g_pCurrentMouse->y = HIWORD(lParam);
+        GetCursorPos(g_pCurrentMouse);
         if (!bIsSkyView && bIsPlaying && !bIsPaused)
         {
             if (g_pCurrentMouse->x >= g_pMouse->x)
@@ -812,16 +824,6 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         g_pMouse->x = g_pCurrentMouse->x;
         g_pMouse->y = g_pCurrentMouse->y;
-        RECT rt;
-        GetWindowRect(hWnd, &rt);
-        /*if (rt.right < g_pMouse->x)
-            g_pMouse->x -= rt.right - rt.left;
-        else if (rt.left > g_pMouse->x)
-            g_pMouse->x += rt.right - rt.left;
-        if (rt.top < g_pMouse->y)
-            g_pMouse->y -= rt.top - rt.bottom;
-        else if (rt.bottom > g_pMouse->y)
-            g_pMouse->y += rt.top - rt.bottom;*/
         if (!bIsPlaying || bIsPaused)
         {
 			if (PtInRect(&rtExitButton, *g_pMouse) && bIsClicked)
@@ -829,6 +831,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         else
             Exit.ButtonUnpressed();
+
         
         break;
     case WM_LBUTTONUP:
@@ -837,7 +840,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		Exit.ButtonUnpressed();
         bIsClicked = FALSE;
         player.Attack(g_pMouse);
-        OutputDebugString("Clicked");
+        OutputDebugString("Clicked\n");
 		if (!bIsPlaying || bIsPaused)
 		{
 			if (PtInRect(&rtExitButton, *g_pMouse))
