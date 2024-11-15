@@ -33,8 +33,11 @@ ex)
 --> 검색해보니, DirectInput을 통해 이러한 한계점을 극복할 수 있다는데 찾아봐야할 듯.
 https://blog.naver.com/hannip75/120202384067 << 참고해보자
 
-https://blog.naver.com/winterwolfs/10171627611
-
+https://blog.naver.com/winterwolfs/10171627611 << 로 해결
+--> 매 순간 마우스 커서 위치를 윈도우 정중앙으로 이동하고, mousemove 시에 이동한 만큼 화면 전환 후 다시 정중앙 고정.
+--> ShowCursor() 함수의 경우, CursorInfo라는 구조체에 카운트되는데,
+이 카운터가 0 이상이면 커서가 표시되고 0 미만이면 표시되지 않는다.
+ShowCursor(FALSE)를 호출할 시 -1, ShowCursor(TRUE)를 호출할 시 +1이 카운트된다. 
 
 -- 추가할 내용 --
 1. skybox 활용해서 낮과 밤의 자연스러운 전환 시도

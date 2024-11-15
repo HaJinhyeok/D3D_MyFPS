@@ -76,7 +76,6 @@ VOID InitGeometry()
     int i, j;
 
     InitInput();
-    //ShowCursor(FALSE);
 
     SetRect(&rtExitButton, 300, 450, 400, 500);
 
@@ -698,7 +697,6 @@ VOID Render()
         // 탈출구 UI
         if (!bIsPlaying)
         {
-            ShowCursor(TRUE);
             g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, PopUpVertices, sizeof(UI_VERTEX));
             wsprintf(testSTR, "C L E A R");
             SetRect(&rt, 250, 200, 0, 0);
@@ -732,14 +730,14 @@ VOID Render()
                 FrustumPlane[5].a, FrustumPlane[5].b, FrustumPlane[5].c, FrustumPlane[5].d,
                 v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);*/
 
-            g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, Log_UI_Vertices, sizeof(UI_VERTEX));
-            SetRect(&rt, 20, 120, 0, 0);
+            //g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, Log_UI_Vertices, sizeof(UI_VERTEX));
+            /*SetRect(&rt, 20, 120, 0, 0);
             int nCoX = floorf(v3CurrentPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2, nCoZ = NUM_OF_ROW / 2 - floorf(v3CurrentPosition.z / LENGTH_OF_TILE) - 1;
             swprintf_s(test2, 500, L"current position: (%f, %f, %f)\ncurrent coordinate: (%d, %d)\ncurrent flashlight position: (%f,%f)", 
                 v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, nCoX, nCoZ, p_light->Position.x, p_light->Position.z);
-            wsprintf(testSTR, "%ws", test2);
+            wsprintf(testSTR, "%ws", test2);*/
             //wsprintf(testSTR,"current mouse: (%l, %l),current window rect: top(%d)-bottom(%d)-right(%d)-left(%d)",g_pMouse->x,g_pMouse->y,)
-            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+            //g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
             
             SetRect(&rt, 20, 20, 0, 0);
             /*swprintf_s(test2, 500, L"current X - axis: (%f, %f, %f)\ncurrent Y-axis: (%f, %f, %f)\ncurrent Z-axis:(%f, %f, %f)",
@@ -781,8 +779,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         ClientToScreen(hWnd, g_pMidPoint);
         SetCursorPos(g_pMidPoint->x, g_pMidPoint->y);
-
-        // ShowCursor(FALSE);
+        bIsCursorOn = ShowCursor(FALSE);
         break;
     case WM_LBUTTONDOWN:
         g_pMouse->x = LOWORD(lParam);
@@ -800,30 +797,26 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_MOUSEMOVE:
-        // g_pCurrentMouse->x = LOWORD(lParam);
-        // g_pCurrentMouse->y = HIWORD(lParam);
         GetCursorPos(g_pCurrentMouse);
         if (!bIsSkyView && bIsPlaying && !bIsPaused)
         {
-            if (g_pCurrentMouse->x >= g_pMouse->x)
+            if (g_pCurrentMouse->x >= g_pMidPoint->x)
             {
-                player.Rotate(FALSE, FALSE, (g_pCurrentMouse->x - g_pMouse->x) * ROTATION_LEFT_RIGHT);
+                player.Rotate(FALSE, FALSE, (g_pCurrentMouse->x - g_pMidPoint->x) * ROTATION_LEFT_RIGHT);
             }
             else
             {
-                player.Rotate(TRUE, FALSE, (g_pMouse->x - g_pCurrentMouse->x) * ROTATION_LEFT_RIGHT);
+                player.Rotate(TRUE, FALSE, (g_pMidPoint->x - g_pCurrentMouse->x) * ROTATION_LEFT_RIGHT);
             }
-            if (g_pCurrentMouse->y >= g_pMouse->y)
+            if (g_pCurrentMouse->y >= g_pMidPoint->y)
             {
-                player.Rotate(TRUE, TRUE, (g_pCurrentMouse->y - g_pMouse->y) * ROTATION_UP_DOWN);
+                player.Rotate(TRUE, TRUE, (g_pCurrentMouse->y - g_pMidPoint->y) * ROTATION_UP_DOWN);
             }
             else
             {
-                player.Rotate(FALSE, TRUE, (g_pMouse->y - g_pCurrentMouse->y) * ROTATION_UP_DOWN);
+                player.Rotate(FALSE, TRUE, (g_pMidPoint->y - g_pCurrentMouse->y) * ROTATION_UP_DOWN);
             }
         }
-        g_pMouse->x = g_pCurrentMouse->x;
-        g_pMouse->y = g_pCurrentMouse->y;
         if (!bIsPlaying || bIsPaused)
         {
 			if (PtInRect(&rtExitButton, *g_pMouse) && bIsClicked)
@@ -831,8 +824,9 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         else
             Exit.ButtonUnpressed();
-
-        
+        // 게임 중엔 화면 정중앙으로 다시 세팅
+        if (bIsPlaying && !bIsPaused)
+            SetCursorPos(g_pMidPoint->x, g_pMidPoint->y);
         break;
     case WM_LBUTTONUP:
         g_pMouse->x = LOWORD(lParam);
@@ -896,6 +890,17 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
                 }
                 else
                 {
+                    if (!bIsPlaying || bIsPaused)
+					{                        
+                        while (bIsCursorOn < 0)
+							bIsCursorOn = ShowCursor(TRUE);
+                    }
+                        
+                    else
+					{
+                        while (bIsCursorOn >= 0)
+							bIsCursorOn = ShowCursor(FALSE);
+                    }
                     __KeyProc();
                     Render();
                 }
