@@ -1,4 +1,6 @@
 #pragma once
+#pragma comment (lib,"winmm.lib")
+#include <Windows.h>
 #include <d3d9.h>
 #include <d3dx9math.h>
 #include <d3dx9shape.h>
@@ -158,6 +160,10 @@ static CUSTOMVERTEX LabyrinthWallVertices[72][20];
 
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
+//// FRAME ////
+static DWORD FPS_Frames = 0;
+static DWORD FPS_Num = 0, FPS_LastTime = timeGetTime();
+static DWORD FPS_Time;
 
 // tile culling 수정: 정사각형 중심으로부터 거리가 변의 길이의 절반 이하(d <= LENGTH_OF_TILE / 2) culling 해주어야 함.
 // 추가할 기능: 플레이어 시점이 qe가 아닌 마우스 움직임에 따라 변하면 좋을 듯? ==> 창모드에서는 뭔가뭔가임 창 밖에서 마우스 움직임 제어는 어케

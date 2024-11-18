@@ -143,6 +143,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CExit.cpp" />
+    <ClCompile Include="CFrame.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="CFrustum.cpp" />
     <ClCompile Include="CNotice.cpp" />
     <ClCompile Include="CPlayer.cpp" />
@@ -153,6 +156,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CExit.h" />
+    <ClInclude Include="CFrame.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="CFrustum.h" />
     <ClInclude Include="CNotice.h" />
     <ClInclude Include="CPlayer.h" />

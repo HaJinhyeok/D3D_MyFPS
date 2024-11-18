@@ -50,7 +50,7 @@ HRESULT InitD3D(HWND hWnd)
     d3dpp.Windowed = TRUE;
     d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
     d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-
+    d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE; // FPS 설정을 위한 설정?
     d3dpp.EnableAutoDepthStencil = TRUE;
     d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 
@@ -91,6 +91,9 @@ VOID InitGeometry()
     D3DXCreateFont(g_pd3dDevice, 40, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pSettingFont);
     D3DXCreateFont(g_pd3dDevice, 30, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pExitFont);
     D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pTestFont);
+    D3DXCreateFont(g_pd3dDevice, 25, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pFrameFont);
+    
+    
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pGrassTexture);
@@ -538,7 +541,7 @@ VOID Render()
         skyLight.Type = D3DLIGHT_SPOT;
         skyLight.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
         skyLight.Direction = D3DXVECTOR3(0.0f, -1.0f, 0.0f);
-        skyLight.Position = player.GetPosition() + D3DXVECTOR3(0.0f, 10.0f, 0.0f);
+        skyLight.Position = player.GetPosition() + D3DXVECTOR3(0.0f, 10.0f, 0.0f); // 플레이어 머리 위에서 비추는 빛
         skyLight.Range = 300.0f;
         skyLight.Attenuation0 = 1.0f;
         skyLight.Falloff = 1.0f;
@@ -763,6 +766,12 @@ VOID Render()
             SetRect(&rt, 320, 460, 0, 0);
             g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
         }
+        // FPS 표시
+        SetRect(&rt, 450, 0, 0, 0);
+        /*swprintf(test2, 500, L"num: %d, frame: %d\nLastTime: %d\nCurrentTime: %d", FPS_Num, FPS_Frames, FPS_LastTime, FPS_Time);
+        wsprintf(testSTR, "%ws", test2);*/
+        wsprintf(testSTR, "num: %d, frame: %d\nLastTime: %d\nCurrentTime: %d", FPS_Num, FPS_Frames, FPS_LastTime, FPS_Time);
+        g_pFrameFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DCOLOR_XRGB(0, 255, 0));
 
         g_pd3dDevice->EndScene();
     }    
@@ -903,6 +912,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
                     }
                     __KeyProc();
                     Render();
+                    CalculateFPS();
                 }
             }
         }

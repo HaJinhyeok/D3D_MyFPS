@@ -39,6 +39,9 @@
     <ClCompile Include="CSetting.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="CFrame.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FPS.h">
@@ -63,6 +66,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CSetting.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CFrame.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
