@@ -1,15 +1,26 @@
 #pragma once
-#pragma comment(lib, "winmm.lib")
-#include <mmsystem.h>
+#include "Stopwatch.h"
 
 class CFrame
 {
 private:
-	static unsigned int m_Frame;
-	static float m_FPS_Num, m_LastTime;
+	int mFps, mCount;
+	unsigned long mStartTime;
+
+	Stopwatch mStopWatch;
 
 public:
-	CFrame();
-	~CFrame();
+	CFrame() = default;
+	~CFrame() = default;
+	void Initialize();
+	void Frame();
+	int GetFps();
+
+	void WatchStart();
+	DWORD WatchTimeCheck();
+	DWORD WatchEnd();
+
+	BOOL IsWatchWorking();
+
 };
 

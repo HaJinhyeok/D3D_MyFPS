@@ -2,6 +2,7 @@
 #include "FPS_function.h"
 #include "Input.h"
 #include "CFrustum.h"
+#include "CFrame.h"
 
 LPDIRECT3D9 g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
@@ -34,6 +35,7 @@ CPlayer player;
 vector<CNotice> notice;
 CExit Exit;
 CSetting setting;
+CFrame FPS;
 
 CFrustum* g_pFrustum = new CFrustum;
 RECT rt, rtExitButton;
@@ -76,6 +78,7 @@ VOID InitGeometry()
     int i, j;
 
     InitInput();
+    FPS.Initialize();
 
     SetRect(&rtExitButton, 300, 450, 400, 500);
 
@@ -767,10 +770,10 @@ VOID Render()
             g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
         }
         // FPS Ç¥½Ã
-        SetRect(&rt, 450, 0, 0, 0);
+        SetRect(&rt, WINDOW_WIDTH - 110, 0, 0, 0);
         /*swprintf(test2, 500, L"num: %d, frame: %d\nLastTime: %d\nCurrentTime: %d", FPS_Num, FPS_Frames, FPS_LastTime, FPS_Time);
         wsprintf(testSTR, "%ws", test2);*/
-        wsprintf(testSTR, "num: %d, frame: %d\nLastTime: %d\nCurrentTime: %d", FPS_Num, FPS_Frames, FPS_LastTime, FPS_Time);
+        wsprintf(testSTR, "FPS: %3d", FPS.GetFps());
         g_pFrameFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DCOLOR_XRGB(0, 255, 0));
 
         g_pd3dDevice->EndScene();
@@ -912,7 +915,7 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
                     }
                     __KeyProc();
                     Render();
-                    CalculateFPS();
+                    FPS.Frame();
                 }
             }
         }

@@ -127,16 +127,3 @@ VOID MakeWallBlock(CUSTOMVERTEX* Block, D3DXVECTOR3 position)
     
     // return Block;
 }
-
-
-VOID CalculateFPS()
-{
-    FPS_Frames++;
-    FPS_Time = timeGetTime();
-    if (FPS_Time >= FPS_LastTime+ 1000)
-    {
-        FPS_Num = FPS_Frames;
-        FPS_Frames = 0;
-        FPS_LastTime = timeGetTime();
-    }
-}
