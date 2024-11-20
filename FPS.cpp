@@ -843,8 +843,8 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_LBUTTONUP:
         g_pMouse->x = LOWORD(lParam);
         g_pMouse->y = HIWORD(lParam);
-		Exit.ButtonUnpressed();
         bIsClicked = FALSE;
+		Exit.ButtonUnpressed();
         player.Attack(g_pMouse);
         OutputDebugString("Clicked\n");
 		if (!bIsPlaying || bIsPaused)

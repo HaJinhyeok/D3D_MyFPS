@@ -63,6 +63,7 @@ struct Bullet
 {
     D3DXVECTOR3 v3Position;
     D3DXVECTOR3 v3Direction;
+    DWORD Time;
 };
 
 enum class POSITION_WITH_FRUSTUM : WORD

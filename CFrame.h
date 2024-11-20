@@ -21,6 +21,4 @@ public:
 	DWORD WatchEnd();
 
 	BOOL IsWatchWorking();
-
 };
-

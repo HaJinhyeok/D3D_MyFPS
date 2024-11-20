@@ -315,19 +315,25 @@ VOID CPlayer::Attack(LPPOINT CursorPosition)
     Bullet tmpBullet;
     tmpBullet.v3Position = this->GetPosition();
     tmpBullet.v3Direction = this->GetLookAt() - this->GetPosition();
+    tmpBullet.Time = timeGetTime();
     m_Bullet.push_back(tmpBullet);
 }
 VOID CPlayer::MoveBullet()
 {
-    // 매 프레임마다 호출해서 총알의 이동 및 충돌 후 제거 연산 수행
+    // 매 프레임마다 호출해서 총알의 이동 및 충돌 후 제거 연산 수행 (x)
+    // 프레임마다 호출하면 프레임 낮은 똥컴에서는 총알 속도가 느려지는 말도 안 되는 상황 발생한다.
+    // 프레임이 아닌, 실제 시간을 기준으로 이동시켜야함
     // 발사된 총알이 없을 시 건너뜀
+    DWORD currentTime = timeGetTime();
     if (m_Bullet.size() == 0)
         return;
     else
     {
-        FLOAT fCoefficient = this->m_BulletVelocity;
+        FLOAT fCoefficient;
         for (int i = 0; i < m_Bullet.size(); i++)
         {
+            fCoefficient = this->m_BulletVelocity * (currentTime - m_Bullet[i].Time);
+            m_Bullet[i].Time = currentTime;
             // 우선 이동
             fCoefficient /= sqrtf(m_Bullet[i].v3Direction.x * m_Bullet[i].v3Direction.x + m_Bullet[i].v3Direction.y * m_Bullet[i].v3Direction.y + m_Bullet[i].v3Direction.z * m_Bullet[i].v3Direction.z);
             m_Bullet[i].v3Position.x += fCoefficient * m_Bullet[i].v3Direction.x;
