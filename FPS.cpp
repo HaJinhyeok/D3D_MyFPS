@@ -455,8 +455,6 @@ VOID __KeyProc()
     {
         player.Rotate(FALSE);
     }
-
-
     //// 추가 기능
     {
         // 점프?는 일단 제외
