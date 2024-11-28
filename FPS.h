@@ -126,6 +126,7 @@ const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
     " * **** *** ",
     "@*@*        "
 };
+static char chFileName[] = "tiger.x";
 
 // const static D3DXVECTOR3 v3EyeDefault(0.0f, 5.0f, 0.0f);
 // const static D3DXVECTOR3 v3UpDefault(0.0f, 1.0f, 0.0f);

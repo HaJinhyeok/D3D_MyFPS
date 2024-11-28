@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "CFrustum.h"
 #include "CFrame.h"
+#include "XFileUtil.h"
 
 LPDIRECT3D9 g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
@@ -36,6 +37,7 @@ vector<CNotice> notice;
 CExit Exit;
 CSetting setting;
 CFrame FPS;
+CXFileUtil xFile;
 
 CFrustum* g_pFrustum = new CFrustum;
 RECT rt, rtExitButton;
@@ -79,6 +81,7 @@ VOID InitGeometry()
 
     InitInput();
     FPS.Initialize();
+    xFile.XFileLoad(g_pd3dDevice, chFileName);
 
     SetRect(&rtExitButton, 300, 450, 400, 500);
 
@@ -695,6 +698,9 @@ VOID Render()
             g_pd3dDevice->SetTexture(0, g_pTileTexture);
             g_pPlayerSphere->DrawSubset(0);
         }        
+        // Tiger rendering
+        xFile.XFileDisplay(g_pd3dDevice);
+        
         //// UI rendering
         g_pd3dDevice->SetTexture(0, NULL);
         g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);

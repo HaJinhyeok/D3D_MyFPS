@@ -45,6 +45,9 @@
     <ClCompile Include="Stopwatch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="XFileUtil.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FPS.h">
@@ -75,6 +78,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Stopwatch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="XFileUtil.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
