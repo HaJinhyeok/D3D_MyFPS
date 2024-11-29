@@ -37,10 +37,13 @@ vector<CNotice> notice;
 CExit Exit;
 CSetting setting;
 CFrame FPS;
-CXFileUtil xFile;
+// 프레임 값에 상관없이 플레이어 및 호랑이 움직임이 일정하도록 조절하기 위한 스톱워치
+Stopwatch PlayerWatch, TigerWatch;
+CXFileUtil X_Tiger(D3DXVECTOR3(55.0f, 5.0f, 65.0f));
 
 CFrustum* g_pFrustum = new CFrustum;
 RECT rt, rtExitButton;
+
 char testSTR[500];
 wchar_t test2[500];
 
@@ -81,7 +84,10 @@ VOID InitGeometry()
 
     InitInput();
     FPS.Initialize();
-    xFile.XFileLoad(g_pd3dDevice, chFileName);
+    // tiger initialization
+    X_Tiger.XFileLoad(g_pd3dDevice, chFileName);
+    X_Tiger.SetPosition(D3DXVECTOR3(55.0f, 5.0f, 65.0f));
+    X_Tiger.SetLookAt(player.GetPosition());
 
     SetRect(&rtExitButton, 300, 450, 400, 500);
 
@@ -395,6 +401,8 @@ VOID __KeyProc()
 
     // 총알 움직임 계산
     player.MoveBullet();
+    // 호랑이 움직임 계산
+    X_Tiger.Move();
 
     // wasd 또는 방향키 : 플레이어 앞뒤좌우 움직임
 
@@ -651,11 +659,6 @@ VOID Render()
             {
                 g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
             }
-            /*g_pd3dDevice->SetStreamSource(0, g_pTmpBlockVB, 0, sizeof(CUSTOMVERTEX));
-            for (i = 0; i < 5; i++)
-            {
-                g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
-            }*/
             g_pd3dDevice->SetStreamSource(0, g_pLabyrinthVB, 0, sizeof(CUSTOMVERTEX));
             for (i = 0; i < 72; i++)
             {
@@ -699,9 +702,12 @@ VOID Render()
             g_pPlayerSphere->DrawSubset(0);
         }        
         // Tiger rendering
-        xFile.XFileDisplay(g_pd3dDevice);
+        D3DXMATRIX X_World = X_Tiger.GetTigerWorld();
         
-        //// UI rendering
+        g_pd3dDevice->SetTransform(D3DTS_WORLD, &X_World);
+        X_Tiger.XFileDisplay(g_pd3dDevice);
+        
+        //// UI rendering ////
         g_pd3dDevice->SetTexture(0, NULL);
         g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
         // 탈출구 UI

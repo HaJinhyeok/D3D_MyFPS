@@ -1,11 +1,17 @@
 #include "XFileUtil.h"
 
-CXFileUtil::CXFileUtil()
+CXFileUtil::CXFileUtil(D3DXVECTOR3 position)
 {
 	g_pMesh = NULL; // 메쉬 객체
 	g_pMeshMaterials = NULL; // 메쉬에 대한 재질
 	g_pMeshTextures = NULL; // 메쉬에 대한 텍스쳐
 	g_dwNumMaterials = 0L; // 메쉬 재질의 개수
+
+	D3DXMatrixScaling(&m_TigerWorld, 7.0f, 7.0f, 7.0f);
+	D3DXMATRIX tmpMat;
+	D3DXMatrixTranslation(&tmpMat, position.x, position.y, position.z);
+	D3DXMatrixMultiply(&m_TigerWorld, &m_TigerWorld, &tmpMat);
+	m_IsLive = TRUE;
 }
 CXFileUtil::~CXFileUtil()
 {
@@ -89,4 +95,32 @@ int CXFileUtil::XFileDisplay(LPDIRECT3DDEVICE9 pD3DDevice)
 	pD3DDevice->SetTexture(0, NULL);
 
 	return 0;
+}
+
+VOID CXFileUtil::Move()
+{
+	DWORD currentTime = timeGetTime();
+	if (currentTime - m_CurrentTime >= 10)
+	{
+		// 호랑이가 통로를 따라 움직이게 한다.
+		// 호랑이가 현재 바라보는 방향 정보와 맵 정보를 이용해서 현재 방향으로 더 전진해도 되는지 여부 판단
+		// 현재 바라보는 방향이 벽으로 막혀있을 경우, 시계방향으로 90도씩 회전시켜 다시 전진 여부 판단
+		// 현재 바라보는 방향이 막혀있지 않더라도, 여러 갈래 길일 경우 랜덤하게 진행방향 바꾸도록 해볼까
+		D3DXVECTOR3 currentLookAt = D3DXVECTOR3(m_TigerWorld._31, m_TigerWorld._32, -m_TigerWorld._33);
+		D3DXMATRIX tmpTranslation;
+		FLOAT fCoefficient = TRANSLATION_DISTANCE_TIGER;
+		fCoefficient /= sqrtf(currentLookAt.x * currentLookAt.x + currentLookAt.y * currentLookAt.y + currentLookAt.z * currentLookAt.z);
+		D3DXMatrixTranslation(&tmpTranslation, currentLookAt.x * fCoefficient, currentLookAt.y * fCoefficient, currentLookAt.z * fCoefficient);
+		D3DXMatrixMultiply(&m_TigerWorld, &m_TigerWorld, &tmpTranslation);
+		m_CurrentTime = currentTime;
+	}
+}
+
+VOID CXFileUtil::Rotate()
+{
+	// 시계방향으로 회전
+	D3DXMATRIX tmpRotation;
+	// 3도 회전
+	D3DXMatrixRotationY(&tmpRotation, D3DXToRadian(3.0f));
+	D3DXMatrixMultiply(&m_TigerWorld, &m_TigerWorld, &tmpRotation);
 }

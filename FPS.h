@@ -29,8 +29,8 @@ using namespace std;
 #define TRANSLATION_DISTANCE 0.3f   // 플레이어 이동거리
 #define LOOKAT_DISTANCE 5.0f    //
 #define ROTATION_AMOUNT D3DX_PI/200 // 플레이어 회전각
-#define ROTATION_LEFT_RIGHT 0.001f // 좌우 1pixel 당 회전각 (0.25 호도)
-#define ROTATION_UP_DOWN 0.001f // 상하 1pixel 당 회전각 (0.25 호도)
+#define ROTATION_LEFT_RIGHT 0.001f // 좌우 1pixel 당 회전각
+#define ROTATION_UP_DOWN 0.001f // 상하 1pixel 당 회전각
 // #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
 #define NUM_OF_ROW 14    // 즉, 세로 길이
