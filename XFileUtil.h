@@ -1,9 +1,10 @@
 #pragma once
 #pragma warning(disable:4996)
 #include <d3dx9.h>
-#include <time.h>
+#include "FPS.h"
 
 #define TRANSLATION_DISTANCE_TIGER 0.1f
+#define ROTATION_AMOUNT_TIGER 3
 
 class CXFileUtil
 {
@@ -21,12 +22,14 @@ private:
 	// 그 한 마리 호랑이가 살아있는지 아닌지 판별
 	// 총알로 호랑이 맞춰서 잡으면, 그 시점으로부터 일정 시간 후 호랑이 다시 랜덤 위치에서 리젠되도록 설정
 	BOOL m_IsLive;
+	BOOL m_IsRotating; // 현재 호랑이가 방향전환 중인지 확인
 	DWORD m_CurrentTime;
+	DWORD m_RotationAmount;
 
 public:
 	int XFileDisplay(LPDIRECT3DDEVICE9 pD3DDevice);
 	int XFileLoad(LPDIRECT3DDEVICE9 pD3DDevice, char* xFileName);
-	VOID Move();
+	VOID Move(const char(*map)[NUM_OF_COLUMN + 1]);
 	VOID Rotate();
 
 	VOID SetPosition(D3DXVECTOR3 position)
