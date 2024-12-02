@@ -3,8 +3,9 @@
 #include <d3dx9.h>
 #include "FPS.h"
 
-#define TRANSLATION_DISTANCE_TIGER 0.1f
+#define TRANSLATION_DISTANCE_TIGER 0.05f
 #define ROTATION_AMOUNT_TIGER 3
+#define SCALE_AMOUNT_TIGER 7.0f
 
 class CXFileUtil
 {
@@ -23,14 +24,19 @@ private:
 	// 총알로 호랑이 맞춰서 잡으면, 그 시점으로부터 일정 시간 후 호랑이 다시 랜덤 위치에서 리젠되도록 설정
 	BOOL m_IsLive;
 	BOOL m_IsRotating; // 현재 호랑이가 방향전환 중인지 확인
+	BOOL m_IsClockwise;
+	BOOL m_IsWallOpen[4]; // 현재 호랑이 위치 기준 앞, 뒤, 좌, 우로 진행 가능한지 확인
 	DWORD m_CurrentTime;
 	DWORD m_RotationAmount;
+
+	random_device m_Random; // 시드값을 얻기 위한 random_device
+	mt19937 m_Engine;
 
 public:
 	int XFileDisplay(LPDIRECT3DDEVICE9 pD3DDevice);
 	int XFileLoad(LPDIRECT3DDEVICE9 pD3DDevice, char* xFileName);
 	VOID Move(const char(*map)[NUM_OF_COLUMN + 1]);
-	VOID Rotate();
+	VOID Rotate(BOOL clockwise);
 
 	VOID SetPosition(D3DXVECTOR3 position)
 	{

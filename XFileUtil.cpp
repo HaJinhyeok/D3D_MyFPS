@@ -8,12 +8,17 @@ CXFileUtil::CXFileUtil(D3DXVECTOR3 position)
 	g_dwNumMaterials = 0L; // 메쉬 재질의 개수
 
 	// scale 먼저 하고 translation
-	D3DXMatrixScaling(&m_TigerWorld, 7.0f, 7.0f, 7.0f);
+	D3DXMatrixScaling(&m_TigerWorld, SCALE_AMOUNT_TIGER, SCALE_AMOUNT_TIGER, SCALE_AMOUNT_TIGER * 2.0f / 3.0f);
 	D3DXMATRIX tmpMat;
 	D3DXMatrixTranslation(&tmpMat, position.x, position.y, position.z);
 	D3DXMatrixMultiply(&m_TigerWorld, &m_TigerWorld, &tmpMat);
 	m_IsLive = TRUE;
 	m_IsRotating = FALSE;
+	m_IsClockwise = TRUE;
+	for (int i = 0; i < 4; i++)
+	{
+		m_IsWallOpen[i] = TRUE;
+	}
 	m_CurrentTime = timeGetTime();
 	m_RotationAmount = 0;
 }
@@ -112,8 +117,11 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 		// 현재 바라보는 방향이 막혀있지 않더라도, 여러 갈래 길일 경우 랜덤하게 진행방향 바꾸도록 해볼까
 		// => 랜덤(50%?)으로 방향 전환할 지 안 할 지 결정하는
 		D3DXVECTOR3 currentLookAt = D3DXVECTOR3(-m_TigerWorld._31, -m_TigerWorld._32, -m_TigerWorld._33);
-		D3DXVECTOR3 currentPosition = D3DXVECTOR3(m_TigerWorld._41, m_TigerWorld._42, m_TigerWorld._43) / 10.0f;
-		FLOAT tmpX = currentPosition.x - floorf(currentPosition.x), tmpZ = currentPosition.z - floorf(currentPosition.z);
+		D3DXVec3Normalize(&currentLookAt, &currentLookAt);
+		D3DXVECTOR3 currentPosition = D3DXVECTOR3(m_TigerWorld._41, m_TigerWorld._42, m_TigerWorld._43);
+		FLOAT tmpX = currentPosition.x / LENGTH_OF_TILE, tmpZ = currentPosition.z / LENGTH_OF_TILE;
+		tmpX -= floorf(tmpX);
+		tmpZ -= floorf(tmpZ);
 		// 우선, 현재 호랑이가 블록 정가운데 위치해있는지 확인
 		if (tmpX <= 0.5001f && tmpX >= 0.4999f)
 		{
@@ -122,7 +130,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 				OutputDebugString("center of block\n");
 				if (m_IsRotating == TRUE)
 				{
-					this->Rotate();
+					this->Rotate(m_IsClockwise);
 					if (m_RotationAmount == 90)
 					{
 						// 90도 회전했으므로 다시 확인하게 해야함
@@ -135,70 +143,383 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 					// 현재 좌표
 					int nCoX = floorf(currentPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2;
 					int nCoZ = NUM_OF_ROW / 2 - floorf(currentPosition.z / LENGTH_OF_TILE) - 1;
+					// 상하좌우 칸으로 전진 가능한지 판별
+					{
+						// 0 - 상
+						if (nCoZ == 0)
+						{
+							m_IsWallOpen[0] = FALSE;
+						}
+						else if (map[nCoZ - 1][nCoX] == '*')
+						{
+							m_IsWallOpen[0] = FALSE;
+						}
+						else
+						{
+							m_IsWallOpen[0] = TRUE;
+						}
+						// 1 - 하
+						if (nCoZ == NUM_OF_ROW - 1)
+						{
+							m_IsWallOpen[1] = FALSE;
+						}
+						else if (map[nCoZ + 1][nCoX] == '*')
+						{
+							m_IsWallOpen[1] = FALSE;
+						}
+						else
+						{
+							m_IsWallOpen[1] = TRUE;
+						}
+						// 2 - 좌
+						if (nCoX == 0)
+						{
+							m_IsWallOpen[2] = FALSE;
+						}
+						else if (map[nCoZ][nCoX - 1] == '*')
+						{
+							m_IsWallOpen[2] = FALSE;
+						}
+
+						else
+						{
+							m_IsWallOpen[2] = TRUE;
+						}
+						// 3 - 우
+						if (nCoX == NUM_OF_COLUMN - 1)
+						{
+							m_IsWallOpen[3] = FALSE;
+						}
+						else if (map[nCoZ][nCoX + 1] == '*')
+						{
+							m_IsWallOpen[3] = FALSE;
+						}
+						else
+						{
+							m_IsWallOpen[3] = TRUE;
+						}
+					}
+					
 					// 진행 방향이 막혀있을 경우
 					// 진행 방향이 열려있고, 왼쪽과 오른쪽이 막혀있을 경우 == 일단은 그냥 직진
 					// 진행 방향이 열려있고, 왼쪽 또는 오른쪽도 열려있을 경우 == 일단은 회전, 몇 갈래인지 카운트해서 랜덤하게 회전시켜 진행
 					if (currentLookAt.x > 0 && fabsf(currentLookAt.z) <= EPSILON)
 					{
-						// 우
-						if (nCoX <= NUM_OF_COLUMN / 2 || map[nCoZ][nCoX + 1] == '*')
+						// +x direction
+						if (m_IsWallOpen[3] == FALSE)
 						{
-							// 막혀있으므로 돌아야함
+							// 전진 막혔으니 일단 무조건 회전은 함
 							m_IsRotating = TRUE;
-						}
-						else
-						{
-							if (map[nCoZ - 1][nCoX] != '*' || map[nCoZ + 1][nCoX] != '*')
+							if (!m_IsWallOpen[0] && m_IsWallOpen[1])
 							{
-								m_IsRotating = TRUE;
+								m_IsClockwise = TRUE;
+							}
+							else if (m_IsWallOpen[0] && !m_IsWallOpen[1])
+							{
+								m_IsClockwise = FALSE;
+							}
+							else if (m_IsWallOpen[0] && m_IsWallOpen[1])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsClockwise = TRUE;
+								}
+								else
+								{
+									m_IsClockwise = FALSE;
+								}
+							}
+						}
+						else 
+						{
+							if (!m_IsWallOpen[0] && !m_IsWallOpen[1])
+							{
+								m_IsRotating = FALSE;
+							}
+							else if (!m_IsWallOpen[0] && m_IsWallOpen[1])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = TRUE;
+								}
+							}
+							else if (m_IsWallOpen[0] && !m_IsWallOpen[1])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = FALSE;
+								}
+							}
+							else
+							{
+								uniform_int_distribution<INT> dis(0, 2);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else if (dis(m_Engine) == 1)
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = TRUE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = FALSE;
+								}
 							}
 						}
 					}
 					else if (currentLookAt.x < 0 && fabsf(currentLookAt.z) <= EPSILON)
 					{
-						// 좌
-						if (nCoX >= -NUM_OF_COLUMN / 2 || map[nCoZ][nCoX - 1] == '*')
+						// -x direction
+						if (m_IsWallOpen[2] == FALSE)
 						{
-							// 막혀있으므로 돌아야함
+							// 전진 막혔으니 일단 무조건 회전은 함
 							m_IsRotating = TRUE;
+							if (!m_IsWallOpen[1] && m_IsWallOpen[0])
+							{
+								m_IsClockwise = TRUE;
+							}
+							else if (m_IsWallOpen[1] && !m_IsWallOpen[0])
+							{
+								m_IsClockwise = FALSE;
+							}
+							else if (m_IsWallOpen[1] && m_IsWallOpen[0])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsClockwise = TRUE;
+								}
+								else
+								{
+									m_IsClockwise = FALSE;
+								}
+							}
 						}
 						else
 						{
-							if (map[nCoZ - 1][nCoX] != '*' || map[nCoZ + 1][nCoX] != '*')
+							if (!m_IsWallOpen[1] && !m_IsWallOpen[0])
 							{
-								m_IsRotating = TRUE;
+								m_IsRotating = FALSE;
+							}
+							else if (!m_IsWallOpen[1] && m_IsWallOpen[0])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = TRUE;
+								}
+							}
+							else if (m_IsWallOpen[1] && !m_IsWallOpen[0])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = FALSE;
+								}
+							}
+							else
+							{
+								uniform_int_distribution<INT> dis(0, 2);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else if (dis(m_Engine) == 1)
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = TRUE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = FALSE;
+								}
 							}
 						}
 					}
 					else if (currentLookAt.z > 0 && fabsf(currentLookAt.x) <= EPSILON)
 					{
-						// 위
-						if (nCoZ <= NUM_OF_ROW / 2 || map[nCoZ + 1][nCoX] == '*')
+						// +z direction
+						if (m_IsWallOpen[0] == FALSE)
 						{
-							// 막혀있으므로 돌아야함
+							// 전진 막혔으니 일단 무조건 회전은 함
 							m_IsRotating = TRUE;
+							if (!m_IsWallOpen[2] && m_IsWallOpen[3])
+							{
+								m_IsClockwise = TRUE;
+							}
+							else if (m_IsWallOpen[2] && !m_IsWallOpen[3])
+							{
+								m_IsClockwise = FALSE;
+							}
+							else if (m_IsWallOpen[2] && m_IsWallOpen[3])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsClockwise = TRUE;
+								}
+								else
+								{
+									m_IsClockwise = FALSE;
+								}
+							}
 						}
 						else
 						{
-							if (map[nCoZ][nCoX - 1] != '*' || map[nCoZ][nCoX + 1] != '*')
+							if (!m_IsWallOpen[2] && !m_IsWallOpen[3])
 							{
-								m_IsRotating = TRUE;
+								m_IsRotating = FALSE;
+							}
+							else if (!m_IsWallOpen[2] && m_IsWallOpen[3])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = TRUE;
+								}
+							}
+							else if (m_IsWallOpen[2] && !m_IsWallOpen[3])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = FALSE;
+								}
+							}
+							else
+							{
+								uniform_int_distribution<INT> dis(0, 2);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else if (dis(m_Engine) == 1)
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = TRUE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = FALSE;
+								}
 							}
 						}
 					}
 					else if (currentLookAt.z < 0 && fabsf(currentLookAt.x) <= EPSILON)
 					{
-						// 아래
-						if (nCoZ >= -NUM_OF_ROW / 2 || map[nCoZ - 1][nCoX] == '*')
+						// -z direction
+						if (m_IsWallOpen[1] == FALSE)
 						{
-							// 막혀있으므로 돌아야함
+							// 전진 막혔으니 일단 무조건 회전은 함
 							m_IsRotating = TRUE;
+							if (!m_IsWallOpen[3] && m_IsWallOpen[2])
+							{
+								m_IsClockwise = TRUE;
+							}
+							else if (m_IsWallOpen[3] && !m_IsWallOpen[2])
+							{
+								m_IsClockwise = FALSE;
+							}
+							else if (m_IsWallOpen[3] && m_IsWallOpen[2])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsClockwise = TRUE;
+								}
+								else
+								{
+									m_IsClockwise = FALSE;
+								}
+							}
 						}
 						else
 						{
-							if (map[nCoZ][nCoX - 1] != '*' || map[nCoZ][nCoX + 1] != '*')
+							if (!m_IsWallOpen[3] && !m_IsWallOpen[2])
 							{
-								m_IsRotating = TRUE;
+								m_IsRotating = FALSE;
+							}
+							else if (!m_IsWallOpen[3] && m_IsWallOpen[2])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = TRUE;
+								}
+							}
+							else if (m_IsWallOpen[3] && !m_IsWallOpen[2])
+							{
+								uniform_int_distribution<INT> dis(0, 1);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = FALSE;
+								}
+							}
+							else
+							{
+								uniform_int_distribution<INT> dis(0, 2);
+								if (dis(m_Engine) == 0)
+								{
+									m_IsRotating = FALSE;
+								}
+								else if (dis(m_Engine) == 1)
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = TRUE;
+								}
+								else
+								{
+									m_IsRotating = TRUE;
+									m_IsClockwise = FALSE;
+								}
 							}
 						}
 					}
@@ -218,17 +539,24 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 		
 	}
 }
-
-VOID CXFileUtil::Rotate()
+// 90도 회전시키고 나서 벡터값 조정이 필요할 듯
+// 
+VOID CXFileUtil::Rotate(BOOL clockwise)
 {
-	// 시계방향으로 회전
 	D3DXMATRIX tmpRotation, tmpTranslation;
 	D3DXVECTOR3 tmpPosition = D3DXVECTOR3(m_TigerWorld._41, m_TigerWorld._42, m_TigerWorld._43);
 	// 원점으로 이동
 	D3DXMatrixTranslation(&tmpTranslation, -tmpPosition.x, -tmpPosition.y, -tmpPosition.z);
 	D3DXMatrixMultiply(&m_TigerWorld, &m_TigerWorld, &tmpTranslation);
 	// 3도 회전
-	D3DXMatrixRotationY(&tmpRotation, D3DXToRadian(3.0f));
+	if (clockwise == TRUE)
+	{
+		D3DXMatrixRotationY(&tmpRotation, D3DXToRadian(3.0f));
+	}
+	else
+	{
+		D3DXMatrixRotationY(&tmpRotation, D3DXToRadian(-3.0f));
+	}
 	D3DXMatrixMultiply(&m_TigerWorld, &m_TigerWorld, &tmpRotation);
 	m_RotationAmount += 3;
 	// 다시 제자리로 이동

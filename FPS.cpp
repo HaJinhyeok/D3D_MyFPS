@@ -402,7 +402,10 @@ VOID __KeyProc()
     // 총알 움직임 계산
     player.MoveBullet();
     // 호랑이 움직임 계산
-    X_Tiger.Move(chMap1);
+    if (!bIsPaused && bIsPlaying)
+    {
+        X_Tiger.Move(chMap1);
+    }
 
     // wasd 또는 방향키 : 플레이어 앞뒤좌우 움직임
 
