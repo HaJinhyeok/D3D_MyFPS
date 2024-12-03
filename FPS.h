@@ -21,7 +21,7 @@ using namespace std;
 
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 700
-#define EPSILON 0.01f
+#define EPSILON 0.001f
 
 #define TEXTURE_TILE "tex_tile.bmp"
 #define TEXTURE_GRASS "tex_grass.jpg"

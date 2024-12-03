@@ -123,20 +123,14 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 		tmpX -= floorf(tmpX);
 		tmpZ -= floorf(tmpZ);
 		// 우선, 현재 호랑이가 블록 정가운데 위치해있는지 확인
-		if (tmpX <= 0.5001f && tmpX >= 0.4999f)
+		if (tmpX <= 0.5f + EPSILON && tmpX >= 0.5f - EPSILON)
 		{
-			if (tmpZ <= 0.5001f && tmpZ >= 0.4999f)
+			if (tmpZ <= 0.50f + EPSILON && tmpZ >= 0.5f - EPSILON)
 			{
 				OutputDebugString("center of block\n");
 				if (m_IsRotating == TRUE)
 				{
 					this->Rotate(m_IsClockwise);
-					if (m_RotationAmount == 90)
-					{
-						// 90도 회전했으므로 다시 확인하게 해야함
-						m_IsRotating = FALSE;
-						m_RotationAmount = 0;
-					}
 				}
 				else
 				{
@@ -527,7 +521,13 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 				
 			}
 		}
-		if (m_IsRotating == FALSE)
+		if (m_RotationAmount == 90)
+		{
+			m_IsRotating = FALSE;
+			// 90도 회전 후 벡터값 조정
+			m_RotationAmount = 0;
+		}
+		else if (m_IsRotating == FALSE)
 		{
 			D3DXMATRIX tmpTranslation;
 			FLOAT fCoefficient = TRANSLATION_DISTANCE_TIGER;
