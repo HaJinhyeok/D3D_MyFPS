@@ -3,7 +3,7 @@
 #include <d3dx9.h>
 #include "FPS.h"
 
-#define TRANSLATION_DISTANCE_TIGER 0.05f
+#define TRANSLATION_DISTANCE_TIGER 0.2f
 #define ROTATION_AMOUNT_TIGER 3
 #define SCALE_AMOUNT_TIGER 7.0f
 
@@ -15,6 +15,7 @@ private:
 	D3DMATERIAL9* g_pMeshMaterials; // 메쉬에 대한 재질
 	LPDIRECT3DTEXTURE9* g_pMeshTextures; // 메쉬에 대한 텍스쳐
 	DWORD g_dwNumMaterials; // 재질의 수
+
 	// x 파일 객체의 위치와 바라보는 방향
 	D3DXVECTOR3 m_Position;
 	D3DXVECTOR3 m_LookAt;
@@ -27,7 +28,7 @@ private:
 	BOOL m_IsClockwise;
 	BOOL m_IsWallOpen[4]; // 현재 호랑이 위치 기준 앞, 뒤, 좌, 우로 진행 가능한지 확인
 	DWORD m_CurrentTime;
-	DWORD m_RotationAmount;
+	DWORD m_RotationAmount, m_RotationCount;
 
 	random_device m_Random; // 시드값을 얻기 위한 random_device
 	mt19937 m_Engine;

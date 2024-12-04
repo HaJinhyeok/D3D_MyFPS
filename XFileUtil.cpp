@@ -21,6 +21,7 @@ CXFileUtil::CXFileUtil(D3DXVECTOR3 position)
 	}
 	m_CurrentTime = timeGetTime();
 	m_RotationAmount = 0;
+	m_RotationCount = 0;
 }
 CXFileUtil::~CXFileUtil()
 {
@@ -132,6 +133,10 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 				{
 					this->Rotate(m_IsClockwise);
 				}
+				else if (m_IsRotating == FALSE && m_RotationCount == 1)
+				{
+					m_RotationCount--;
+				}
 				else
 				{
 					// 현재 좌표
@@ -204,6 +209,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 						{
 							// 전진 막혔으니 일단 무조건 회전은 함
 							m_IsRotating = TRUE;
+							m_RotationCount++;
 							if (!m_IsWallOpen[0] && m_IsWallOpen[1])
 							{
 								m_IsClockwise = TRUE;
@@ -224,6 +230,11 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 									m_IsClockwise = FALSE;
 								}
 							}
+							else
+							{
+								// 양쪽 다 막혔으므로 회전 2회
+								m_RotationCount++;
+							}
 						}
 						else 
 						{
@@ -242,6 +253,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = TRUE;
+									m_RotationCount++;
 								}
 							}
 							else if (m_IsWallOpen[0] && !m_IsWallOpen[1])
@@ -255,6 +267,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = FALSE;
+									m_RotationCount++;
 								}
 							}
 							else
@@ -268,11 +281,13 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = TRUE;
+									m_RotationCount++;
 								}
 								else
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = FALSE;
+									m_RotationCount++;
 								}
 							}
 						}
@@ -284,6 +299,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 						{
 							// 전진 막혔으니 일단 무조건 회전은 함
 							m_IsRotating = TRUE;
+							m_RotationCount++;
 							if (!m_IsWallOpen[1] && m_IsWallOpen[0])
 							{
 								m_IsClockwise = TRUE;
@@ -304,6 +320,10 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 									m_IsClockwise = FALSE;
 								}
 							}
+							else
+							{
+								m_RotationCount++;
+							}
 						}
 						else
 						{
@@ -322,6 +342,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = TRUE;
+									m_RotationCount++;
 								}
 							}
 							else if (m_IsWallOpen[1] && !m_IsWallOpen[0])
@@ -335,6 +356,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = FALSE;
+									m_RotationCount++;
 								}
 							}
 							else
@@ -348,11 +370,13 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = TRUE;
+									m_RotationCount++;
 								}
 								else
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = FALSE;
+									m_RotationCount++;
 								}
 							}
 						}
@@ -364,6 +388,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 						{
 							// 전진 막혔으니 일단 무조건 회전은 함
 							m_IsRotating = TRUE;
+							m_RotationCount++;
 							if (!m_IsWallOpen[2] && m_IsWallOpen[3])
 							{
 								m_IsClockwise = TRUE;
@@ -384,6 +409,11 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 									m_IsClockwise = FALSE;
 								}
 							}
+							else
+							{
+								// 양쪽 다 막혔으므로 회전 2회
+								m_RotationCount++;
+							}
 						}
 						else
 						{
@@ -402,6 +432,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = TRUE;
+									m_RotationCount++;
 								}
 							}
 							else if (m_IsWallOpen[2] && !m_IsWallOpen[3])
@@ -415,6 +446,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = FALSE;
+									m_RotationCount++;
 								}
 							}
 							else
@@ -428,11 +460,13 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = TRUE;
+									m_RotationCount++;
 								}
 								else
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = FALSE;
+									m_RotationCount++;
 								}
 							}
 						}
@@ -444,6 +478,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 						{
 							// 전진 막혔으니 일단 무조건 회전은 함
 							m_IsRotating = TRUE;
+							m_RotationCount++;
 							if (!m_IsWallOpen[3] && m_IsWallOpen[2])
 							{
 								m_IsClockwise = TRUE;
@@ -464,11 +499,18 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 									m_IsClockwise = FALSE;
 								}
 							}
+							else
+							{
+								// 양쪽 다 막혔으므로 회전 2회
+								m_RotationCount++;
+							}
 						}
 						else
 						{
+							// 전진이 불가능하진 않으므로 회전은 하더라도 1회만
 							if (!m_IsWallOpen[3] && !m_IsWallOpen[2])
 							{
+								// 양쪽 막히면 그냥 직진
 								m_IsRotating = FALSE;
 							}
 							else if (!m_IsWallOpen[3] && m_IsWallOpen[2])
@@ -482,6 +524,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = TRUE;
+									m_RotationCount++;
 								}
 							}
 							else if (m_IsWallOpen[3] && !m_IsWallOpen[2])
@@ -495,6 +538,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = FALSE;
+									m_RotationCount++;
 								}
 							}
 							else
@@ -508,11 +552,13 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = TRUE;
+									m_RotationCount++;
 								}
 								else
 								{
 									m_IsRotating = TRUE;
 									m_IsClockwise = FALSE;
+									m_RotationCount++;
 								}
 							}
 						}
@@ -523,8 +569,15 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 		}
 		if (m_RotationAmount == 90)
 		{
-			m_IsRotating = FALSE;
-			// 90도 회전 후 벡터값 조정
+			if (m_RotationCount == 2)
+			{
+				m_RotationCount--;
+			}
+			else
+			{
+				m_IsRotating = FALSE;
+			}
+			// 90도 회전 후 벡터값 조정?
 			m_RotationAmount = 0;
 		}
 		else if (m_IsRotating == FALSE)
