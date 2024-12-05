@@ -35,6 +35,8 @@ CPlayer::CPlayer()
     //m_FlashLight.Theta = D3DXToRadian(100.0f);
     //m_FlashLight.Phi = 1.0f;
     //m_FlashLight.Theta = 0.7f;
+
+    m_CurrentTime = timeGetTime();
 }
 CPlayer::~CPlayer()
 {
@@ -46,6 +48,9 @@ CPlayer::~CPlayer()
 // 필요한 것: 플레이어가 움직일 방향 벡터, 거리, 플에이어 현 위치, 플레이어 현 LookAt, 맵 정보
 VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1])
 {
+    DWORD currentTime = timeGetTime();
+    if (currentTime - m_CurrentTime < 100) return;
+
     D3DXVECTOR3 vecDirection, tmpPosition; // 벽을 생각하지 않고 이동된 위치. 주변 8개 벽과 이것을 대조해 최종 위치 결정
     D3DXVECTOR2 WallPoint[2]; // 충돌을 검사할 블록의 왼쪽아래(minX, minZ)와 오른쪽위(maxX,maxZ) 두 점
     FLOAT fCoefficient = TRANSLATION_DISTANCE;

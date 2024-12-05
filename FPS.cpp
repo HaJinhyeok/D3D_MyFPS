@@ -726,18 +726,19 @@ VOID Render()
             g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
         }
         //// ÁÂ»ó´Ü UI
-        //if (bIsSkyView == FALSE)
+        if (bIsSkyView == FALSE)
         {
             //// Transformed Vertex
             g_pd3dDevice->SetTexture(0, NULL);
             g_pd3dDevice->SetFVF(D3DFVF_UI_VERTEX);
             g_pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UIVertices, sizeof(UI_VERTEX));
 
-            D3DXMATRIX TigerWorldCheck = X_Tiger.GetTigerWorld();
+            /*D3DXMATRIX TigerWorldCheck = X_Tiger.GetTigerWorld();
             swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", TigerWorldCheck._41, TigerWorldCheck._42, TigerWorldCheck._43, TigerWorldCheck._31, TigerWorldCheck._32, TigerWorldCheck._33);
-            wsprintf(testSTR, "%ws", test2);
+            wsprintf(testSTR, "%ws", test2);*/
+
             SetRect(&rt, 20, 20, 0, 0);
-            // wsprintf(testSTR, "1: ³·¹ã ÀüÈ¯\n2: ½ÃÁ¡º¯È¯\n3: ¼ÕÀüµî on/off");
+            wsprintf(testSTR, "1: ³·¹ã ÀüÈ¯\n2: ½ÃÁ¡º¯È¯\n3: ¼ÕÀüµî on/off");
             g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
             //// DrawText

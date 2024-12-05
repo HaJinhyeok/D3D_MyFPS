@@ -1,6 +1,7 @@
 #pragma once
 #pragma warning(disable:4996)
 #include <d3dx9.h>
+#include <time.h>
 #include "FPS.h"
 
 #define TRANSLATION_DISTANCE_TIGER 0.2f
@@ -31,7 +32,7 @@ private:
 	DWORD m_RotationAmount, m_RotationCount;
 
 	random_device m_Random; // 시드값을 얻기 위한 random_device
-	mt19937 m_Engine;
+	mt19937 m_Engine((unsigned int)time(NULL));
 
 public:
 	int XFileDisplay(LPDIRECT3DDEVICE9 pD3DDevice);
