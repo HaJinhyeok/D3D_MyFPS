@@ -142,6 +142,8 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 					// 현재 좌표
 					int nCoX = floorf(currentPosition.x / LENGTH_OF_TILE) + NUM_OF_COLUMN / 2;
 					int nCoZ = NUM_OF_ROW / 2 - floorf(currentPosition.z / LENGTH_OF_TILE) - 1;
+					mt19937 m_Engine(m_Random());
+
 					// 상하좌우 칸으로 전진 가능한지 판별
 					{
 						// 0 - 상

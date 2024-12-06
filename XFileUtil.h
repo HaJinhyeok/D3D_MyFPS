@@ -32,7 +32,6 @@ private:
 	DWORD m_RotationAmount, m_RotationCount;
 
 	random_device m_Random; // 시드값을 얻기 위한 random_device
-	mt19937 m_Engine;
 
 public:
 	int XFileDisplay(LPDIRECT3DDEVICE9 pD3DDevice);
