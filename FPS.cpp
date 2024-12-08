@@ -7,6 +7,7 @@
 
 LPDIRECT3D9 g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
+
 LPDIRECT3DVERTEXBUFFER9 g_pTileVB = NULL;
 LPDIRECT3DINDEXBUFFER9 g_pTileIB = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pWallVB = NULL;
@@ -17,6 +18,7 @@ LPDIRECT3DTEXTURE9 g_pWallTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pGrassTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pNoticeTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pExitTexture = NULL;
+LPDIRECT3DCUBETEXTURE9 g_pSkyboxTexture = NULL;
 LPD3DXFONT g_pClearFont = NULL;
 LPD3DXFONT g_pSettingFont = NULL;
 LPD3DXFONT g_pExitFont = NULL;
@@ -24,6 +26,7 @@ LPD3DXFONT g_pFrameFont = NULL;
 LPD3DXFONT g_pTestFont = NULL;
 LPD3DXMESH g_pPlayerSphere = NULL;
 LPD3DXMESH g_pBulletSphere = NULL;
+LPD3DXMESH g_pSkyboxCube = NULL;
 LPPOINT g_pMidPoint = new POINT; // 마우스는 클라이언트 중앙으로 고정
 LPPOINT g_pMouse = new POINT;
 LPPOINT g_pCurrentMouse = new POINT; // 마우스 이동 시, 이동한 좌표 받아올 임시 마우스 좌표
@@ -96,9 +99,12 @@ VOID InitGeometry()
     material.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
     g_pd3dDevice->SetMaterial(&material);
         
-
+    // sphere object: player, bullet
     D3DXCreateSphere(g_pd3dDevice, BULLET_RADIUS, 10, 10, &g_pBulletSphere, 0);
     D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pPlayerSphere, 0);
+    // cube object: skybox
+    D3DXCreateBox(g_pd3dDevice, 500.0f, 500.0f, 500.0f, &g_pSkyboxCube, 0);
+    // font
     D3DXCreateFont(g_pd3dDevice, 50, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pClearFont);
     D3DXCreateFont(g_pd3dDevice, 40, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pSettingFont);
     D3DXCreateFont(g_pd3dDevice, 30, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pExitFont);
@@ -117,6 +123,7 @@ VOID InitGeometry()
         NULL, NULL,
         &g_pNoticeTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_EXIT, &g_pExitTexture);
+    D3DXCreateCubeTextureFromFile(g_pd3dDevice, TEXTURE_SKYBOX, &g_pSkyboxTexture);
 
     /*MakeWallBlock(tmpBlock, D3DXVECTOR3(25.0f, 5.0f, 25.0f));
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pTmpBlockVB, NULL);
@@ -347,6 +354,8 @@ VOID CleanUp()
     delete g_pCurrentMouse;
     delete g_pMouse;
     delete g_pMidPoint;
+    if (g_pSkyboxCube != NULL)
+        g_pSkyboxCube->Release();
     if (g_pBulletSphere != NULL)
         g_pBulletSphere->Release();
     if (g_pPlayerSphere != NULL)
@@ -361,6 +370,8 @@ VOID CleanUp()
         g_pSettingFont->Release();
     if (g_pClearFont != NULL)
         g_pClearFont->Release();
+    if (g_pSkyboxTexture != NULL)
+        g_pSkyboxTexture->Release();
     if (g_pExitTexture != NULL)
         g_pExitTexture->Release();
     if (g_pNoticeTexture != NULL)
@@ -618,6 +629,12 @@ VOID Render()
         // D3DXMatrixTranspose(&mtViewProjection, &mtViewProjection);
         // D3DXPlaneTransformArray(FrustumPlane, sizeof(D3DXPLANE), FrustumPlane, sizeof(D3DXPLANE), &mtViewProjection, 6);
 
+        //// skybox rendering
+        g_pd3dDevice->SetTexture(0, g_pSkyboxTexture);
+        g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+        g_pSkyboxCube->DrawSubset(0);
+        g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+
         g_pFrustum->MakeFrustum(&mtViewProjection);
 
         g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
@@ -671,7 +688,6 @@ VOID Render()
             }
         }
         
-
         //// notice rendering
         g_pd3dDevice->SetTexture(0, g_pNoticeTexture);
         D3DXMATRIX mtNoticeWorld;

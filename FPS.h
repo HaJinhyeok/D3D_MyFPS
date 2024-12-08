@@ -23,17 +23,20 @@ using namespace std;
 #define WINDOW_HEIGHT 700
 #define EPSILON 0.001f
 
+// texture file names
 #define TEXTURE_TILE "tex_tile.bmp"
 #define TEXTURE_GRASS "tex_grass.jpg"
 #define TEXTURE_WALL "tex_wall.jpg"
 #define TEXTURE_NOTICE "tex_question.png"
 #define TEXTURE_EXIT "tex_exit.png"
+#define TEXTURE_SKYBOX "SkyBox1.dds"
+
+// constant values
 #define TRANSLATION_DISTANCE 0.3f   // 플레이어 이동거리
 #define LOOKAT_DISTANCE 5.0f    //
 #define ROTATION_AMOUNT D3DX_PI/200 // 플레이어 회전각
 #define ROTATION_LEFT_RIGHT 0.001f // 좌우 1pixel 당 회전각
 #define ROTATION_UP_DOWN 0.001f // 상하 1pixel 당 회전각
-// #define NUM_OF_TILE 10
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
 #define NUM_OF_ROW 14    // 즉, 세로 길이
 #define LENGTH_OF_TILE 10.0f
