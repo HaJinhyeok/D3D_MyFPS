@@ -410,11 +410,11 @@ VOID __KeyProc()
 
     UpdateInput();
 
-    // 총알 움직임 계산
-    player.MoveBullet();
-    // 호랑이 움직임 계산
     if (!bIsPaused && bIsPlaying)
     {
+        // 총알 움직임 계산
+        player.MoveBullet();
+        // 호랑이 움직임 계산
         X_Tiger.Move(chMap1);
     }
 
