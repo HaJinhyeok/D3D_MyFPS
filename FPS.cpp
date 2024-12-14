@@ -487,8 +487,7 @@ VOID __KeyProc()
         {
 
         }
-        // 낮밤 변경
-        // 1에다 도움말을, 3에다 낮밤 변경?, 4에다 절두체 컬링?
+        // light option on/off
         if (GetKeyDown('1') == TRUE)
         {
             if (bIsLightOn == TRUE)
@@ -502,7 +501,7 @@ VOID __KeyProc()
                 bIsLightOn = TRUE;
             }
         }
-        // 카메라 시점 변경
+        // camera TopView on/off
         if (GetKeyDown('2') == TRUE)
         {
             if (bIsSkyView == FALSE)
@@ -518,7 +517,15 @@ VOID __KeyProc()
             else
                 player.SetFlashlight(TRUE);
         }
-        // esc 눌러서 환경설정 UI
+        // NoClip(FreeFly) on/off
+        if (GetKeyDown('4') == TRUE)
+        {
+            if (bIsNoClipOn == TRUE)
+                bIsNoClipOn = FALSE;
+            else
+                bIsNoClipOn = TRUE;
+        }
+        // preference UI on/off
         if (GetKeyDown(VK_ESCAPE) == TRUE)
         {
             if (bIsPaused == TRUE)
@@ -588,7 +595,7 @@ VOID Render()
             D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
             g_pd3dDevice->SetTransform(D3DTS_VIEW, &mtView);
         }
-        // 전지적 시점
+        // 탑뷰 시점
         else
         {
             D3DXMatrixLookAtLH(&mtView, &v3EyeCeiling, &v3DefaultPosition, &v3UpCeiling);
@@ -628,6 +635,7 @@ VOID Render()
         // D3DXMatrixInverse(&mtViewProjection, NULL, &mtViewProjection);
         // D3DXMatrixTranspose(&mtViewProjection, &mtViewProjection);
         // D3DXPlaneTransformArray(FrustumPlane, sizeof(D3DXPLANE), FrustumPlane, sizeof(D3DXPLANE), &mtViewProjection, 6);
+        g_pFrustum->MakeFrustum(&mtViewProjection);
 
         //// skybox rendering
         g_pd3dDevice->SetTexture(0, g_pSkyboxTexture);
@@ -635,7 +643,6 @@ VOID Render()
         g_pSkyboxCube->DrawSubset(0);
         g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
-        g_pFrustum->MakeFrustum(&mtViewProjection);
 
         g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
         g_pd3dDevice->SetTexture(0, g_pGrassTexture);
@@ -754,7 +761,7 @@ VOID Render()
             wsprintf(testSTR, "%ws", test2);*/
 
             SetRect(&rt, 20, 20, 0, 0);
-            wsprintf(testSTR, "1: 낮밤 전환\n2: 시점변환\n3: 손전등 on/off");
+            wsprintf(testSTR, " 1: 낮밤 전환\n 2: 탑뷰 on/off\n 3: 손전등 on/off\n 4: 자유시점 on/off\n esc: 일시 정지");
             g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
             //// DrawText
@@ -801,6 +808,15 @@ VOID Render()
             SetRect(&rt, 320, 460, 0, 0);
             g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
         }
+        // 자유시점 표시
+        if (bIsNoClipOn)
+        {
+            SetRect(&rt, 0, 0, 0, 0);
+            wsprintf(testSTR, "자유시점 ON");
+            // 텍스트 width 얻는 법: (0,0,0,0) 설정된 rect에 drawtext하면 rect 구역이 텍스트에 맞게 조절되는듯.
+            // 그걸 활용해서 일단 투명색으로 텍스트를 그려주고, 조절된 rect에서 값을 가져와 width를 구해준다!
+        }
+
         // FPS 표시
         SetRect(&rt, WINDOW_WIDTH - 110, 0, 0, 0);
         /*swprintf(test2, 500, L"num: %d, frame: %d\nLastTime: %d\nCurrentTime: %d", FPS_Num, FPS_Frames, FPS_LastTime, FPS_Time);
@@ -946,7 +962,6 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
 							bIsCursorOn = ShowCursor(FALSE);
                     }
                     __KeyProc();
-                    //X_Tiger.Move();
                     Render();
                     FPS.Frame();
                 }

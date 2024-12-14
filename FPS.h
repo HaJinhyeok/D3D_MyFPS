@@ -89,8 +89,8 @@ static UI_VERTEX UIVertices[4] =
 {
     D3DXVECTOR3(10.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 0.0f),
     D3DXVECTOR3(210.0f, 10.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(1.0f, 0.0f),
-    D3DXVECTOR3(210.0f, 100.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(1.0f, 1.0f),
-    D3DXVECTOR3(10.0f, 100.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 1.0f)
+    D3DXVECTOR3(210.0f, 135.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(0, 0, 0), D3DXVECTOR2(1.0f, 1.0f),
+    D3DXVECTOR3(10.0f, 135.0f, 0.0f), 1.0f, D3DCOLOR_XRGB(255, 0, 0), D3DXVECTOR2(0.0f, 1.0f)
 };
 
 static UI_VERTEX Log_UI_Vertices[4] =
@@ -138,6 +138,8 @@ static char chFileName[] = "tiger.x";
 
 // 시점 변환 확인 변수
 static BOOL bIsSkyView = FALSE;
+// 자유시점 변환 확인 변수
+static BOOL bIsNoClipOn = FALSE;
 // 일시정지(or 환경설정) 확인 변수
 static BOOL bIsPaused = FALSE;
 // 컬링 확인 변수
