@@ -426,19 +426,19 @@ VOID __KeyProc()
 
     if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
     {
-        player.Move(MOVE_DIRECTION::left, chMap1);
+        player.Move(MOVE_DIRECTION::left, chMap1, bIsNoClipOn);
     }
     if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
     {
-        player.Move(MOVE_DIRECTION::right, chMap1);
+        player.Move(MOVE_DIRECTION::right, chMap1, bIsNoClipOn);
     }
     if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP))
     {
-        player.Move(MOVE_DIRECTION::front, chMap1);
+        player.Move(MOVE_DIRECTION::front, chMap1, bIsNoClipOn);
     }
     if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN))
     {
-        player.Move(MOVE_DIRECTION::back, chMap1);
+        player.Move(MOVE_DIRECTION::back, chMap1, bIsNoClipOn);
     }
     // Notice & Exit rotation
     for (i = 0; i < notice[0].GetNumOfNotice(); i++)
@@ -600,10 +600,13 @@ VOID Render()
         D3DXMATRIX mtView;
         D3DXVECTOR3 v3CurrentPosition = player.GetPosition();
         D3DXVECTOR3 v3CurrentLookAt = player.GetLookAt();
+		D3DXMATRIX matCurrentAxis = player.GetPlayerAxis();
         // 1ÀÎÄª ½ÃÁ¡
         if (bIsSkyView == FALSE)
         {
-            D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
+            /*D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);*/
+            D3DXVECTOR3 v3CurrentUp = D3DXVECTOR3(matCurrentAxis._21, matCurrentAxis._22, matCurrentAxis._23);
+            D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3CurrentUp);
             g_pd3dDevice->SetTransform(D3DTS_VIEW, &mtView);
         }
         // Å¾ºä ½ÃÁ¡
@@ -779,6 +782,11 @@ VOID Render()
             SetRect(&rt, 20, 20, 0, 0);
             wsprintf(testSTR, " 1: ³·¹ã ÀüÈ¯\n 2: Å¾ºä on/off\n 3: ¼ÕÀüµî on/off\n 4: ÀÚÀ¯½ÃÁ¡ on/off\n esc: ÀÏ½Ã Á¤Áö");
             g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+
+            SetRect(&rt, 20, 150, 0, 0);
+            swprintf_s(test2, 500, L"Current Up Vector: %f, %f, %f", matCurrentAxis._21, matCurrentAxis._22, matCurrentAxis._23);
+            wsprintf(testSTR, "%ws", test2);
+            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
 
             //// DrawText
             // swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
