@@ -521,9 +521,20 @@ VOID __KeyProc()
         if (GetKeyDown('4') == TRUE)
         {
             if (bIsNoClipOn == TRUE)
+            {
                 bIsNoClipOn = FALSE;
+                // 자유시점 종료 시, 저장해뒀던 player 정보 복구
+                player.SetPlayerAxis(matSavedAxis);
+                player.SetLookAt(v3SavedLookAt);
+                player.SetPosition(v3SavedPosition);
+            }
             else
+            {
                 bIsNoClipOn = TRUE;
+                matSavedAxis = player.GetPlayerAxis();
+                v3SavedLookAt = player.GetLookAt();
+                v3SavedPosition = player.GetPosition();
+            }
         }
         // preference UI on/off
         if (GetKeyDown(VK_ESCAPE) == TRUE)
@@ -639,6 +650,11 @@ VOID Render()
 
         //// skybox rendering
         g_pd3dDevice->SetTexture(0, g_pSkyboxTexture);
+
+        /*g_pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+        g_pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+        g_pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);*/
+
         g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
         g_pSkyboxCube->DrawSubset(0);
         g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);

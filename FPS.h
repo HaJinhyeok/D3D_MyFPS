@@ -169,6 +169,11 @@ static CUSTOMVERTEX LabyrinthWallVertices[72][20];
 
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 
+// 자유 시점으로 전환하기 위해, 현재 플레이어 위치 및 lookat 정보 저장해두기
+static D3DXMATRIX matSavedAxis;
+static D3DXVECTOR3 v3SavedPosition;
+static D3DXVECTOR3 v3SavedLookAt;
+
 //// FRAME ////
 static DWORD FPS_Frames = 0;
 static DWORD FPS_Num = 0, FPS_LastTime = timeGetTime();
