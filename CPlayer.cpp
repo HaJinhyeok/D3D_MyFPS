@@ -283,6 +283,7 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
     // 위아래일때 ccw면 위, !ccw면 아래
     D3DXMATRIX mtRotation;
     D3DXVECTOR3 v3RotationAxis;
+    D3DXQUATERNION vQuart;
     FLOAT fCoefficient = LOOKAT_DISTANCE;
 
     // 좌우 회전
@@ -292,12 +293,14 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
         if (bIsCCW == TRUE)
         {
             // D3DXMatrixRotationY(&mtRotation, -angle);
-            D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
+            // D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
+            D3DXQuaternionRotationAxis(&vQuart, &v3RotationAxis, -angle);
         }
         else
         {
             // D3DXMatrixRotationY(&mtRotation, angle);
-            D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
+            // D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
+            D3DXQuaternionRotationAxis(&vQuart, &v3RotationAxis, angle);
         }
     }
     // 상하 회전
@@ -307,14 +310,17 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
         if (bIsCCW == TRUE)
         {
             // D3DXMatrixRotationX(&mtRotation, angle);
-            D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
+            // D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
+            D3DXQuaternionRotationAxis(&vQuart, &v3RotationAxis, angle);
         }
         else
         {
             // D3DXMatrixRotationX(&mtRotation, -angle);
-            D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
+            // D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
+            D3DXQuaternionRotationAxis(&vQuart, &v3RotationAxis, -angle);
         }
     }
+    D3DXMatrixRotationQuaternion(&mtRotation, &vQuart);
     D3DXMatrixMultiply(&m_PlayerAxis, &m_PlayerAxis, &mtRotation);
 
     fCoefficient /= sqrtf(m_PlayerAxis._31 * m_PlayerAxis._31 + m_PlayerAxis._32 * m_PlayerAxis._32 + m_PlayerAxis._33 * m_PlayerAxis._33);

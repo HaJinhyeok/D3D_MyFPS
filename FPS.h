@@ -40,6 +40,7 @@ using namespace std;
 #define NUM_OF_COLUMN 12 // 즉, 가로 길이
 #define NUM_OF_ROW 14    // 즉, 세로 길이
 #define LENGTH_OF_TILE 10.0f
+#define LENGTH_OF_SKYBOX_SURFACE 200.0f
 
 #define PLAYER_RADIUS 2.0f
 #define BULLET_RADIUS 0.4f

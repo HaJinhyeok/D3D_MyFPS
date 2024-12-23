@@ -19,6 +19,7 @@ LPDIRECT3DTEXTURE9 g_pGrassTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pNoticeTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pExitTexture = NULL;
 LPDIRECT3DCUBETEXTURE9 g_pSkyboxTexture = NULL;
+LPDIRECT3DSURFACE9 g_pFace2 = NULL;
 LPD3DXFONT g_pClearFont = NULL;
 LPD3DXFONT g_pSettingFont = NULL;
 LPD3DXFONT g_pExitFont = NULL;
@@ -103,7 +104,7 @@ VOID InitGeometry()
     D3DXCreateSphere(g_pd3dDevice, BULLET_RADIUS, 10, 10, &g_pBulletSphere, 0);
     D3DXCreateSphere(g_pd3dDevice, PLAYER_RADIUS, 10, 10, &g_pPlayerSphere, 0);
     // cube object: skybox
-    D3DXCreateBox(g_pd3dDevice, 500.0f, 500.0f, 500.0f, &g_pSkyboxCube, 0);
+    D3DXCreateBox(g_pd3dDevice, LENGTH_OF_SKYBOX_SURFACE, LENGTH_OF_SKYBOX_SURFACE, LENGTH_OF_SKYBOX_SURFACE, &g_pSkyboxCube, 0);
     // font
     D3DXCreateFont(g_pd3dDevice, 50, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pClearFont);
     D3DXCreateFont(g_pd3dDevice, 40, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pSettingFont);
@@ -111,7 +112,7 @@ VOID InitGeometry()
     D3DXCreateFont(g_pd3dDevice, 20, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pTestFont);
     D3DXCreateFont(g_pd3dDevice, 25, 0, FW_NORMAL, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &g_pFrameFont);
     
-    
+    // texture
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_TILE, &g_pTileTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_WALL, &g_pWallTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_GRASS, &g_pGrassTexture);
@@ -124,6 +125,7 @@ VOID InitGeometry()
         &g_pNoticeTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_EXIT, &g_pExitTexture);
     D3DXCreateCubeTextureFromFile(g_pd3dDevice, TEXTURE_SKYBOX, &g_pSkyboxTexture);
+
 
     /*MakeWallBlock(tmpBlock, D3DXVECTOR3(25.0f, 5.0f, 25.0f));
     g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pTmpBlockVB, NULL);
@@ -370,6 +372,8 @@ VOID CleanUp()
         g_pSettingFont->Release();
     if (g_pClearFont != NULL)
         g_pClearFont->Release();
+    if (g_pFace2 != NULL)
+        g_pFace2->Release();
     if (g_pSkyboxTexture != NULL)
         g_pSkyboxTexture->Release();
     if (g_pExitTexture != NULL)
@@ -604,9 +608,9 @@ VOID Render()
         // 1ÀÎÄª ½ÃÁ¡
         if (bIsSkyView == FALSE)
         {
-            /*D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);*/
-            D3DXVECTOR3 v3CurrentUp = D3DXVECTOR3(matCurrentAxis._21, matCurrentAxis._22, matCurrentAxis._23);
-            D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3CurrentUp);
+            D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
+            /*D3DXVECTOR3 v3CurrentUp = D3DXVECTOR3(matCurrentAxis._21, matCurrentAxis._22, matCurrentAxis._23);
+            D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3CurrentUp);*/
             g_pd3dDevice->SetTransform(D3DTS_VIEW, &mtView);
         }
         // Å¾ºä ½ÃÁ¡
@@ -654,13 +658,24 @@ VOID Render()
         //// skybox rendering
         g_pd3dDevice->SetTexture(0, g_pSkyboxTexture);
 
+        LPDIRECT3DSURFACE9 pBackBuffer, pZBuffer;
+        g_pd3dDevice->GetRenderTarget(0, &pBackBuffer);
+        g_pd3dDevice->GetDepthStencilSurface(&pZBuffer);
+        // cube map surface
+        for (i = 0; i < 6; i++)
+        {
+			g_pSkyboxTexture->GetCubeMapSurface((D3DCUBEMAP_FACES)i, 0, &g_pFace2);
+            g_pd3dDevice->SetRenderTarget(0, g_pFace2);
+            
+        }
+
         /*g_pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
         g_pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
         g_pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);*/
 
-        g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+        /*g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
         g_pSkyboxCube->DrawSubset(0);
-        g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+        g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);*/
 
 
         g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
