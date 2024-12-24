@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "CFrustum.h"
 #include "CFrame.h"
+#include "CSkyBox.h"
 #include "XFileUtil.h"
 
 LPDIRECT3D9 g_pD3D = NULL;
@@ -44,6 +45,7 @@ CFrame FPS;
 // 프레임 값에 상관없이 플레이어 및 호랑이 움직임이 일정하도록 조절하기 위한 스톱워치
 Stopwatch PlayerWatch, TigerWatch;
 CXFileUtil X_Tiger(D3DXVECTOR3(55.0f, 5.0f, 65.0f));
+CSkyBox SkyBox;
 
 CFrustum* g_pFrustum = new CFrustum;
 RECT rt, rtExitButton;
@@ -88,6 +90,9 @@ VOID InitGeometry()
 
     InitInput();
     FPS.Initialize();
+    // skybox texture load
+    SkyBox.LoadTexture();
+    SkyBox.CreateVertexBuffer();
     // tiger initialization
     X_Tiger.XFileLoad(g_pd3dDevice, chFileName);
     X_Tiger.SetPosition(D3DXVECTOR3(55.0f, 5.0f, 65.0f));
@@ -125,14 +130,6 @@ VOID InitGeometry()
         &g_pNoticeTexture);
     D3DXCreateTextureFromFile(g_pd3dDevice, TEXTURE_EXIT, &g_pExitTexture);
     D3DXCreateCubeTextureFromFile(g_pd3dDevice, TEXTURE_SKYBOX, &g_pSkyboxTexture);
-
-
-    /*MakeWallBlock(tmpBlock, D3DXVECTOR3(25.0f, 5.0f, 25.0f));
-    g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pTmpBlockVB, NULL);
-    VOID** tmpVertices;
-    g_pTmpBlockVB->Lock(0, sizeof(CUSTOMVERTEX) * 20, (void**)&tmpVertices, 0);
-    memcpy(tmpVertices, &tmpBlock, sizeof(CUSTOMVERTEX) * 20);
-    g_pTmpBlockVB->Unlock();*/
 
     //// 미궁 내 벽을 구성할 vertex들의 buffer 생성
     //LabyrinthWallVertices = MakeLabyrinth(1);
@@ -655,30 +652,12 @@ VOID Render()
         // D3DXPlaneTransformArray(FrustumPlane, sizeof(D3DXPLANE), FrustumPlane, sizeof(D3DXPLANE), &mtViewProjection, 6);
         g_pFrustum->MakeFrustum(&mtViewProjection);
 
-        //// skybox rendering
-        g_pd3dDevice->SetTexture(0, g_pSkyboxTexture);
-
-        LPDIRECT3DSURFACE9 pBackBuffer, pZBuffer;
-        g_pd3dDevice->GetRenderTarget(0, &pBackBuffer);
-        g_pd3dDevice->GetDepthStencilSurface(&pZBuffer);
-        // cube map surface
-        for (i = 0; i < 6; i++)
-        {
-			g_pSkyboxTexture->GetCubeMapSurface((D3DCUBEMAP_FACES)i, 0, &g_pFace2);
-            g_pd3dDevice->SetRenderTarget(0, g_pFace2);
-            
-        }
-
-        /*g_pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
-        g_pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-        g_pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);*/
-
-        /*g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
-        g_pSkyboxCube->DrawSubset(0);
-        g_pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);*/
-
-
         g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
+
+        //// skybox rendering
+        SkyBox.Render();
+
+
         g_pd3dDevice->SetTexture(0, g_pGrassTexture);
         g_pd3dDevice->SetStreamSource(0, g_pTileVB, 0, sizeof(CUSTOMVERTEX));
         g_pd3dDevice->SetIndices(g_pTileIB);

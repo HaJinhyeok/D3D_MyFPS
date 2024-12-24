@@ -49,7 +49,7 @@ CPlayer::~CPlayer()
 VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1], BOOL NoClip)
 {
     DWORD currentTime = timeGetTime();
-    if (currentTime - m_CurrentTime < 100) return;
+    if (currentTime - m_CurrentTime < 1000) return;
 
     D3DXVECTOR3 vecDirection, tmpPosition; // 벽을 생각하지 않고 이동된 위치. 주변 8개 벽과 이것을 대조해 최종 위치 결정
     FLOAT fCoefficient = TRANSLATION_DISTANCE;
