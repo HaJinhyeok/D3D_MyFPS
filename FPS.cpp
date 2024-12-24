@@ -657,7 +657,6 @@ VOID Render()
         //// skybox rendering
         SkyBox.Render();
 
-
         g_pd3dDevice->SetTexture(0, g_pGrassTexture);
         g_pd3dDevice->SetStreamSource(0, g_pTileVB, 0, sizeof(CUSTOMVERTEX));
         g_pd3dDevice->SetIndices(g_pTileIB);
