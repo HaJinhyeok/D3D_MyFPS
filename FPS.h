@@ -47,9 +47,22 @@ using namespace std;
 #define X_MOVE 1
 #define Z_MOVE 0
 
+// Calculate the norm of 3-D vector
 inline FLOAT Length(D3DXVECTOR3 myVec)
 {
     return sqrtf(myVec.x * myVec.x + myVec.y * myVec.y + myVec.z * myVec.z);
+}
+
+// Calculate the angle between two 3-D vectors
+inline FLOAT CalculateAngle(D3DXVECTOR3 vec1, D3DXVECTOR3 vec2)
+{
+    FLOAT angle, len1 = Length(vec1), len2 = Length(vec2), cos;
+    // Calculate angle using dot product
+    cos = D3DXVec3Dot(&vec1, &vec2) / (len1 * len2);
+    // -1 <= cos <= 1
+    cos = min(1.0f, max(-1.0f, cos));
+    angle = acosf(cos);
+    return angle;
 }
 
 struct CUSTOMVERTEX
@@ -115,7 +128,7 @@ static UI_VERTEX PopUpVertices[4] =
 const static D3DXVECTOR3 v3EyeCeiling(0.0f, 200.0f, 0.0f);
 const static D3DXVECTOR3 v3UpCeiling(0.0f, 0.0f, 1.0f);
 
-
+// 맵의 정보를 2차원 배열 형태로 저장
 const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
     "X   *@ * @* ",
     "*** ** * ** ",

@@ -64,10 +64,11 @@ CSkyBox::CSkyBox()
 		// tex 좌표 입력
 		for (int i = 0; i < 6; i++)
 		{
-			m_BoxVertices[i * 4].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
-			m_BoxVertices[i * 4 + 1].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
-			m_BoxVertices[i * 4 + 2].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
-			m_BoxVertices[i * 4 + 3].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+			// 좌우반전으로 좌표넣어줘야 옆면들이 제대로 이어짐. 근데 천장이 안 맞음
+			m_BoxVertices[i * 4].v2VerTex = D3DXVECTOR2(1.0f, 0.0f);
+			m_BoxVertices[i * 4 + 1].v2VerTex = D3DXVECTOR2(0.0f, 0.0f);
+			m_BoxVertices[i * 4 + 2].v2VerTex = D3DXVECTOR2(0.0f, 1.0f);
+			m_BoxVertices[i * 4 + 3].v2VerTex = D3DXVECTOR2(1.0f, 1.0f);
 		}
 	}
 }

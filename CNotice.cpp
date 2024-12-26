@@ -1,7 +1,5 @@
 #include "CNotice.h"
 
-// BOOL CNotice::m_bIsCollision = FALSE;
-
 WORD CNotice::m_NoticeCount = 0;
 
 CNotice::CNotice()
@@ -88,6 +86,8 @@ VOID CNotice::ReleaseNoticeVB()
 }
 BOOL CNotice::IsPossibleInteraction(D3DXVECTOR3 playerPosition)
 {
+	if (bIsNoClipOn)
+		return FALSE;
 	// 충돌을 검사할 블록의 왼쪽아래(minX, minZ)와 오른쪽위(maxX,maxZ) 두 점
 	D3DXVECTOR2 NoticePoint[2];
 	NoticePoint[0].x = m_Position.x - LENGTH_OF_TILE / 2;
