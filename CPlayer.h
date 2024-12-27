@@ -14,7 +14,8 @@ private:
 	BOOL m_IsLightOn;
 	D3DLIGHT9 m_FlashLight;
 	deque<Bullet> m_Bullet;
-	DWORD m_CurrentTime;
+	DWORD m_CurrentMoveTime;
+	DWORD m_CurrentRotateTime;
 	const FLOAT m_BulletVelocity = 0.1f; // 1초당 20만큼 == 1ms에 0.02f
 	// const WORD m_RPM = 600;
 	// 플레이어가 발사한 총알 객체를 하나하나 다 갖고 있는게 아니라,
@@ -73,7 +74,7 @@ public:
 		return &m_FlashLight;
 	}
 
-	VOID Move(MOVE_DIRECTION direction, const char (*map)[NUM_OF_COLUMN+1], BOOL NoClip);
+	BOOL Move(MOVE_DIRECTION direction, const char (*map)[NUM_OF_COLUMN+1], BOOL NoClip);
 	VOID Rotate(BOOL bIsCCW);
 	VOID Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle);
 	VOID Attack(LPPOINT CursorPosition);

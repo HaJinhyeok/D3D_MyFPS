@@ -427,26 +427,29 @@ VOID __KeyProc()
 
     if (GetAsyncKeyState('A') || GetAsyncKeyState(VK_LEFT))
     {
-        player.Move(MOVE_DIRECTION::left, chMap1, bIsNoClipOn);
+		bIsMoved = player.Move(MOVE_DIRECTION::left, chMap1, bIsNoClipOn);
     }
     if (GetAsyncKeyState('D') || GetAsyncKeyState(VK_RIGHT))
     {
-        player.Move(MOVE_DIRECTION::right, chMap1, bIsNoClipOn);
+        bIsMoved = player.Move(MOVE_DIRECTION::right, chMap1, bIsNoClipOn);
     }
     if (GetAsyncKeyState('W') || GetAsyncKeyState(VK_UP))
     {
-        player.Move(MOVE_DIRECTION::front, chMap1, bIsNoClipOn);
+        bIsMoved = player.Move(MOVE_DIRECTION::front, chMap1, bIsNoClipOn);
     }
     if (GetAsyncKeyState('S') || GetAsyncKeyState(VK_DOWN))
     {
-        player.Move(MOVE_DIRECTION::back, chMap1, bIsNoClipOn);
+        bIsMoved = player.Move(MOVE_DIRECTION::back, chMap1, bIsNoClipOn);
     }
     // Notice & Exit rotation
-    for (i = 0; i < notice[0].GetNumOfNotice(); i++)
+    if (bIsMoved)
     {
-        notice[i].RotateNotice(player.GetPosition());
+		for (i = 0; i < notice[0].GetNumOfNotice(); i++)
+		{
+			notice[i].RotateNotice(player.GetPosition());
+		}
+		Exit.RotateNotice(player.GetPosition());
     }
-    Exit.RotateNotice(player.GetPosition());
 
     for (i = 0; i < notice[0].GetNumOfNotice(); i++)
     {

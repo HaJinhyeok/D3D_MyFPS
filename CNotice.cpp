@@ -43,9 +43,10 @@ VOID CNotice::RotateNotice(D3DXVECTOR3 player_position)
 {
 	D3DXVECTOR3 v3Vertices[4], v3Cross, v3Dst = player_position - m_Position;
 	D3DXMATRIX mtRotation, mtTranslation;
+	v3Dst.y = 0.0f;
 	// player가 움직이지 않았으면 회전x
 	if (m_LookAt == v3Dst) return;
-	v3Dst.y = 0.0f;
+
 	FLOAT angle, cos, fDst, fCurrent;
 	// 원점으로 옮기기
 	D3DXMatrixTranslation(&mtTranslation, -m_Position.x, -m_Position.y, -m_Position.z);

@@ -36,7 +36,8 @@ CPlayer::CPlayer()
     //m_FlashLight.Phi = 1.0f;
     //m_FlashLight.Theta = 0.7f;
 
-    m_CurrentTime = timeGetTime();
+    m_CurrentMoveTime = timeGetTime();
+    m_CurrentRotateTime = timeGetTime();
 }
 CPlayer::~CPlayer()
 {
@@ -46,10 +47,11 @@ CPlayer::~CPlayer()
 // PLAYER MOVE
 // 바꾸어야 할 것: 플레이어 위치, 플레이어 LookAt
 // 필요한 것: 플레이어가 움직일 방향 벡터, 거리, 플에이어 현 위치, 플레이어 현 LookAt, 맵 정보
-VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1], BOOL NoClip)
+BOOL CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1], BOOL NoClip)
 {
     DWORD currentTime = timeGetTime();
-    if (currentTime - m_CurrentTime < 1000) return;
+    if (currentTime - m_CurrentMoveTime < 10) return FALSE;
+    m_CurrentMoveTime = currentTime;
 
     D3DXVECTOR3 vecDirection, tmpPosition; // 벽을 생각하지 않고 이동된 위치. 주변 8개 벽과 이것을 대조해 최종 위치 결정
     FLOAT fCoefficient = TRANSLATION_DISTANCE;
@@ -253,14 +255,22 @@ VOID CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
     SetPosition(tmpPosition);
 
     m_FlashLight.Position = m_Position;
+    return TRUE;
 }
 
 VOID CPlayer::Rotate(BOOL bIsCCW)
 {
+    DWORD currentTime = timeGetTime();
+    if (currentTime - m_CurrentRotateTime < 10) return;
+    m_CurrentRotateTime = currentTime;
+
 	// bIsCCW로 q인지 e인지 구분하고, angle만큼 회전을 하며, LookAt과 Position 사이 간격은 distance
     // 이 함수는 좌우 회전만 하므로, CalculateAngle 불필요
-	D3DXMATRIX mtRotation;
+    D3DXMATRIX mtRotation, mtTranslation;
 	FLOAT fCoefficient = LOOKAT_DISTANCE;
+
+    D3DXMatrixTranslation(&mtTranslation, -m_Position.x, -m_Position.y, -m_Position.z);
+    D3DXMatrixMultiply(&m_PlayerAxis, &m_PlayerAxis, &mtTranslation);
 
 	if (bIsCCW == TRUE)
 	{
@@ -271,6 +281,9 @@ VOID CPlayer::Rotate(BOOL bIsCCW)
 		D3DXMatrixRotationY(&mtRotation, ROTATION_AMOUNT);
 	}
 	D3DXMatrixMultiply(&m_PlayerAxis, &m_PlayerAxis, &mtRotation);
+
+    D3DXMatrixTranslation(&mtTranslation, m_Position.x, m_Position.y, m_Position.z);
+    D3DXMatrixMultiply(&m_PlayerAxis, &m_PlayerAxis, &mtTranslation);
 	
 	fCoefficient /= sqrtf(m_PlayerAxis._31 * m_PlayerAxis._31 + m_PlayerAxis._32 * m_PlayerAxis._32 + m_PlayerAxis._33 * m_PlayerAxis._33);
 	m_LookAt.x = m_Position.x + m_PlayerAxis._31 * fCoefficient;
@@ -281,11 +294,20 @@ VOID CPlayer::Rotate(BOOL bIsCCW)
 }
 VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
 {
+    DWORD currentTime = timeGetTime();
+    if (currentTime - m_CurrentRotateTime < 10) return;
+	// 현재 로직 상 x축 회전 후 y축 회전시키므로, y축 회전 하고 시간 체크해야 온전히 회전됨
+    if (bIsUpDown)
+		m_CurrentRotateTime = currentTime;
+
     // 위아래일때 ccw면 위, !ccw면 아래
-    D3DXMATRIX mtRotation;
+    D3DXMATRIX mtRotation, mtTranslation;
     D3DXVECTOR3 v3RotationAxis;
     D3DXQUATERNION vQuart;
     FLOAT fCoefficient = LOOKAT_DISTANCE;
+
+    D3DXMatrixTranslation(&mtTranslation, -m_Position.x, -m_Position.y, -m_Position.z);
+    D3DXMatrixMultiply(&m_PlayerAxis, &m_PlayerAxis, &mtTranslation);
 
     // 좌우 회전
     if (bIsUpDown == FALSE)
@@ -293,13 +315,11 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
         v3RotationAxis = D3DXVECTOR3(m_PlayerAxis._21, m_PlayerAxis._22, m_PlayerAxis._23);
         if (bIsCCW == TRUE)
         {
-            // D3DXMatrixRotationY(&mtRotation, -angle);
             // D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
             D3DXQuaternionRotationAxis(&vQuart, &v3RotationAxis, -angle);
         }
         else
         {
-            // D3DXMatrixRotationY(&mtRotation, angle);
             // D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
             D3DXQuaternionRotationAxis(&vQuart, &v3RotationAxis, angle);
         }
@@ -316,19 +336,20 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
         v3RotationAxis = D3DXVECTOR3(m_PlayerAxis._11, m_PlayerAxis._12, m_PlayerAxis._13);
         if (bIsCCW == TRUE)
         {
-            // D3DXMatrixRotationX(&mtRotation, angle);
             // D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
             D3DXQuaternionRotationAxis(&vQuart, &v3RotationAxis, angle);
         }
         else
         {
-            // D3DXMatrixRotationX(&mtRotation, -angle);
             // D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
             D3DXQuaternionRotationAxis(&vQuart, &v3RotationAxis, -angle);
         }
     }
     D3DXMatrixRotationQuaternion(&mtRotation, &vQuart);
     D3DXMatrixMultiply(&m_PlayerAxis, &m_PlayerAxis, &mtRotation);
+
+    D3DXMatrixTranslation(&mtTranslation, m_Position.x, m_Position.y, m_Position.z);
+    D3DXMatrixMultiply(&m_PlayerAxis, &m_PlayerAxis, &mtTranslation);
 
     fCoefficient /= sqrtf(m_PlayerAxis._31 * m_PlayerAxis._31 + m_PlayerAxis._32 * m_PlayerAxis._32 + m_PlayerAxis._33 * m_PlayerAxis._33);
     m_LookAt.x = m_Position.x + m_PlayerAxis._31 * fCoefficient;

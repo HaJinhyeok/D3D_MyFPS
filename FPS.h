@@ -160,6 +160,8 @@ static BOOL bIsPaused = FALSE;
 static BOOL bIsFrustumCulling = TRUE;
 // 상호작용 확인 변수
 static BOOL bIsInteractive = FALSE;
+// 플레이어 이동 여부 확인 변수
+static BOOL bIsMoved = FALSE;
 // 게임 종료 확인 변수
 static BOOL bIsPlaying = TRUE;
 // 버튼 클릭 확인 변수
