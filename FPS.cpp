@@ -764,7 +764,8 @@ VOID Render()
             g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
         }
         //// ÁÂ»ó´Ü UI
-        if (bIsSkyView == FALSE)
+        // if (bIsSkyView == FALSE)
+        if(FALSE)
         {
             //// Transformed Vertex
             g_pd3dDevice->SetTexture(0, NULL);
