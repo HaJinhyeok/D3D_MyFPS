@@ -9,7 +9,7 @@ class CPlayer
 private:
 	D3DXVECTOR3 m_Position;
 	D3DXVECTOR3 m_LookAt;
-	// D3DXMATRIX m_PlayerWorld;
+	D3DXMATRIX m_PlayerWorld; // x, y, z축 정보 + position 정보
 	D3DXMATRIX m_PlayerAxis; // x축 axis가 LookAt vector
 	BOOL m_IsLightOn;
 	D3DLIGHT9 m_FlashLight;

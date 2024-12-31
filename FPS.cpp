@@ -37,6 +37,8 @@ LPPOINT g_pCurrentMouse = new POINT; // 마우스 이동 시, 이동한 좌표 받아올 임시 
 D3DMATERIAL9 material;
 D3DLIGHT9 skyLight;
 
+DWORD dwRotationTime = timeGetTime();
+
 CPlayer player;
 vector<CNotice> notice;
 CExit Exit;
@@ -624,6 +626,8 @@ VOID Render()
         D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 0.1f, 1000.0f);
         g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &mtProjection);
 
+        // *****frustum culling*****
+        /*
         D3DXPLANE FrustumPlane[6];
         FrustumPlane[0] = D3DXPLANE(1.0f, 0.0f, 0.0f, 1.0f);
         FrustumPlane[1] = D3DXPLANE(-1.0f, 0.0f, 0.0f, 1.0f);
@@ -637,6 +641,7 @@ VOID Render()
         }
         // frustum plane을 계산할, view matrix와 projection matrix의 곱
         D3DXMATRIX mtViewProjection;
+
         // 하늘에서 바라볼 때, 오브젝트의 LookAt matrix를 따로 계산해야함
         if (bIsSkyView == TRUE)
         {
@@ -654,6 +659,7 @@ VOID Render()
         // D3DXMatrixTranspose(&mtViewProjection, &mtViewProjection);
         // D3DXPlaneTransformArray(FrustumPlane, sizeof(D3DXPLANE), FrustumPlane, sizeof(D3DXPLANE), &mtViewProjection, 6);
         g_pFrustum->MakeFrustum(&mtViewProjection);
+        */
 
         g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
 
@@ -764,8 +770,8 @@ VOID Render()
             g_pExitFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
         }
         //// 좌상단 UI
-        // if (bIsSkyView == FALSE)
-        if(FALSE)
+        if (bIsSkyView == FALSE)
+        // if(FALSE)
         {
             //// Transformed Vertex
             g_pd3dDevice->SetTexture(0, NULL);
@@ -881,22 +887,27 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         GetCursorPos(g_pCurrentMouse);
         if (!bIsSkyView && bIsPlaying && !bIsPaused)
         {
-            if (g_pCurrentMouse->x >= g_pMidPoint->x)
+            DWORD currentTime = timeGetTime();
+            if (currentTime - dwRotationTime >= 10)
             {
-                player.Rotate(FALSE, FALSE, (g_pCurrentMouse->x - g_pMidPoint->x) * ROTATION_LEFT_RIGHT);
+                if (g_pCurrentMouse->x >= g_pMidPoint->x)
+                {
+                    player.Rotate(FALSE, FALSE, (g_pCurrentMouse->x - g_pMidPoint->x) * ROTATION_LEFT_RIGHT);
+                }
+                else
+                {
+                    player.Rotate(TRUE, FALSE, (g_pMidPoint->x - g_pCurrentMouse->x) * ROTATION_LEFT_RIGHT);
+                }
+                if (g_pCurrentMouse->y >= g_pMidPoint->y)
+                {
+                    player.Rotate(TRUE, TRUE, (g_pCurrentMouse->y - g_pMidPoint->y) * ROTATION_UP_DOWN);
+                }
+                else
+                {
+                    player.Rotate(FALSE, TRUE, (g_pMidPoint->y - g_pCurrentMouse->y) * ROTATION_UP_DOWN);
+                }
             }
-            else
-            {
-                player.Rotate(TRUE, FALSE, (g_pMidPoint->x - g_pCurrentMouse->x) * ROTATION_LEFT_RIGHT);
-            }
-            if (g_pCurrentMouse->y >= g_pMidPoint->y)
-            {
-                player.Rotate(TRUE, TRUE, (g_pCurrentMouse->y - g_pMidPoint->y) * ROTATION_UP_DOWN);
-            }
-            else
-            {
-                player.Rotate(FALSE, TRUE, (g_pMidPoint->y - g_pCurrentMouse->y) * ROTATION_UP_DOWN);
-            }
+            
         }
         if (!bIsPlaying || bIsPaused)
         {
