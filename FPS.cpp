@@ -607,11 +607,12 @@ VOID Render()
         D3DXVECTOR3 v3CurrentPosition = player.GetPosition();
         D3DXVECTOR3 v3CurrentLookAt = player.GetLookAt();
 		D3DXMATRIX matCurrentAxis = player.GetPlayerAxis();
+        D3DXMATRIX tmpPlayerWorld = player.GetPlayerWorld();
         // 1인칭 시점
         if (bIsSkyView == FALSE)
         {
             D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
-            /*D3DXVECTOR3 v3CurrentUp = D3DXVECTOR3(matCurrentAxis._21, matCurrentAxis._22, matCurrentAxis._23);
+            /*D3DXVECTOR3 v3CurrentUp = D3DXVECTOR3(tmpPlayerWorld._21, tmpPlayerWorld._22, tmpPlayerWorld._23);
             D3DXMatrixLookAtLH(&mtView, &v3CurrentPosition, &v3CurrentLookAt, &v3CurrentUp);*/
             g_pd3dDevice->SetTransform(D3DTS_VIEW, &mtView);
         }
@@ -736,14 +737,15 @@ VOID Render()
         g_pd3dDevice->SetTexture(0, g_pTileTexture);
         player.DrawBullet(g_pd3dDevice, g_pBulletSphere);
 
-        // 위치 표시용 구체
+        // Player 위치 표시용 구체
         if (bIsSkyView == TRUE)
         // if (bIsLightOn == FALSE)
         {
-            D3DXMATRIX tmpTranspose;
+            /*D3DXMATRIX tmpTranspose;
             D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
             D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
-            g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);
+            g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);*/
+            g_pd3dDevice->SetTransform(D3DTS_WORLD, &tmpPlayerWorld);
             g_pd3dDevice->SetTexture(0, g_pTileTexture);
             g_pPlayerSphere->DrawSubset(0);
         }        

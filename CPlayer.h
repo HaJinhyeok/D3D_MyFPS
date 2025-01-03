@@ -57,10 +57,10 @@ public:
 	{
 		return m_LookAt;
 	}
-	/*D3DXMATRIX GetPlayerWorld()
+	D3DXMATRIX GetPlayerWorld()
 	{
 		return m_PlayerWorld;
-	}*/
+	}
 	D3DXMATRIX GetPlayerAxis()
 	{
 		return m_PlayerAxis;

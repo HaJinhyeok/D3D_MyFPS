@@ -255,6 +255,12 @@ BOOL CPlayer::Move(MOVE_DIRECTION direction, const char(*map)[NUM_OF_COLUMN + 1]
 	{
         tmpPosition.y = LENGTH_OF_TILE / 2;
 	}
+
+    // world matrix도 translate해주기
+    D3DXMATRIX tmpTranslation;
+    D3DXMatrixTranslation(&tmpTranslation, tmpPosition.x - m_Position.x, tmpPosition.y - m_Position.y, tmpPosition.z - m_Position.z);
+    D3DXMatrixMultiply(&m_PlayerWorld, &m_PlayerWorld, &tmpTranslation);
+
     SetPosition(tmpPosition);
 
     m_FlashLight.Position = m_Position;
@@ -319,7 +325,8 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
     // 좌우 회전
     if (bIsUpDown == FALSE)
     {
-        v3RotationAxis = D3DXVECTOR3(m_PlayerAxis._21, m_PlayerAxis._22, m_PlayerAxis._23);
+        // v3RotationAxis = D3DXVECTOR3(m_PlayerAxis._21, m_PlayerAxis._22, m_PlayerAxis._23);
+        v3RotationAxis = D3DXVECTOR3(m_PlayerWorld._21, m_PlayerWorld._22, m_PlayerWorld._23);
         if (bIsCCW == TRUE)
         {
             D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
@@ -335,12 +342,14 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
     else
     {
         // up vector와 player가 바라보는 방향 vector 사이의 각도 구하기
-		FLOAT fAngle = CalculateAngle(v3Up, m_LookAt - m_Position);
+		// FLOAT fAngle = CalculateAngle(v3Up, m_LookAt - m_Position);
+        FLOAT fAngle = CalculateAngle(v3Up, D3DXVECTOR3(m_PlayerWorld._31, m_PlayerWorld._32, m_PlayerWorld._33));
 		// 만약 현재 바라보는 방향에서 더 회전했을 때 up vector와 1도 내로 가까워지면 회전 x
 		if (fAngle - ROTATION_AMOUNT < D3DXToRadian(1.0f) || fAngle + ROTATION_AMOUNT > D3DXToRadian(179.0f))
 			return;
 
-        v3RotationAxis = D3DXVECTOR3(m_PlayerAxis._11, m_PlayerAxis._12, m_PlayerAxis._13);
+        // v3RotationAxis = D3DXVECTOR3(m_PlayerAxis._11, m_PlayerAxis._12, m_PlayerAxis._13);
+        v3RotationAxis = D3DXVECTOR3(m_PlayerWorld._11, m_PlayerWorld._12, m_PlayerWorld._13);
         if (bIsCCW == TRUE)
         {
             D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
@@ -364,7 +373,7 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
     m_LookAt.y = m_Position.y + m_PlayerAxis._32 * fCoefficient;
     m_LookAt.z = m_Position.z + m_PlayerAxis._33 * fCoefficient;
 
-    m_FlashLight.Direction = D3DXVECTOR3(m_PlayerAxis._31, m_PlayerAxis._32, m_PlayerAxis._33);
+    m_FlashLight.Direction = D3DXVECTOR3(m_PlayerWorld._31, m_PlayerWorld._32, m_PlayerWorld._33);
 }
 
 VOID CPlayer::Attack(LPPOINT CursorPosition)
