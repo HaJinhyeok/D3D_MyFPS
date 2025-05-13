@@ -11,8 +11,6 @@ private:
 	CUSTOMVERTEX m_Vertex[4];
 	LPDIRECT3DVERTEXBUFFER9 m_pNoticeVB = NULL;
 
-	//static BOOL m_bIsCollision;
-
 public:
 	BOOL m_bIsNotice = TRUE;
 	static WORD m_NoticeCount;
@@ -28,10 +26,6 @@ public:
 	{
 		return m_bIsNotice;
 	}
-	/*BOOL IsCollision()
-	{
-		return m_bIsCollision;
-	}*/
 	WORD GetNumOfNotice()
 	{
 		return m_NoticeCount;
@@ -42,7 +36,7 @@ public:
 	}
 };
 
-// billboard 형식으로 만들어야겠다! 바닥에 까는건 가시성 joat
+// billboard 형식
 // 일단 현재 map1에서 필요한 notice는 5개, exit는 1개이다.
 // 미로 생성 시 notice 객체 5개 및 exit 객체 1개(exit는 모든 맵에서 1개로 고정 생성) 생성
 // 화면 상에 띄우기

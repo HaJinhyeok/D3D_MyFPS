@@ -92,16 +92,11 @@ BOOL CNotice::IsPossibleInteraction(D3DXVECTOR3 playerPosition)
 	if (NoticePoint[0].x <= playerPosition.x + PLAYER_RADIUS && NoticePoint[1].x >= playerPosition.x - PLAYER_RADIUS
 		&& NoticePoint[0].y <= playerPosition.z + PLAYER_RADIUS && NoticePoint[1].y >= playerPosition.z - PLAYER_RADIUS)
 	{
-		//OutputDebugStringA("Notice Collision!!!\n");
-		//m_bIsCollision = TRUE;
-
 		return TRUE;
 	}
 	// 충돌을 벗어나면 다시 원래 시점으로 복구
 	else
 	{
-		//m_bIsCollision = FALSE;
-
 		return FALSE;
 	}
 }
