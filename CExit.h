@@ -16,9 +16,6 @@ private:
     };
 
 public:
-    CExit();
-    ~CExit();
-
     VOID MakeExit(D3DXVECTOR3 position);
     VOID DrawExitButton(LPDIRECT3DDEVICE9 device);
     VOID ButtonPressed();

@@ -5,10 +5,6 @@ CFrustum::CFrustum()
 	ZeroMemory(m_vertex, sizeof(D3DXVECTOR3) * 8);
 	ZeroMemory(m_plane, sizeof(D3DXPLANE) * 6);
 }
-CFrustum::~CFrustum()
-{
-
-}
 VOID CFrustum::MakeFrustum(D3DXMATRIX* pMatViewProj)
 {
 	int i;
@@ -30,11 +26,11 @@ VOID CFrustum::MakeFrustum(D3DXMATRIX* pMatViewProj)
 	}
 	// D3DXPlaneFromPoints는 왼손 좌표계임
 	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[7], &m_vertex[3], &m_vertex[0]); // 좌
-	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[6], &m_vertex[5], &m_vertex[1]); // 우
-	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[4], &m_vertex[5], &m_vertex[6]); // 상
-	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[0], &m_vertex[3], &m_vertex[2]); // 하
-	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[0], &m_vertex[1], &m_vertex[5]); // 근
-	D3DXPlaneFromPoints(&m_plane[0], &m_vertex[2], &m_vertex[7], &m_vertex[6]); // 원
+	D3DXPlaneFromPoints(&m_plane[1], &m_vertex[6], &m_vertex[5], &m_vertex[1]); // 우
+	D3DXPlaneFromPoints(&m_plane[2], &m_vertex[4], &m_vertex[5], &m_vertex[6]); // 상
+	D3DXPlaneFromPoints(&m_plane[3], &m_vertex[0], &m_vertex[3], &m_vertex[2]); // 하
+	D3DXPlaneFromPoints(&m_plane[4], &m_vertex[0], &m_vertex[1], &m_vertex[5]); // 근
+	D3DXPlaneFromPoints(&m_plane[5], &m_vertex[2], &m_vertex[7], &m_vertex[6]); // 원
 }
 BOOL CFrustum::bIsInFrustum(D3DXVECTOR3* position, FLOAT distance)
 {

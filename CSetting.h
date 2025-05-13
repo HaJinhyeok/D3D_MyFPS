@@ -1,5 +1,5 @@
 #pragma once
-#include "FPS.h"
+#include "main.h"
 
 class CSetting
 {
@@ -13,8 +13,6 @@ private:
 	};
 
 public:
-	CSetting();
-	~CSetting();
 	VOID DrawSetting(LPDIRECT3DDEVICE9 device);
 };
 

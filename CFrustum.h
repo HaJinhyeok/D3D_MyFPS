@@ -1,5 +1,5 @@
 #pragma once
-#include "FPS.h"
+#include "main.h"
 class CFrustum
 {
 private:
@@ -8,7 +8,6 @@ private:
 
 public:
 	CFrustum();
-	~CFrustum();
 	VOID MakeFrustum(D3DXMATRIX* pMatViewProj);
 	BOOL bIsInFrustum(D3DXVECTOR3* position, FLOAT distance);
 };

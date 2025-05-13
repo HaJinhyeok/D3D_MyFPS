@@ -1,5 +1,5 @@
 #pragma once
-#include "FPS.h"
+#include "main.h"
 extern LPDIRECT3DDEVICE9 g_pd3dDevice;
 
 class CSkyBox

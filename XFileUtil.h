@@ -2,7 +2,7 @@
 #pragma warning(disable:4996)
 #include <d3dx9.h>
 #include <time.h>
-#include "FPS.h"
+#include "main.h"
 
 #define TRANSLATION_DISTANCE_TIGER 0.2f
 #define ROTATION_AMOUNT_TIGER 3

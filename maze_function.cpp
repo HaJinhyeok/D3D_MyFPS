@@ -1,4 +1,4 @@
-#include "FPS_function.h"
+#include "maze_function.h"
 
 // 각 도형이 inside, intersection, outside 중 어떤 상태인지 판별
 // viewprojection에 대해 역변환 완료된 6개의 평면, 각 구체의 정점, 구체의 반지름 정보 필요

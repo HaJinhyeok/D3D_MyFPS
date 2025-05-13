@@ -24,6 +24,7 @@
     <ProjectGuid>{5fe3f921-2326-4048-a0a5-a63ab1242356}</ProjectGuid>
     <RootNamespace>D3DMyFPS</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>DirectX9_Maze</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -154,8 +155,8 @@
     <ClCompile Include="CPlayer.cpp" />
     <ClCompile Include="CSetting.cpp" />
     <ClCompile Include="CSkyBox.cpp" />
-    <ClCompile Include="FPS.cpp" />
-    <ClCompile Include="FPS_function.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="maze_function.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Stopwatch.cpp" />
     <ClCompile Include="XFileUtil.cpp" />
@@ -170,8 +171,8 @@
     <ClInclude Include="CPlayer.h" />
     <ClInclude Include="CSetting.h" />
     <ClInclude Include="CSkyBox.h" />
-    <ClInclude Include="FPS.h" />
-    <ClInclude Include="FPS_function.h" />
+    <ClInclude Include="main.h" />
+    <ClInclude Include="maze_function.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="XFileUtil.h" />

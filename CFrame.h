@@ -10,8 +10,6 @@ private:
 	Stopwatch mStopWatch;
 
 public:
-	CFrame() = default;
-	~CFrame() = default;
 	void Initialize();
 	void Frame();
 	int GetFps();

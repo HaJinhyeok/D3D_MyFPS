@@ -2,14 +2,6 @@
 
 WORD CNotice::m_NoticeCount = 0;
 
-CNotice::CNotice()
-{
-
-}
-CNotice::~CNotice()
-{
-
-}
 VOID CNotice::MakeNotice(D3DXVECTOR3 position)
 {
 	D3DXMatrixIdentity(&m_World);

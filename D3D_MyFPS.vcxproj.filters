@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FPS.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="FPS_function.cpp">
+    <ClCompile Include="maze_function.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
@@ -53,10 +53,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FPS.h">
+    <ClInclude Include="main.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="FPS_function.h">
+    <ClInclude Include="maze_function.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">

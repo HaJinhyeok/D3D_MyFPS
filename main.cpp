@@ -1,5 +1,5 @@
 
-#include "FPS_function.h"
+#include "maze_function.h"
 #include "Input.h"
 #include "CFrustum.h"
 #include "CFrame.h"
@@ -530,15 +530,19 @@ VOID __KeyProc()
             {
                 bIsNoClipOn = FALSE;
                 // 자유시점 종료 시, 저장해뒀던 player 정보 복구
-                player.SetPlayerAxis(matSavedAxis);
-                player.SetLookAt(v3SavedLookAt);
+                //player.SetPlayerAxis(matSavedAxis);
+                //player.SetLookAt(v3SavedLookAt);
+                D3DXVECTOR3 v3Difference = D3DXVECTOR3(v3SavedPosition.x - player.GetPosition().x, v3SavedPosition.y - player.GetPosition().y, v3SavedPosition.y - player.GetPosition().y);
+                D3DXMATRIX mtWorld = player.GetPlayerWorld();
+                D3DXMatrixTranslation(&mtWorld, -v3Difference.x, -v3Difference.y, -v3Difference.z);
+                player.SetPlayerWorld(mtWorld);
                 player.SetPosition(v3SavedPosition);
             }
             else
             {
                 bIsNoClipOn = TRUE;
-                matSavedAxis = player.GetPlayerAxis();
-                v3SavedLookAt = player.GetLookAt();
+                //matSavedAxis = player.GetPlayerAxis();
+                //v3SavedLookAt = player.GetLookAt();
                 v3SavedPosition = player.GetPosition();
             }
         }
@@ -606,7 +610,7 @@ VOID Render()
         D3DXMATRIX mtView;
         D3DXVECTOR3 v3CurrentPosition = player.GetPosition();
         D3DXVECTOR3 v3CurrentLookAt = player.GetLookAt();
-		D3DXMATRIX matCurrentAxis = player.GetPlayerAxis();
+		//D3DXMATRIX matCurrentAxis = player.GetPlayerAxis();
         D3DXMATRIX tmpPlayerWorld = player.GetPlayerWorld();
         // 1인칭 시점
         if (bIsSkyView == FALSE)
@@ -739,13 +743,10 @@ VOID Render()
 
         // Player 위치 표시용 구체
         if (bIsSkyView == TRUE)
-        // if (bIsLightOn == FALSE)
         {
-            /*D3DXMATRIX tmpTranspose;
-            D3DXMatrixTranslation(&tmpTranspose, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
-            D3DXMatrixMultiply(&mtWorld, &mtWorld, &tmpTranspose);
-            g_pd3dDevice->SetTransform(D3DTS_WORLD, &mtWorld);*/
-            g_pd3dDevice->SetTransform(D3DTS_WORLD, &tmpPlayerWorld);
+            D3DXMATRIX tmpMatrix;
+            D3DXMatrixTranslation(&tmpMatrix, v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z);
+            g_pd3dDevice->SetTransform(D3DTS_WORLD, &tmpMatrix);
             g_pd3dDevice->SetTexture(0, g_pTileTexture);
             g_pPlayerSphere->DrawSubset(0);
         }        
@@ -788,10 +789,19 @@ VOID Render()
             wsprintf(testSTR, " 1: 낮밤 전환\n 2: 탑뷰 on/off\n 3: 손전등 on/off\n 4: 자유시점 on/off\n esc: 일시 정지");
             g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
-            SetRect(&rt, 20, 150, 0, 0);
-            swprintf_s(test2, 500, L"Current Up Vector: %f, %f, %f", matCurrentAxis._21, matCurrentAxis._22, matCurrentAxis._23);
+            /*SetRect(&rt, 20, 150, 0, 0);
+            swprintf_s(test2, 500, L"%f, %f, %f\n%f, %f, %f", matCurrentAxis._21, matCurrentAxis._22, matCurrentAxis._23,tmpPlayerWorld._21, tmpPlayerWorld._22, tmpPlayerWorld._23);
             wsprintf(testSTR, "%ws", test2);
-            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));*/
+
+            SetRect(&rt, 20, 200, 0, 0);
+            swprintf_s(test2, 500, L"%f, %f, %f, %f\n%f, %f, %f, %f\n%f, %f, %f, %f\n%f, %f, %f, %f",
+                tmpPlayerWorld._11, tmpPlayerWorld._12, tmpPlayerWorld._13, tmpPlayerWorld._14,
+                tmpPlayerWorld._21, tmpPlayerWorld._22, tmpPlayerWorld._23, tmpPlayerWorld._24,
+                tmpPlayerWorld._31, tmpPlayerWorld._32, tmpPlayerWorld._33, tmpPlayerWorld._34,
+                tmpPlayerWorld._41, tmpPlayerWorld._42, tmpPlayerWorld._43, tmpPlayerWorld._44);
+            wsprintf(testSTR, "%ws", test2);
+            g_pTestFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DCOLOR_XRGB(0, 255, 0));
 
             //// DrawText
             // swprintf_s(test2, 255, L"position: %f, %f, %f\nlook at : %f, %f, %f", v3CurrentPosition.x, v3CurrentPosition.y, v3CurrentPosition.z, v3CurrentLookAt.x, v3CurrentLookAt.y, v3CurrentLookAt.z);
@@ -818,9 +828,9 @@ VOID Render()
                 player.GetPlayerAxis()._11, player.GetPlayerAxis()._12, player.GetPlayerAxis()._13,
                 player.GetPlayerAxis()._21, player.GetPlayerAxis()._22, player.GetPlayerAxis()._23,
                 player.GetPlayerAxis()._31, player.GetPlayerAxis()._32, player.GetPlayerAxis()._33);*/
-            swprintf_s(test2, 500, L"LookAt-Position:(%f, %f, %f)\ncurrent Z-axis:(%f, %f, %f)",
+            /*swprintf_s(test2, 500, L"LookAt-Position:(%f, %f, %f)\ncurrent Z-axis:(%f, %f, %f)",
                 (v3CurrentLookAt.x - v3CurrentPosition.x) / 5.0f, (v3CurrentLookAt.y - v3CurrentPosition.y) / 5.0f, (v3CurrentLookAt.z - v3CurrentPosition.z) / 5.0f,
-                player.GetPlayerAxis()._31, player.GetPlayerAxis()._32, player.GetPlayerAxis()._33);
+                player.GetPlayerAxis()._31, player.GetPlayerAxis()._32, player.GetPlayerAxis()._33);*/
             // wsprintf(testSTR, "%ws", test2);
 
         }
@@ -840,8 +850,9 @@ VOID Render()
         // 자유시점 표시
         if (bIsNoClipOn)
         {
-            SetRect(&rt, 0, 0, 0, 0);
+            SetRect(&rt, WINDOW_WIDTH / 2 - 100, 0, 0, 0);
             wsprintf(testSTR, "자유시점 ON");
+            g_pFrameFont->DrawTextA(NULL, testSTR, -1, &rt, DT_NOCLIP, D3DCOLOR_XRGB(255, 0, 0));
             // 텍스트 width 얻는 법: (0,0,0,0) 설정된 rect에 drawtext하면 rect 구역이 텍스트에 맞게 조절되는듯.
             // 그걸 활용해서 일단 투명색으로 텍스트를 그려주고, 조절된 rect에서 값을 가져와 width를 구해준다!
         }
@@ -870,6 +881,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         SetCursorPos(g_pMidPoint->x, g_pMidPoint->y);
         bIsCursorOn = ShowCursor(FALSE);
         break;
+
     case WM_LBUTTONDOWN:
         g_pMouse->x = LOWORD(lParam);
         g_pMouse->y = HIWORD(lParam);
@@ -885,6 +897,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
         }
         break;
+
     case WM_MOUSEMOVE:
         GetCursorPos(g_pCurrentMouse);
         if (!bIsSkyView && bIsPlaying && !bIsPaused)
@@ -892,19 +905,20 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             DWORD currentTime = timeGetTime();
             if (currentTime - dwRotationTime >= 10)
             {
-                if (g_pCurrentMouse->x >= g_pMidPoint->x)
+                if (g_pCurrentMouse->x > g_pMidPoint->x)
                 {
                     player.Rotate(FALSE, FALSE, (g_pCurrentMouse->x - g_pMidPoint->x) * ROTATION_LEFT_RIGHT);
                 }
-                else
+                else if(g_pCurrentMouse->x < g_pMidPoint->x)
                 {
                     player.Rotate(TRUE, FALSE, (g_pMidPoint->x - g_pCurrentMouse->x) * ROTATION_LEFT_RIGHT);
                 }
-                if (g_pCurrentMouse->y >= g_pMidPoint->y)
+                // y좌표는 아래로 갈수록 커지므로, 이게 아래 회전
+                if (g_pCurrentMouse->y > g_pMidPoint->y)
                 {
                     player.Rotate(TRUE, TRUE, (g_pCurrentMouse->y - g_pMidPoint->y) * ROTATION_UP_DOWN);
                 }
-                else
+                else if(g_pCurrentMouse->y < g_pMidPoint->y)
                 {
                     player.Rotate(FALSE, TRUE, (g_pMidPoint->y - g_pCurrentMouse->y) * ROTATION_UP_DOWN);
                 }
@@ -922,6 +936,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (bIsPlaying && !bIsPaused)
             SetCursorPos(g_pMidPoint->x, g_pMidPoint->y);
         break;
+
     case WM_LBUTTONUP:
         g_pMouse->x = LOWORD(lParam);
         g_pMouse->y = HIWORD(lParam);
@@ -938,6 +953,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 		}
         break;
+
     case WM_DESTROY:
         CleanUp();
         PostQuitMessage(0);
@@ -956,10 +972,10 @@ INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR, INT)
     // 윈도우 클래스 등록
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, MsgProc, 0L, 0L,
                       GetModuleHandle(NULL), NULL, NULL, NULL, NULL,
-                      "D3D_MyFPS", NULL };
+                      PROGRAM_NAME, NULL };
     RegisterClassEx(&wc);
     // 윈도우 생성
-    HWND hWnd = CreateWindow("D3D_MyFPS", "D3D_MyFPS",
+    HWND hWnd = CreateWindow(PROGRAM_NAME, PROGRAM_NAME,
         WS_OVERLAPPEDWINDOW, 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT,
         GetDesktopWindow(), NULL, wc.hInstance, NULL);
 

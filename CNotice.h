@@ -1,5 +1,5 @@
 #pragma once
-#include"FPS.h"
+#include"main.h"
 
 class CNotice
 {
@@ -14,9 +14,6 @@ private:
 	//static BOOL m_bIsCollision;
 
 public:
-	CNotice();
-	~CNotice();
-
 	BOOL m_bIsNotice = TRUE;
 	static WORD m_NoticeCount;
 

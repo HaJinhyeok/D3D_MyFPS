@@ -23,6 +23,8 @@ using namespace std;
 #define WINDOW_HEIGHT 700
 #define EPSILON 0.001f
 
+#define PROGRAM_NAME "DirectX9_Maze"
+
 // texture file names
 #define TEXTURE_TILE "tex_tile.bmp"
 #define TEXTURE_GRASS "tex_grass.jpg"
@@ -91,7 +93,7 @@ enum class POSITION_WITH_FRUSTUM : WORD
     inside,
     intersection
 };
-enum class MOVE_DIRECTION :WORD
+enum class MOVE_DIRECTION : WORD
 {
     left = 1,
     right,
@@ -173,6 +175,7 @@ static D3DXVECTOR3 v3LookAt(v3CurrentLookAt);
 static D3DXVECTOR3 v3Eye(0.0f, 5.0f, 0.0f);
 static D3DXVECTOR3 v3Up(0.0f, 1.0f, 0.0f);
 static D3DXVECTOR3 v3DefaultPosition(0.0f, 0.0f, 0.0f);
+const static D3DXVECTOR3 v3StartPosition(55.0f, LENGTH_OF_TILE / 2, -65.0f);
 
 static CUSTOMVERTEX TileVertices[4 * NUM_OF_ROW * NUM_OF_COLUMN];
 static CUSTOMVERTEX WallVertices[4][4 * NUM_OF_ROW];
