@@ -9,6 +9,6 @@ private:
 public:
 	CFrustum();
 	VOID MakeFrustum(D3DXMATRIX* pMatViewProj);
-	BOOL bIsInFrustum(D3DXVECTOR3* position, FLOAT distance);
+	BOOL IsInFrustum(D3DXVECTOR3* position, FLOAT distance);
 };
 

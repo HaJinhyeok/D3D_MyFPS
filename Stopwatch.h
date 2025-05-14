@@ -4,9 +4,6 @@
 class Stopwatch
 {
 public:
-	Stopwatch() = default;
-	~Stopwatch() = default;
-
 	void StartTime();
 	DWORD TimeCheck();
 	DWORD EndTime();

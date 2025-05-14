@@ -526,20 +526,14 @@ VOID __KeyProc()
 			{
 				bIsNoClipOn = FALSE;
 				// 자유시점 종료 시, 저장해뒀던 player 정보 복구
-				//player.SetPlayerAxis(matSavedAxis);
-				//player.SetLookAt(v3SavedLookAt);
-				D3DXVECTOR3 v3Difference = D3DXVECTOR3(v3SavedPosition.x - player.GetPosition().x, v3SavedPosition.y - player.GetPosition().y, v3SavedPosition.y - player.GetPosition().y);
-				D3DXMATRIX mtWorld = player.GetPlayerWorld();
-				D3DXMatrixTranslation(&mtWorld, v3Difference.x, v3Difference.y, v3Difference.z);
-				player.SetPlayerWorld(mtWorld);
-				//player.SetPosition(v3SavedPosition);
+				player.SetPlayerWorld(mtSavedWorld);
+				player.SetLookAt(v3SavedLookAt);
 			}
 			else
 			{
 				bIsNoClipOn = TRUE;
-				//matSavedAxis = player.GetPlayerAxis();
-				//v3SavedLookAt = player.GetLookAt();
-				v3SavedPosition = player.GetPosition();
+				mtSavedWorld = player.GetPlayerWorld();
+				v3SavedLookAt = player.GetLookAt();
 			}
 		}
 		// preference UI on/off
@@ -607,6 +601,9 @@ VOID Render()
 		D3DXVECTOR3 v3CurrentPosition = player.GetPosition();
 		D3DXVECTOR3 v3CurrentLookAt = player.GetLookAt();
 		D3DXMATRIX tmpPlayerWorld = player.GetPlayerWorld();
+		// frustum culling 시 타일 중심 좌표 표시용
+		D3DXVECTOR3 v3TileCenter;
+
 		// 1인칭 시점
 		if (bIsSkyView == FALSE)
 		{
@@ -624,19 +621,7 @@ VOID Render()
 		D3DXMatrixPerspectiveFovLH(&mtProjection, D3DX_PI / 4, 1.0f, 0.1f, 1000.0f);
 		g_pd3dDevice->SetTransform(D3DTS_PROJECTION, &mtProjection);
 
-		// *****frustum culling*****
-		
-		/*D3DXPLANE FrustumPlane[6];
-		FrustumPlane[0] = D3DXPLANE(1.0f, 0.0f, 0.0f, 1.0f);
-		FrustumPlane[1] = D3DXPLANE(-1.0f, 0.0f, 0.0f, 1.0f);
-		FrustumPlane[2] = D3DXPLANE(0.0f, 1.0f, 0.0f, 1.0f);
-		FrustumPlane[3] = D3DXPLANE(0.0f, -1.0f, 0.0f, 1.0f);
-		FrustumPlane[4] = D3DXPLANE(0.0f, 0.0f, 1.0f, 0.0f);
-		FrustumPlane[5] = D3DXPLANE(0.0f, 0.0f, -1.0f, 1.0f);
-		for (i = 0; i < 6; i++)
-		{
-			D3DXPlaneNormalize(&FrustumPlane[i], &FrustumPlane[i]);
-		}*/
+		//// *****frustum culling*****
 
 		// frustum plane을 계산할, view matrix와 projection matrix의 곱
 		D3DXMATRIX mtViewProjection;
@@ -654,11 +639,7 @@ VOID Render()
 			D3DXMatrixMultiply(&mtViewProjection, &mtView, &mtProjection);
 			// D3DXMatrixMultiply(&mtViewProjection, &mtProjection, &mtView);
 		}
-		// D3DXMatrixInverse(&mtViewProjection, NULL, &mtViewProjection);
-		// D3DXMatrixTranspose(&mtViewProjection, &mtViewProjection);
-		// D3DXPlaneTransformArray(FrustumPlane, sizeof(D3DXPLANE), FrustumPlane, sizeof(D3DXPLANE), &mtViewProjection, 6);
 		g_pFrustum->MakeFrustum(&mtViewProjection);
-		
 
 		g_pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX);
 
@@ -672,19 +653,13 @@ VOID Render()
 		{
 			// frustum plane과 사각형 단위로 비교한다
 			// 네 꼭짓점 중 하나라도 inside이면 rendering한다.
+			// 그냥 원 검사하는 방식으로 변경
 			for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
 			{
-				//g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
-				
-				for (j = 0; j < 4; j++)
+				v3TileCenter = CalculateMidPoint(TileVertices[i * 4].v3VerPos, TileVertices[i * 4 + 2].v3VerPos);
+				if (g_pFrustum->IsInFrustum(&v3TileCenter, LENGTH_OF_TILE / 2 * sqrtf(2.0f)) == TRUE)
 				{
-					//(CheckFrustumCulling(FrustumPlane, TileVertices[i * 4 + j].v3VerPos, 0.0f) != POSITION_WITH_FRUSTUM::outside)
-					//if(CheckFrustumCulling(FrustumPlane, CalculateMidPoint(TileVertices[i * 4 + j].v3VerPos, TileVertices[i * 4 + (j + 1) % 4].v3VerPos), 0.0f) != POSITION_WITH_FRUSTUM::outside)
-					if (g_pFrustum->bIsInFrustum(&TileVertices[i * 4 + j].v3VerPos, 0.0f) == TRUE)
-					{
-						g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
-						break;
-					}
+					g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
 				}
 			}
 
@@ -831,14 +806,14 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		g_pMouse->x = LOWORD(lParam);
 		g_pMouse->y = HIWORD(lParam);
 		bIsClicked = TRUE;
-		wsprintf(testSTR, "current X: %d, current Y: %d\n", g_pMouse->x, g_pMouse->y);
-		OutputDebugString(testSTR);
+		/*wsprintf(testSTR, "current X: %d, current Y: %d\n", g_pMouse->x, g_pMouse->y);
+		OutputDebugString(testSTR);*/
 		if (!bIsPlaying || bIsPaused)
 		{
 			if (PtInRect(&rtExitButton, *g_pMouse))
 			{
 				Exit.ButtonPressed();
-				OutputDebugString("Clicked");
+				//OutputDebugString("Clicked");
 			}
 		}
 		break;
@@ -888,7 +863,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		bIsClicked = FALSE;
 		Exit.ButtonUnpressed();
 		player.Attack(g_pMouse);
-		OutputDebugString("Clicked\n");
+		//OutputDebugString("Clicked\n");
 		if (!bIsPlaying || bIsPaused)
 		{
 			if (PtInRect(&rtExitButton, *g_pMouse))

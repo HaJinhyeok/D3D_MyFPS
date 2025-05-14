@@ -128,7 +128,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 		{
 			if (tmpZ <= 0.50f + EPSILON && tmpZ >= 0.5f - EPSILON)
 			{
-				OutputDebugString("center of block\n");
+				//OutputDebugString("center of block\n");
 				if (m_IsRotating == TRUE)
 				{
 					this->Rotate(m_IsClockwise);
