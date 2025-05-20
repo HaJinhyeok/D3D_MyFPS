@@ -22,6 +22,7 @@ using namespace std;
 #define WINDOW_WIDTH 700
 #define WINDOW_HEIGHT 700
 #define EPSILON 0.001f
+#define SQRT2 sqrtf(2.0f)
 
 #define PROGRAM_NAME "DirectX9_Maze"
 
@@ -181,7 +182,7 @@ static CUSTOMVERTEX TileVertices[4 * NUM_OF_ROW * NUM_OF_COLUMN];
 static CUSTOMVERTEX WallVertices[4][4 * NUM_OF_ROW];
 static CUSTOMVERTEX WallVertices2[4][4 * NUM_OF_ROW];
 
-static CUSTOMVERTEX LabyrinthWallVertices[72][20];
+static CUSTOMVERTEX MazeWallVertices[72][20];
 
 static WORD wTileIndices[2 * NUM_OF_ROW * NUM_OF_COLUMN][3];
 

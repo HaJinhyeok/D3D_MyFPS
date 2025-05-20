@@ -13,7 +13,7 @@ LPDIRECT3DVERTEXBUFFER9 g_pTileVB = NULL;
 LPDIRECT3DINDEXBUFFER9 g_pTileIB = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pWallVB = NULL;
 LPDIRECT3DVERTEXBUFFER9 g_pWallVB2 = NULL;
-LPDIRECT3DVERTEXBUFFER9 g_pLabyrinthVB = NULL;
+LPDIRECT3DVERTEXBUFFER9 g_pMazeVB = NULL;
 LPDIRECT3DTEXTURE9 g_pTileTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pWallTexture = NULL;
 LPDIRECT3DTEXTURE9 g_pGrassTexture = NULL;
@@ -33,7 +33,6 @@ LPPOINT g_pMidPoint = new POINT; // 마우스는 클라이언트 중앙으로 고정
 LPPOINT g_pMouse = new POINT;
 LPPOINT g_pCurrentMouse = new POINT; // 마우스 이동 시, 이동한 좌표 받아올 임시 마우스 좌표
 
-// LPDIRECT3DSURFACE9 z_buffer = NULL;
 D3DMATERIAL9 material;
 D3DLIGHT9 skyLight;
 
@@ -71,8 +70,6 @@ HRESULT InitD3D(HWND hWnd)
 
 	if (FAILED(g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &g_pd3dDevice)))
 		return E_FAIL;
-
-	//g_pd3dDevice->CreateDepthStencilSurface(700, 700, D3DFMT_D16, D3DMULTISAMPLE_NONE, 0, TRUE, &z_buffer, NULL);
 
 	g_pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 	g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
@@ -134,13 +131,12 @@ VOID InitGeometry()
 	D3DXCreateCubeTextureFromFile(g_pd3dDevice, TEXTURE_SKYBOX, &g_pSkyboxTexture);
 
 	//// 미궁 내 벽을 구성할 vertex들의 buffer 생성
-	//LabyrinthWallVertices = MakeLabyrinth(1);
-	MakeLabyrinth(1, LabyrinthWallVertices, &notice, &Exit);
-	g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 72 * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pLabyrinthVB, NULL);
-	VOID** LabyrinthVertices;
-	g_pLabyrinthVB->Lock(0, sizeof(CUSTOMVERTEX) * 72 * 20, (void**)&LabyrinthVertices, 0);
-	memcpy(LabyrinthVertices, LabyrinthWallVertices, sizeof(CUSTOMVERTEX) * 72 * 20);
-	g_pLabyrinthVB->Unlock();
+	GenerateMazeWall(1, MazeWallVertices, &notice, &Exit);
+	g_pd3dDevice->CreateVertexBuffer(sizeof(CUSTOMVERTEX) * 72 * 20, 0, D3DFVF_CUSTOMVERTEX, D3DPOOL_DEFAULT, &g_pMazeVB, NULL);
+	VOID** MazeVertices;
+	g_pMazeVB->Lock(0, sizeof(CUSTOMVERTEX) * 72 * 20, (void**)&MazeVertices, 0);
+	memcpy(MazeVertices, MazeWallVertices, sizeof(CUSTOMVERTEX) * 72 * 20);
+	g_pMazeVB->Unlock();
 
 	//// Notice를 구성하는 vertex buffer 생성
 	for (i = 0; i < notice[0].GetNumOfNotice(); i++)
@@ -200,7 +196,7 @@ VOID InitGeometry()
 	memcpy(pIndices2, wTileIndices, sizeof(wTileIndices));
 	g_pTileIB->Unlock();
 
-	//// wall vertex 좌표 입력
+	//// wall vertex 좌표 입력 - 맵 외곽
 	{
 		// 위쪽 면
 		for (i = 0; i < NUM_OF_ROW; i++)
@@ -274,7 +270,7 @@ VOID InitGeometry()
 		g_pWallVB->Unlock();
 	}
 
-	//// wall vertex 2 좌표 입력
+	//// wall vertex 2 좌표 입력 - 외곽 벽 뚜껑
 	{
 		// 위쪽 면
 		for (i = 0; i < NUM_OF_ROW; i++)
@@ -391,8 +387,8 @@ VOID CleanUp()
 	{
 		notice[i].ReleaseNoticeVB();
 	}
-	if (g_pLabyrinthVB != NULL)
-		g_pLabyrinthVB->Release();
+	if (g_pMazeVB != NULL)
+		g_pMazeVB->Release();
 	if (g_pWallVB2 != NULL)
 		g_pWallVB2->Release();
 	if (g_pWallVB != NULL)
@@ -632,12 +628,10 @@ VOID Render()
 			D3DXMATRIX mtViewTMP;
 			D3DXMatrixLookAtLH(&mtViewTMP, &v3CurrentPosition, &v3CurrentLookAt, &v3Up);
 			D3DXMatrixMultiply(&mtViewProjection, &mtViewTMP, &mtProjection);
-			// D3DXMatrixMultiply(&mtViewProjection, &mtProjection, &mtViewTMP);
 		}
 		else
 		{
 			D3DXMatrixMultiply(&mtViewProjection, &mtView, &mtProjection);
-			// D3DXMatrixMultiply(&mtViewProjection, &mtProjection, &mtView);
 		}
 		g_pFrustum->MakeFrustum(&mtViewProjection);
 
@@ -654,10 +648,11 @@ VOID Render()
 			// frustum plane과 사각형 단위로 비교한다
 			// 네 꼭짓점 중 하나라도 inside이면 rendering한다.
 			// 그냥 원 검사하는 방식으로 변경
+			//// tile culling
 			for (i = 0; i < NUM_OF_ROW * NUM_OF_COLUMN; i++)
 			{
 				v3TileCenter = CalculateMidPoint(TileVertices[i * 4].v3VerPos, TileVertices[i * 4 + 2].v3VerPos);
-				if (g_pFrustum->IsInFrustum(&v3TileCenter, LENGTH_OF_TILE / 2 * sqrtf(2.0f)) == TRUE)
+				if (g_pFrustum->IsInFrustum(&v3TileCenter, LENGTH_OF_TILE / 2 * SQRT2) == TRUE)
 				{
 					g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
 				}
@@ -666,22 +661,36 @@ VOID Render()
 			//// wall rendering
 			g_pd3dDevice->SetTexture(0, g_pWallTexture);
 			g_pd3dDevice->SetStreamSource(0, g_pWallVB, 0, sizeof(CUSTOMVERTEX));
-			//// wall culling도 추후 필요
+			//// wall_outside culling
 			for (i = 0; i < NUM_OF_ROW * 4; i++)
 			{
-				g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+				v3TileCenter = CalculateMidPoint(WallVertices[i / NUM_OF_ROW][(i * 4) % (NUM_OF_ROW * 4)].v3VerPos, WallVertices[i / NUM_OF_ROW][(i * 4) % (NUM_OF_ROW * 4) + 2].v3VerPos);
+				if (g_pFrustum->IsInFrustum(&v3TileCenter, LENGTH_OF_TILE / 2 * SQRT2) == TRUE)
+				{
+					g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+				}
 			}
+			//// wall_outside_upper culling
 			g_pd3dDevice->SetStreamSource(0, g_pWallVB2, 0, sizeof(CUSTOMVERTEX));
 			for (i = 0; i < NUM_OF_ROW * 4; i++)
 			{
-				g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+				v3TileCenter = CalculateMidPoint(WallVertices2[i / NUM_OF_ROW][(i * 4) % (NUM_OF_ROW * 4)].v3VerPos, WallVertices2[i / NUM_OF_ROW][(i * 4) % (NUM_OF_ROW * 4) + 2].v3VerPos);
+				if (g_pFrustum->IsInFrustum(&v3TileCenter, LENGTH_OF_TILE / 2 * SQRT2) == TRUE)
+				{
+					g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 4, 2);
+				}
 			}
-			g_pd3dDevice->SetStreamSource(0, g_pLabyrinthVB, 0, sizeof(CUSTOMVERTEX));
+			//// wall_inside culling
+			g_pd3dDevice->SetStreamSource(0, g_pMazeVB, 0, sizeof(CUSTOMVERTEX));
 			for (i = 0; i < 72; i++)
 			{
 				for (j = 0; j < 5; j++)
 				{
-					g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 20 + j * 4, 2);
+					v3TileCenter = CalculateMidPoint(MazeWallVertices[i][j * 4].v3VerPos, MazeWallVertices[i][j * 4 + 2].v3VerPos);
+					if (g_pFrustum->IsInFrustum(&v3TileCenter, LENGTH_OF_TILE / 2 * SQRT2) == TRUE)
+					{
+						g_pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, i * 20 + j * 4, 2);
+					}
 				}
 			}
 		}
@@ -806,14 +815,11 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		g_pMouse->x = LOWORD(lParam);
 		g_pMouse->y = HIWORD(lParam);
 		bIsClicked = TRUE;
-		/*wsprintf(testSTR, "current X: %d, current Y: %d\n", g_pMouse->x, g_pMouse->y);
-		OutputDebugString(testSTR);*/
 		if (!bIsPlaying || bIsPaused)
 		{
 			if (PtInRect(&rtExitButton, *g_pMouse))
 			{
 				Exit.ButtonPressed();
-				//OutputDebugString("Clicked");
 			}
 		}
 		break;

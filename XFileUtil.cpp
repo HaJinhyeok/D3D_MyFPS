@@ -25,6 +25,16 @@ CXFileUtil::CXFileUtil(D3DXVECTOR3 position)
 }
 CXFileUtil::~CXFileUtil()
 {
+	delete g_pMeshMaterials;
+	if (g_pMesh != NULL)
+		g_pMesh->Release();
+	if (g_pMeshTextures != NULL)
+	{
+		for (DWORD i = 0; i < g_dwNumMaterials; i++)
+		{
+			g_pMeshTextures[i]->Release();
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------
@@ -58,8 +68,8 @@ int CXFileUtil::XFileLoad(LPDIRECT3DDEVICE9 pD3DDevice, char* xFileName)
 	}
 	// x 파일 로딩 코드
 	D3DXMATERIAL* d3dxMaterials = (D3DXMATERIAL*)pD3DXMtrlBuffer->GetBufferPointer();
-	g_pMeshMaterials    = new D3DMATERIAL9[g_dwNumMaterials];
-	g_pMeshTextures     = new LPDIRECT3DTEXTURE9[g_dwNumMaterials];
+	g_pMeshMaterials = new D3DMATERIAL9[g_dwNumMaterials];
+	g_pMeshTextures = new LPDIRECT3DTEXTURE9[g_dwNumMaterials];
 	for (DWORD i = 0; i < g_dwNumMaterials; i++)
 	{
 		// 재질 복사
@@ -201,7 +211,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 							m_IsWallOpen[3] = TRUE;
 						}
 					}
-					
+
 					// 진행 방향이 막혀있을 경우
 					// 진행 방향이 열려있고, 왼쪽과 오른쪽이 막혀있을 경우 == 일단은 그냥 직진
 					// 진행 방향이 열려있고, 왼쪽 또는 오른쪽도 열려있을 경우 == 일단은 회전, 몇 갈래인지 카운트해서 랜덤하게 회전시켜 진행
@@ -239,7 +249,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 								m_RotationCount++;
 							}
 						}
-						else 
+						else
 						{
 							if (!m_IsWallOpen[0] && !m_IsWallOpen[1])
 							{
@@ -567,7 +577,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 						}
 					}
 				}
-				
+
 			}
 		}
 		if (m_RotationAmount == 90)
@@ -592,7 +602,7 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 			D3DXMatrixMultiply(&m_TigerWorld, &m_TigerWorld, &tmpTranslation);
 			m_CurrentTime = currentTime;
 		}
-		
+
 	}
 }
 // 90도 회전시키고 나서 벡터값 조정이 필요할 듯
