@@ -602,7 +602,6 @@ VOID CXFileUtil::Move(const char(*map)[NUM_OF_COLUMN + 1])
 			D3DXMatrixMultiply(&m_TigerWorld, &m_TigerWorld, &tmpTranslation);
 			m_CurrentTime = currentTime;
 		}
-
 	}
 }
 // 90도 회전시키고 나서 벡터값 조정이 필요할 듯

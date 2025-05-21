@@ -7,7 +7,6 @@
 class CPlayer
 {
 private:
-	//D3DXVECTOR3 m_Position;
 	D3DXVECTOR3 m_LookAt;
 	D3DXMATRIX m_PlayerWorld; // x, y, z축 정보 + position 정보
 	BOOL m_IsLightOn;
@@ -15,7 +14,7 @@ private:
 	deque<Bullet> m_Bullet;
 	DWORD m_CurrentMoveTime;
 	DWORD m_CurrentRotateTime;
-	const FLOAT m_BulletVelocity = 0.1f; // 1초당 20만큼 == 1ms에 0.02f
+	const FLOAT m_BulletVelocity = 0.1f; 
 	// const WORD m_RPM = 600;
 	// 플레이어가 발사한 총알 객체를 하나하나 다 갖고 있는게 아니라,
 	// 위치값만 갖고 있다가 매 프레임마다 위치에 총알 그림 그려주면 되지 않을까?
@@ -29,7 +28,6 @@ public:
 
 	VOID SetPosition(D3DXVECTOR3 position)
 	{
-		//m_Position = position;
 		m_PlayerWorld._41 = position.x;
 		m_PlayerWorld._42 = position.y;
 		m_PlayerWorld._43 = position.z;

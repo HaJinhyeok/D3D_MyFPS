@@ -47,6 +47,7 @@ VOID GenerateMazeWall(int nMapNumber, CUSTOMVERTEX(*Maze)[20], vector<CNotice>* 
             }
         }
     }
+    // 추후 맵 추가 생각
     else
         return;
 }

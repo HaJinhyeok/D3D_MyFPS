@@ -132,7 +132,8 @@ const static D3DXVECTOR3 v3EyeCeiling(0.0f, 200.0f, 0.0f);
 const static D3DXVECTOR3 v3UpCeiling(0.0f, 0.0f, 1.0f);
 
 // 맵의 정보를 2차원 배열 형태로 저장
-const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
+const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = 
+{
     "X   *@ * @* ",
     "*** ** * ** ",
     " @* ** * ** ",
@@ -148,6 +149,7 @@ const static char chMap1[NUM_OF_ROW][NUM_OF_COLUMN + 1] = {
     " * **** *** ",
     "@*@*        "
 };
+
 static char chFileName[] = "tiger.x";
 
 // 시점 변환 확인 변수
