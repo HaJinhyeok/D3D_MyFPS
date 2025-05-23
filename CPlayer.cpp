@@ -336,7 +336,6 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
 		// up vector와 player가 바라보는 방향 vector 사이의 각도 구하기
 		FLOAT fAngle = CalculateAngle(v3Up, D3DXVECTOR3(m_PlayerWorld._31, m_PlayerWorld._32, m_PlayerWorld._33));
 
-		//v3RotationAxis = D3DXVECTOR3(m_PlayerWorld._11, m_PlayerWorld._12, m_PlayerWorld._13);
 		v3RotationAxis = D3DXVECTOR3(m_PlayerWorld._11, 0, m_PlayerWorld._13);
 		// 아래
 		if (bIsCCW == TRUE)
@@ -348,7 +347,6 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
 				D3DXMatrixMultiply(&m_PlayerWorld, &m_PlayerWorld, &mtTranslation);
 				return;
 			}
-			//D3DXMatrixRotationX(&mtRotation, angle);
 			D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, angle);
 		}
 		// 위
@@ -361,7 +359,6 @@ VOID CPlayer::Rotate(BOOL bIsCCW, BOOL bIsUpDown, FLOAT angle)
 				D3DXMatrixMultiply(&m_PlayerWorld, &m_PlayerWorld, &mtTranslation);
 				return;
 			}
-			//D3DXMatrixRotationX(&mtRotation, -angle);
 			D3DXMatrixRotationAxis(&mtRotation, &v3RotationAxis, -angle);
 		}
 	}
